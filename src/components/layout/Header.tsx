@@ -29,9 +29,9 @@ const Header = () => {
 
         {/* Icons */}
         <div className="flex items-center gap-4">
-          <a href="#" className="hover:text-gray-200">
+          <Link href="/cart" className="hover:text-gray-200">
             <FaShoppingCart />
-          </a>
+          </Link>
           <ModeToggle />
         </div>
       </div>
