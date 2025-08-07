@@ -64,32 +64,49 @@ const featuredCategories = [
     id: 1,
     name: "Electronics",
     image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+      "/home/category1.jpg",
   },
   {
     id: 2,
     name: "Clothing",
     image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+      "/home/category2.jpg",
   },
   {
     id: 3,
     name: "Home & Kitchen",
     image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
-  },
-];
-
-const deals = [
-  {
-    id: 1,
-    title: "50% off on all headphones!",
-    description: "Limited time offer on select wireless headphones.",
+      "/home/category3.jpg",
   },
   {
-    id: 2,
-    title: "Buy 1 Get 1 Free: T-Shirts",
-    description: "Exclusive deal on all t-shirt brands.",
+    id: 4,
+    name: "Sports & Fitness",
+    image:
+      "/home/category4.jpg",
+  },
+  {
+    id: 5,
+    name: "Books & Media",
+    image:
+      "/home/category5.jpg",
+  },
+  {
+    id: 6,
+    name: "Beauty & Health",
+    image:
+      "/home/category6.jpg",
+  },
+  {
+    id: 7,
+    name: "Toys & Games",
+    image:
+      "/home/category7.jpg",
+  },
+  {
+    id: 8,
+    name: "Automotive",
+    image:
+      "/home/category8.jpg",
   },
 ];
 
@@ -103,7 +120,6 @@ function Page() {
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-12 bg-white dark:bg-black transition-colors">
-        {/* ✅ Native Autoplay Carousel */}
         <Carousel plugins={[autoplayPlugin.current]} opts={{ loop: true }}>
           <CarouselContent>
             {images.map((img, i) => (
@@ -120,7 +136,6 @@ function Page() {
           </CarouselContent>
         </Carousel>
 
-        {/* Banner */}
         <Image
           src={"/home/banner.jpg"}
           alt={"banner"}
@@ -159,22 +174,22 @@ function Page() {
         {/* Featured Categories */}
         <section>
           <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
-            Featured Categories
+            Categories
           </h2>
-          <div className="flex flex-wrap gap-6 justify-center md:justify-start">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {featuredCategories.map((cat) => (
               <div
                 key={cat.id}
-                className="relative rounded overflow-hidden cursor-pointer hover:scale-105 transition-transform shadow-md w-[300px]"
+                className="relative rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform shadow-md"
               >
                 <Image
                   src={cat.image}
                   alt={cat.name}
                   width={300}
-                  height={160}
-                  className="w-full h-40 object-cover"
+                  height={200}
+                  className="w-full h-32 object-cover"
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-2 font-semibold">
+                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-2 font-semibold text-sm">
                   {cat.name}
                 </div>
               </div>
@@ -182,25 +197,14 @@ function Page() {
           </div>
         </section>
 
-        {/* Deals Section */}
         <section>
-          <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
-            Deals & Offers
-          </h2>
-          <div className="space-y-4 max-w-3xl mx-auto">
-            {deals.map((deal) => (
-              <div
-                key={deal.id}
-                className="border-l-4 border-[#f85606] bg-orange-50 dark:bg-orange-900 dark:text-white p-4 rounded shadow-sm"
-              >
-                <h3 className="font-semibold text-lg">{deal.title}</h3>
-                <p className="text-gray-700 dark:text-gray-300">
-                  {deal.description}
-                </p>
-              </div>
-            ))}
+          <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Just For You</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            
           </div>
+
         </section>
+       
       </main>
 
       <Footer />

@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Navbar from "./Navbar";
-import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
+import { FaSearch, FaShoppingCart } from "react-icons/fa";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 
 const Header = () => {
@@ -10,8 +10,12 @@ const Header = () => {
       <Navbar />
 
       <div className="bg-[#f85606] px-4 py-4 flex items-center justify-between">
-        <div className="text-white font-bold text-xl">Ecommerce website</div>
+        {/* Title - now redirects to home */}
+        <Link href="/" className="text-white font-bold text-xl ">
+          Ecommerce website
+        </Link>
 
+        {/* Search Bar */}
         <div className="flex flex-1 max-w-xl mx-6">
           <input
             type="text"
@@ -23,11 +27,12 @@ const Header = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-4 ">
+        {/* Icons */}
+        <div className="flex items-center gap-4">
           <a href="#" className="hover:text-gray-200">
             <FaShoppingCart />
           </a>
-              <ModeToggle />
+          <ModeToggle />
         </div>
       </div>
     </header>
