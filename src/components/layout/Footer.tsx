@@ -1,4 +1,6 @@
-import React from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFacebook, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import Link from 'next/link';
 
 function Footer() {
   return (
@@ -18,35 +20,26 @@ function Footer() {
 
         {/* Navigation Links */}
         <nav className="flex flex-col space-y-2 text-sm text-white/90">
-          <a href="#" className="hover:underline">
-            Home
-          </a>
-          <a href="#" className="hover:underline">
-            About Us
-          </a>
-          <a href="#" className="hover:underline">
-            Services
-          </a>
-          <a href="#" className="hover:underline">
-            Contact
-          </a>
-          <a href="#" className="hover:underline">
-            Privacy Policy
-          </a>
+          <Link href="/" className="hover:underline">Home</Link>
+          <Link href="/about" className="hover:underline">About Us</Link>
+          <Link href="/services" className="hover:underline">Services</Link>
+          <Link href="/contact" className="hover:underline">Contact</Link>
+          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
         </nav>
 
+        {/* Social Icons */}
         <div className="flex space-x-4 text-2xl">
-          <a href="#" aria-label="Facebook" className="hover:text-white/80">
-            facebook
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-gray-200 transition-colors">
+            <FontAwesomeIcon icon={faFacebook} />
           </a>
-          <a href="#" aria-label="Twitter" className="hover:text-white/80">
-            twitter
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="hover:text-gray-200 transition-colors">
+            <FontAwesomeIcon icon={faTwitter} />
           </a>
-          <a href="#" aria-label="Instagram" className="hover:text-white/80">
-            instagram
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-gray-200 transition-colors">
+            <FontAwesomeIcon icon={faInstagram} />
           </a>
-          <a href="#" aria-label="LinkedIn" className="hover:text-white/80">
-            linkedin
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="hover:text-gray-200 transition-colors">
+            <FontAwesomeIcon icon={faLinkedin} />
           </a>
         </div>
       </div>

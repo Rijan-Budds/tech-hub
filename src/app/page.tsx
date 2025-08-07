@@ -6,7 +6,6 @@ import Link from 'next/link'
 
 import Header from '../components/layout/Header'
 import Footer from '../components/layout/Footer'
-import { ModeToggle } from '@/components/ui/mode-toggle'
 
 const trendingProducts = [
   {
@@ -64,9 +63,7 @@ function Page() {
       <Header />
 
       {/* Theme toggle button */}
-      <div className="flex justify-end px-4 mt-4">
-        <ModeToggle />
-      </div>
+
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-12 bg-white dark:bg-black transition-colors">
 

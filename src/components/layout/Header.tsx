@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Navbar from "./Navbar";
 import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
+import { ModeToggle } from "@/components/ui/mode-toggle";
 
 const Header = () => {
   return (
@@ -22,10 +23,11 @@ const Header = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-4 text-white">
+        <div className="flex items-center gap-4 ">
           <a href="#" className="hover:text-gray-200">
             <FaShoppingCart />
           </a>
+              <ModeToggle />
         </div>
       </div>
     </header>

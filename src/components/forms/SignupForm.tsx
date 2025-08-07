@@ -4,16 +4,17 @@ import React from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 
-interface LoginFormProps {
-  onSubmit: (values: { email: string; password: string }) => void;
+interface SignupFormProps {
+  onSubmit: (values: { name: string; email: string; password: string }) => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => (
+const SignupForm: React.FC<SignupFormProps> = ({ onSubmit }) => (
   <>
-    <h2 className="text-xl font-bold mb-4 text-center">Login</h2>
+    <h2 className="text-xl font-bold mb-4 text-center">Sign Up</h2>
     <Formik
-      initialValues={{ email: '', password: '' }}
+      initialValues={{ name: '', email: '', password: '' }}
       validationSchema={Yup.object({
+        name: Yup.string().required('Name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         password: Yup.string()
           .min(6, 'Password must be at least 6 characters')
@@ -23,6 +24,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => (
     >
       {(formik) => (
         <form onSubmit={formik.handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium">Name</label>
+            <input
+              type="text"
+              name="name"
+              className="w-full border border-gray-300 p-2 rounded"
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              placeholder="username"
+            />
+            {formik.touched.name && formik.errors.name && (
+              <p className="text-sm text-red-600">{formik.errors.name}</p>
+            )}
+          </div>
           <div className="mb-4">
             <label className="block text-sm font-medium">Email</label>
             <input
@@ -55,7 +70,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => (
             type="submit"
             className="w-full bg-[#f85606] text-white p-2 rounded hover:bg-[#e94c00]"
           >
-            Log In
+            Sign Up
           </button>
         </form>
       )}
@@ -63,4 +78,4 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => (
   </>
 );
 
-export default LoginForm;
+export default SignupForm;
