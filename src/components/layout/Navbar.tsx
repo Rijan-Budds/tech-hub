@@ -9,6 +9,7 @@ interface CurrentUser {
   id: string;
   email: string;
   username: string;
+  role?: 'user' | 'admin';
 }
 
 const Navbar = () => {
@@ -64,6 +65,9 @@ const Navbar = () => {
       <div className="bg-[#f85606] text-sm text-white px-4 py-2 flex justify-end gap-4">
         {currentUser ? (
           <div className="flex items-center gap-3">
+            {currentUser.role === 'admin' && (
+              <Link href="/admin" className="hover:underline">Admin</Link>
+            )}
             <span className="opacity-90">Hi, {currentUser.username}</span>
             <Link href="/profile" className="hover:underline">Profile</Link>
             <button onClick={handleLogout} className="hover:underline">Logout</button>

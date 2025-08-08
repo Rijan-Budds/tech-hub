@@ -1,48 +1,12 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
-const trendingProducts = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    price: "$59.99",
-    slug: "wireless-headphones",
-    description:
-      "High-quality wireless headphones with noise cancellation and up to 20 hours of playtime.",
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    name: "Smart Watch",
-    price: "$129.99",
-    slug: "smart-watch",
-    description:
-      "Stylish smartwatch with heart-rate monitor and fitness tracking features.",
-    image:
-      "https://images.unsplash.com/photo-1517433456452-f9633a875f6f?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 3,
-    name: "Gaming Mouse",
-    price: "$39.99",
-    slug: "gaming-mouse",
-    description:
-      "Ergonomic gaming mouse with customizable buttons and RGB lighting.",
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 4,
-    name: "Bluetooth Speaker",
-    price: "$49.99",
-    slug: "bluetooth-speaker",
-    description:
-      "Portable Bluetooth speaker with rich bass and waterproof design.",
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
-  },
-];
+async function fetchProduct(slug: string) {
+  const res = await fetch(`http://localhost:5000/products/${slug}`, { cache: 'no-store' })
+  if (!res.ok) return null
+  const data = await res.json()
+  return data.product as { id: string; name: string; price: number; slug: string; image: string; category: string }
+}
 
 export default async function ProductDetailPage({
   params,
@@ -50,8 +14,7 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = trendingProducts.find((p) => p.slug === slug);
-
+  const product = await fetchProduct(slug)
   if (!product) return notFound();
 
   return (
@@ -64,10 +27,9 @@ export default async function ProductDetailPage({
         className="w-full h-96 object-cover rounded-lg mb-6"
       />
       <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-      <p className="text-xl text-orange-600 font-semibold mb-4">
-        {product.price}
-      </p>
-      <p className="text-gray-700 leading-relaxed">{product.description}</p>
+      <p className="text-sm text-gray-500 mb-2 capitalize">Category: {product.category.replace('-', ' ')}</p>
+      <p className="text-xl text-orange-600 font-semibold mb-4">${product.price.toFixed(2)}</p>
+      <p className="text-gray-700 leading-relaxed">Great product from our {product.category.replace('-', ' ')} collection.</p>
     </div>
   );
 }
