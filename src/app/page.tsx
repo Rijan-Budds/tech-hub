@@ -14,13 +14,33 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 
-// Carousel images
-const images = [
-  "/home/slider1.jpg",
-  "/home/slider2.jpg",
-  "/home/slider3.jpg",
-  "/home/slider4.jpg",
-  "/home/slider5.jpg",
+// Carousel images with their corresponding category slugs
+const sliderData = [
+  {
+    image: "/home/slider1.jpg",
+    categorySlug: "electronics",
+    alt: "Electronics"
+  },
+  {
+    image: "/home/slider2.jpg", 
+    categorySlug: "beauty-health",
+    alt: "Clothing"
+  },
+  {
+    image: "/home/slider3.jpg",
+    categorySlug: "clothing", 
+    alt: "Clothing"
+  },
+  {
+    image: "/home/slider4.jpg",
+    categorySlug: "sports-fitness",
+    alt: "Sports & Fitness"
+  },
+  {
+    image: "/home/slider5.jpg",
+    categorySlug: "automotive",
+    alt: "Automotive"
+  },
 ];
 
 // Dummy Data
@@ -123,15 +143,17 @@ function Page() {
         {/* Carousel */}
         <Carousel plugins={[autoplayPlugin.current]} opts={{ loop: true }}>
           <CarouselContent>
-            {images.map((img, i) => (
+            {sliderData.map((slider, i) => (
               <CarouselItem key={i} className="basis-full">
-                <Image
-                  src={img}
-                  alt={`slider${i + 1}`}
-                  width={1200}
-                  height={400}
-                  className="w-full h-64 object-cover object-center mb-4 rounded"
-                />
+                <Link href={`/categories/${slider.categorySlug}`}>
+                  <Image
+                    src={slider.image}
+                    alt={slider.alt}
+                    width={1200}
+                    height={400}
+                    className="w-full h-64 object-cover object-center mb-4 rounded cursor-pointer hover:opacity-90 transition-opacity"
+                  />
+                </Link>
               </CarouselItem>
             ))}
           </CarouselContent>
