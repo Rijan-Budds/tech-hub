@@ -1,31 +1,79 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import LoginForm from '../forms/LoginForm';
 import SignupForm from '../forms/SignupForm';
 
+interface CurrentUser {
+  id: string;
+  email: string;
+  username: string;
+}
+
 const Navbar = () => {
   const [modalType, setModalType] = useState<null | 'login' | 'signup'>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const closeModal = () => setModalType(null);
 
+  useEffect(() => {
+    const loadMe = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/me', { credentials: 'include' });
+        const data = await res.json();
+        setCurrentUser(data.user);
+      } catch (e) {
+        setCurrentUser(null);
+      }
+    };
+    loadMe();
+  }, []);
+
   const handleLoginSubmit = (values: { email: string; password: string }) => {
-    console.log('Login submitted:', values);
+    // After LoginForm success, refetch me
+    fetch('http://localhost:5000/me', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((d) => setCurrentUser(d.user))
+      .catch(() => setCurrentUser(null));
     closeModal();
-    // Call login API here
   };
 
   const handleSignupSubmit = (values: { name: string; email: string; password: string }) => {
-    console.log('Signup submitted:', values);
+    // After SignupForm success, refetch me
+    fetch('http://localhost:5000/me', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((d) => setCurrentUser(d.user))
+      .catch(() => setCurrentUser(null));
     closeModal();
-    // Call signup API here
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:5000/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      setCurrentUser(null);
+    } catch (e) {
+      // ignore
+    }
   };
 
   return (
     <>
       <div className="bg-[#f85606] text-sm text-white px-4 py-2 flex justify-end gap-4">
-        <button onClick={() => setModalType('login')} className="hover:underline">LOGIN</button>
-        <button onClick={() => setModalType('signup')} className="hover:underline">SIGN UP</button>
+        {currentUser ? (
+          <div className="flex items-center gap-3">
+            <span className="opacity-90">Hi, {currentUser.username}</span>
+            <Link href="/profile" className="hover:underline">Profile</Link>
+            <button onClick={handleLogout} className="hover:underline">Logout</button>
+          </div>
+        ) : (
+          <>
+            <button onClick={() => setModalType('login')} className="hover:underline">LOGIN</button>
+            <button onClick={() => setModalType('signup')} className="hover:underline">SIGN UP</button>
+          </>
+        )}
       </div>
 
       {modalType && (
@@ -34,12 +82,12 @@ const Navbar = () => {
           onClick={closeModal}
         >
           <div
-            className="bg-white text-black p-6 rounded shadow-md w-96 relative transition-transform duration-300 ease-in-out scale-100"
+            className="bg-white dark:bg-gray-900 text-black dark:text-white p-6 rounded shadow-md w-96 relative transition-transform duration-300 ease-in-out scale-100"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={closeModal}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+              className="absolute top-2 right-2 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
             >
               ✕
             </button>
@@ -47,7 +95,7 @@ const Navbar = () => {
             {modalType === 'login' ? (
               <>
                 <LoginForm onSubmit={handleLoginSubmit} />
-                <p className="mt-4 text-sm text-center">
+                <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
                   Don't have an account?{' '}
                   <button
                     onClick={() => setModalType('signup')}
@@ -60,7 +108,7 @@ const Navbar = () => {
             ) : (
               <>
                 <SignupForm onSubmit={handleSignupSubmit} />
-                <p className="mt-4 text-sm text-center">
+                <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
                   Already have an account?{' '}
                   <button
                     onClick={() => setModalType('login')}

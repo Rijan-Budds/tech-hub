@@ -31,6 +31,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
       const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           username: values.name,
           email: values.email,
@@ -56,8 +57,8 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Sign Up</h2>
+    <>
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">Sign Up</h2>
 
       <Formik
         initialValues={{
@@ -73,14 +74,14 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
           <Form className="space-y-4">
             {/* Full Name */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Full Name
               </label>
               <Field
                 type="text"
                 name="name"
                 id="name"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
                 placeholder="Enter your full name"
               />
               <ErrorMessage
@@ -92,14 +93,14 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email
               </label>
               <Field
                 type="email"
                 name="email"
                 id="email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
                 placeholder="Enter your email"
               />
               <ErrorMessage
@@ -111,14 +112,14 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Password
               </label>
               <Field
                 type="password"
                 name="password"
                 id="password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
                 placeholder="Enter your password"
               />
               <ErrorMessage
@@ -130,14 +131,14 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Confirm Password
               </label>
               <Field
                 type="password"
                 name="confirmPassword"
                 id="confirmPassword"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
                 placeholder="Confirm your password"
               />
               <ErrorMessage
@@ -158,7 +159,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
           </Form>
         )}
       </Formik>
-    </div>
+    </>
   );
 };
 

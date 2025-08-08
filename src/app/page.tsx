@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -79,6 +80,14 @@ const trendingProducts = [
   },
 ];
 
+// Map slug to backend productId (for demo trending items)
+const slugToId: Record<string, string> = {
+  "wireless-headphones": "p1",
+  "smart-watch": "p2",
+  "gaming-mouse": "p3",
+  "bluetooth-speaker": "p4",
+};
+
 const featuredCategories = [
   {
     id: 1,
@@ -135,6 +144,40 @@ function Page() {
     Autoplay({ delay: 2000, stopOnInteraction: false })
   );
 
+  const handleAddToCart = async (slug: string) => {
+    const productId = slugToId[slug];
+    try {
+      const res = await fetch("http://localhost:5000/cart/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to add to cart");
+      toast.success("Added to cart");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to add to cart");
+    }
+  };
+
+  const handleToggleWishlist = async (slug: string) => {
+    const productId = slugToId[slug];
+    try {
+      const res = await fetch("http://localhost:5000/wishlist/toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ productId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update wishlist");
+      toast.success("Wishlist updated");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to update wishlist");
+    }
+  };
+
   return (
     <>
       <Header />
@@ -166,8 +209,8 @@ function Page() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {trendingProducts.map((product) => (
-              <Link key={product.id} href={`/product/${product.slug}`}>
-                <div className="border rounded-lg p-4 shadow hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-900 dark:text-white">
+              <div key={product.id} className="border rounded-lg p-4 shadow hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-900 dark:text-white">
+                <Link href={`/product/${product.slug}`}>
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -175,18 +218,23 @@ function Page() {
                     height={192}
                     className="w-full h-48 object-cover mb-4 rounded"
                   />
-                  <h3 className="font-semibold text-lg">{product.name}</h3>
-                  <p className="text-orange-600 font-bold">{product.price}</p>
-                  <button className="mt-3 w-full bg-[#f85606] text-white py-2 rounded hover:bg-[#e14e00] transition">
-                    View Details
+                </Link>
+                <h3 className="font-semibold text-lg">{product.name}</h3>
+                <p className="text-orange-600 font-bold">{product.price}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button onClick={() => handleAddToCart(product.slug)} className="w-full bg-[#f85606] text-white py-2 rounded hover:bg-[#e14e00] transition">
+                    Add to Cart
+                  </button>
+                  <button onClick={() => handleToggleWishlist(product.slug)} className="w-full border border-gray-300 dark:border-gray-700 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                    Wishlist
                   </button>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </section>
 
-        {/* Featured Categories */}
+        {/* Categories */}
         <section>
           <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
             Categories

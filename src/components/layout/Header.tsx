@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Navbar from "./Navbar";
-import { FaSearch, FaShoppingCart } from "react-icons/fa";
+import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 
 const Header = () => {
@@ -29,6 +29,9 @@ const Header = () => {
 
         {/* Icons */}
         <div className="flex items-center gap-4">
+          <Link href="/profile" className="hover:text-gray-200">
+            <FaUser />
+          </Link>
           <Link href="/cart" className="hover:text-gray-200">
             <FaShoppingCart />
           </Link>

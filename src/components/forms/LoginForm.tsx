@@ -25,6 +25,7 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(values),
       });
 
@@ -38,7 +39,7 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
           onSubmit(values);
         }
 
-        router.push('/cart'); // ✅ redirect to /cart
+        router.push('/profile');
       } else {
         alert(data.message || 'Login failed');
       }
@@ -52,7 +53,7 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   return (
     <>
-      <h2 className="text-xl font-bold mb-4 text-center">Login</h2>
+      <h2 className="text-xl font-bold mb-4 text-center text-gray-900 dark:text-white">Login</h2>
       <Formik
         initialValues={{ email: '', password: '' }}
         validationSchema={validationSchema}
@@ -62,14 +63,14 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
           <Form className="space-y-4">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email
               </label>
               <Field
                 type="email"
                 name="email"
                 id="email"
-                className="w-full border border-gray-300 p-2 rounded"
+                className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
                 placeholder="example@example.com"
               />
               <ErrorMessage
@@ -81,14 +82,14 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password
               </label>
               <Field
                 type="password"
                 name="password"
                 id="password"
-                className="w-full border border-gray-300 p-2 rounded"
+                className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
                 placeholder="********"
               />
               <ErrorMessage
