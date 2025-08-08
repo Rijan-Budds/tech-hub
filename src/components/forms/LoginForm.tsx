@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useRouter } from 'next/navigation'; // ✅ import useRouter
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
+import React from "react";
+import { useRouter } from "next/navigation"; // ✅ import useRouter
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 interface LoginFormProps {
   onSubmit?: (values: { email: string; password: string }) => void;
 }
 
 const validationSchema = Yup.object({
-  email: Yup.string().email('Invalid email').required('Required'),
-  password: Yup.string().required('Required'),
+  email: Yup.string().email("Invalid email").required("Required"),
+  password: Yup.string().required("Required"),
 });
 
 const LoginForm = ({ onSubmit }: LoginFormProps) => {
@@ -22,30 +22,34 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
     { setSubmitting, resetForm }: any
   ) => {
     try {
-      const response = await fetch('http://localhost:5000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(values),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.message || 'Login successful!');
+        alert(data.message || "Login successful!");
         resetForm();
 
         if (onSubmit) {
           onSubmit(values);
         }
 
-        router.push('/profile');
-      } else {
-        alert(data.message || 'Login failed');
+        const userRole = data.user?.role;
+
+        if (userRole === "admin") {
+          router.push("/admin");
+        } else {
+          router.push("/profile");
+        }
       }
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Something went wrong. Please try again.');
+      console.error("Login error:", error);
+      alert("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -53,9 +57,11 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   return (
     <>
-      <h2 className="text-xl font-bold mb-4 text-center text-gray-900 dark:text-white">Login</h2>
+      <h2 className="text-xl font-bold mb-4 text-center text-gray-900 dark:text-white">
+        Login
+      </h2>
       <Formik
-        initialValues={{ email: '', password: '' }}
+        initialValues={{ email: "", password: "" }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
@@ -63,7 +69,10 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
           <Form className="space-y-4">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Email
               </label>
               <Field
@@ -82,7 +91,10 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Password
               </label>
               <Field
@@ -105,7 +117,7 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
               disabled={isSubmitting}
               className="w-full bg-[#f85606] text-white p-2 rounded hover:bg-[#e94c00] disabled:opacity-50"
             >
-              {isSubmitting ? 'Logging in...' : 'Log In'}
+              {isSubmitting ? "Logging in..." : "Log In"}
             </button>
           </Form>
         )}

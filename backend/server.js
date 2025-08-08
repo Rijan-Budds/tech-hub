@@ -53,7 +53,6 @@ const orderSchema = new mongoose.Schema({
     address: {
       street: String,
       city: String,
-      country: String,
     },
   },
 });
@@ -362,8 +361,8 @@ app.get('/orders', requireAuth, async (req, res) => {
 app.post('/orders/checkout', requireAuth, async (req, res) => {
   const user = await User.findById(req.user.sub);
   const { name, email, address } = req.body || {};
-  if (!name || !email || !address?.city || !address?.country) {
-    return res.status(400).json({ message: 'name, email, city and country are required' });
+  if (!name || !email || !address?.city ) {
+    return res.status(400).json({ message: 'name, email, city are required' });
   }
   if (user.cart.length === 0) return res.status(400).json({ message: 'Cart is empty' });
 
@@ -387,7 +386,6 @@ app.post('/orders/checkout', requireAuth, async (req, res) => {
       address: {
         street: address?.street || '',
         city: address.city,
-        country: address.country,
       },
     },
   });
