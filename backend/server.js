@@ -4,6 +4,9 @@ import bcrypt from "bcryptjs";
 import cors from "cors"; // import cors
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const app = express();
 const port = 5000;
@@ -22,6 +25,34 @@ app.use(
 ); // enable CORS for Next.js dev server with credentials
 app.use(express.json()); // built-in JSON body parser
 app.use(cookieParser());
+
+// Ensure uploads directory exists and is served statically
+const uploadDir = path.resolve("uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use("/uploads", express.static(uploadDir));
+
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadDir),
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = path.extname(file.originalname || "");
+    cb(null, `${uniqueSuffix}${ext}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (_req, file, cb) => {
+    if (!file.mimetype || !file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed"));
+    }
+    cb(null, true);
+  },
+});
 
 // MongoDB connection - you can use MongoDB Atlas or local MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce';
@@ -123,6 +154,26 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+// Helper: slugify string and ensure uniqueness
+function slugify(text) {
+  return String(text)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function generateUniqueSlugFromName(name) {
+  const base = slugify(name || 'item');
+  let candidate = base || 'item';
+  let counter = 2;
+  while (products.find((p) => p.slug === candidate)) {
+    candidate = `${base}-${counter++}`;
+  }
+  return candidate;
+}
+
 app.get('/products', (req, res) => {
   const { category } = req.query;
   const list = category ? products.filter(p => p.category === category) : products;
@@ -138,6 +189,22 @@ app.get('/products/:slug', (req, res) => {
 // Shipping cities endpoint
 app.get('/shipping/cities', (_req, res) => {
   res.json({ cities: Object.keys(cityFees).map((name) => ({ name, fee: cityFees[name] })) })
+});
+
+// Image upload endpoint
+app.post('/upload', requireAuth, requireAdmin, (req, res, next) => {
+  upload.single('image')(req, res, function (err) {
+    if (err) {
+      return res.status(400).json({ message: err.message || 'Upload error' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const publicUrl = `/uploads/${req.file.filename}`;
+    // Provide absolute URL for convenience on the frontend
+    const absoluteUrl = `${req.protocol}://${req.get('host')}${publicUrl}`;
+    return res.status(201).json({ url: absoluteUrl, path: publicUrl });
+  });
 });
 
 app.post('/register', async (req, res) => {
@@ -281,9 +348,22 @@ app.patch('/admin/orders/:orderId', requireAuth, requireAdmin, async (req, res) 
 });
 
 app.post('/admin/products', requireAuth, requireAdmin, (req, res) => {
-  const { name, slug, price, category, image } = req.body || {};
-  if (!name || !slug || !price || !category || !image) return res.status(400).json({ message: 'Missing fields' });
-  if (products.find((p) => p.slug === slug)) return res.status(400).json({ message: 'Slug already exists' });
+  const { name, slug: incomingSlug, price, category, image } = req.body || {};
+  if (!name || price == null || !category || !image) {
+    return res.status(400).json({ message: 'Missing fields' });
+  }
+
+  let slug = (incomingSlug || '').toString().trim();
+  if (!slug) {
+    slug = generateUniqueSlugFromName(name);
+  } else {
+    slug = slugify(slug);
+    // Ensure uniqueness if client provided a conflicting slug
+    if (products.find((p) => p.slug === slug)) {
+      slug = generateUniqueSlugFromName(name);
+    }
+  }
+
   const nextId = `p${products.length + 1}`;
   const prod = { id: nextId, name, slug, price: Number(price), category, image };
   products.push(prod);

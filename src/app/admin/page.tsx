@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -9,6 +9,7 @@ interface User {
   username: string;
   email: string;
 }
+
 interface Order {
   orderId: string;
   userId: string;
@@ -32,11 +33,13 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("electronics");
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     const load = async () => {
@@ -49,10 +52,13 @@ export default function AdminPage() {
             credentials: "include",
           }),
         ]);
+
         if (uRes.status === 403) {
           toast.error("Forbidden: Admin only");
+          setLoading(false);
           return;
         }
+
         const uData = await uRes.json();
         const oData = await oRes.json();
         setUsers(uData.users || []);
@@ -79,6 +85,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update");
+
       setOrders((prev) =>
         prev.map((o) => (o.orderId === orderId ? { ...o, status } : o))
       );
@@ -89,7 +96,7 @@ export default function AdminPage() {
   };
 
   const addProduct = async () => {
-    if (!name || !slug || !price || !category || !image) {
+    if (!name || !price || !category || !image) {
       toast.error("Fill all fields");
       return;
     }
@@ -100,7 +107,6 @@ export default function AdminPage() {
         credentials: "include",
         body: JSON.stringify({
           name,
-          slug,
           price: Number(price),
           category,
           image,
@@ -110,7 +116,6 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to add product");
       toast.success("Product added");
       setName("");
-      setSlug("");
       setPrice("");
       setCategory("electronics");
       setImage("");
@@ -118,10 +123,6 @@ export default function AdminPage() {
       toast.error(e.message || "Failed to add product");
     }
   };
-
-  if (loading)
-    return <div className="max-w-6xl mx-auto px-4 py-8">Loading...</div>;
-  const router = useRouter();
 
   const handleLogout = async () => {
     await fetch("http://localhost:5000/logout", {
@@ -131,16 +132,48 @@ export default function AdminPage() {
     router.push("/");
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch("http://localhost:5000/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Upload failed");
+
+      setImage(data.url);
+      toast.success("Image uploaded successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (loading)
+    return <div className="max-w-6xl mx-auto px-4 py-8">Loading...</div>;
+
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-10">
-        <button
-          onClick={handleLogout}
-          className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]"
-        >
-          Logout
-        </button>
+      <button
+        onClick={handleLogout}
+        className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]"
+      >
+        Logout
+      </button>
+
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
 
+      {/* Users Section */}
       <section>
         <h2 className="text-xl font-semibold mb-2">Users</h2>
         <div className="overflow-x-auto border rounded">
@@ -163,6 +196,7 @@ export default function AdminPage() {
         </div>
       </section>
 
+      {/* Orders Section */}
       <section>
         <h2 className="text-xl font-semibold mb-2">Orders</h2>
         <div className="space-y-4">
@@ -194,7 +228,7 @@ export default function AdminPage() {
                 {o.deliveryFee !== undefined
                   ? o.deliveryFee.toFixed(2)
                   : "0.00"}{" "}
-                =
+                ={" "}
                 <span className="font-semibold">
                   $
                   {o.grandTotal !== undefined
@@ -228,6 +262,7 @@ export default function AdminPage() {
         </div>
       </section>
 
+      {/* Add Product Section */}
       <section>
         <h2 className="text-xl font-semibold mb-2">Add Product</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border rounded p-4 bg-white dark:bg-gray-900 dark:text-white">
@@ -237,40 +272,58 @@ export default function AdminPage() {
             onChange={(e) => setName(e.target.value)}
             className="border rounded px-3 py-2 bg-white dark:bg-gray-800"
           />
-          <input
-            placeholder="Slug"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="border rounded px-3 py-2 bg-white dark:bg-gray-800"
-          />
+          {/* Slug is auto-generated on the server from the product name */}
           <input
             placeholder="Price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             className="border rounded px-3 py-2 bg-white dark:bg-gray-800"
           />
-          <input
-            placeholder="Category"
+          <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="border rounded px-3 py-2 bg-white dark:bg-gray-800"
-          />
+          >
+            <option value="electronics">Electronics</option>
+            <option value="clothing">Clothing</option>
+            <option value="books-media">Books & Media</option>
+            <option value="home-kitchen">Home Kitchen</option>
+            <option value="sports-fitness">Sports-Fitness</option>
+            <option value="toys-games">Toys</option>
+            <option value="beauty-health">Beauty & health</option>
+            <option value="automotive">Automotive</option>
+            {/* Add or modify options as needed */}
+          </select>
+
+          {/* File input for image upload */}
           <input
-            placeholder="Image URL"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
             className="border rounded px-3 py-2 bg-white dark:bg-gray-800 md:col-span-2"
+            disabled={uploading}
           />
+
+          {/* Image preview */}
+          {image && (
+            <img
+              src={image}
+              alt="Uploaded preview"
+              className="w-40 h-40 object-cover rounded mt-2 md:col-span-2"
+            />
+          )}
+
+          {/* Add product button */}
           <div className="md:col-span-2">
             <button
               onClick={addProduct}
-              className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]"
+              disabled={uploading}
+              className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00] disabled:opacity-50"
             >
-              Add Product
+              {uploading ? "Uploading..." : "Add Product"}
             </button>
           </div>
         </div>
-        
       </section>
     </main>
   );
