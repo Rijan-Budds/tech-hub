@@ -63,50 +63,50 @@ const featuredCategories = [
   {
     id: 1,
     name: "Electronics",
-    image:
-      "/home/category1.jpg",
+    slug: "electronics",
+    image: "/home/category1.jpg",
   },
   {
     id: 2,
     name: "Clothing",
-    image:
-      "/home/category2.jpg",
+    slug: "clothing",
+    image: "/home/category2.jpg",
   },
   {
     id: 3,
     name: "Home & Kitchen",
-    image:
-      "/home/category3.jpg",
+    slug: "home-kitchen",
+    image: "/home/category3.jpg",
   },
   {
     id: 4,
     name: "Sports & Fitness",
-    image:
-      "/home/category4.jpg",
+    slug: "sports-fitness",
+    image: "/home/category4.jpg",
   },
   {
     id: 5,
     name: "Books & Media",
-    image:
-      "/home/category5.jpg",
+    slug: "books-media",
+    image: "/home/category5.jpg",
   },
   {
     id: 6,
     name: "Beauty & Health",
-    image:
-      "/home/category6.jpg",
+    slug: "beauty-health",
+    image: "/home/category6.jpg",
   },
   {
     id: 7,
     name: "Toys & Games",
-    image:
-      "/home/category7.jpg",
+    slug: "toys-games",
+    image: "/home/category7.jpg",
   },
   {
     id: 8,
     name: "Automotive",
-    image:
-      "/home/category8.jpg",
+    slug: "automotive",
+    image: "/home/category8.jpg",
   },
 ];
 
@@ -120,6 +120,7 @@ function Page() {
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-12 bg-white dark:bg-black transition-colors">
+        {/* Carousel */}
         <Carousel plugins={[autoplayPlugin.current]} opts={{ loop: true }}>
           <CarouselContent>
             {images.map((img, i) => (
@@ -135,14 +136,6 @@ function Page() {
             ))}
           </CarouselContent>
         </Carousel>
-
-        <Image
-          src={"/home/banner.jpg"}
-          alt={"banner"}
-          width={1200}
-          height={200}
-          className="w-full h-32 object-cover object-center mb-4 rounded"
-        />
 
         {/* Trending Products */}
         <section>
@@ -178,33 +171,24 @@ function Page() {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {featuredCategories.map((cat) => (
-              <div
-                key={cat.id}
-                className="relative rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform shadow-md"
-              >
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  width={300}
-                  height={200}
-                  className="w-full h-32 object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-2 font-semibold text-sm">
-                  {cat.name}
+              <Link key={cat.id} href={`/categories/${cat.slug}`}>
+                <div className="relative rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform shadow-md">
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    width={300}
+                    height={200}
+                    className="w-full h-32 object-cover"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-2 font-semibold text-sm">
+                    {cat.name}
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
 
-        <section>
-          <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Just For You</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            
-          </div>
-
-        </section>
-       
       </main>
 
       <Footer />
