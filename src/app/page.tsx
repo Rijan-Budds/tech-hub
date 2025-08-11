@@ -19,28 +19,23 @@ import {
 const sliderData = [
   {
     image: "/home/slider1.jpg",
-    categorySlug: "electronics",
-    alt: "Electronics"
+    categorySlug: "keyboard",
+    alt: "keyboard"
   },
   {
     image: "/home/slider2.jpg", 
-    categorySlug: "beauty-health",
-    alt: "Clothing"
+    categorySlug: "mouse",
+    alt: "Mouse"
   },
   {
     image: "/home/slider3.jpg",
-    categorySlug: "clothing", 
-    alt: "Clothing"
+    categorySlug: "speaker", 
+    alt: "Speaker"
   },
   {
     image: "/home/slider4.jpg",
-    categorySlug: "sports-fitness",
-    alt: "Sports & Fitness"
-  },
-  {
-    image: "/home/slider5.jpg",
-    categorySlug: "automotive",
-    alt: "Automotive"
+    categorySlug: "monitor",
+    alt: "Monitor"
   },
 ];
 
@@ -52,15 +47,15 @@ const trendingProducts = [
     price: "$59.99",
     slug: "wireless-headphones",
     image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+      "/home/slider4.jpg",
   },
   {
     id: 2,
-    name: "Smart Watch",
+    name: "Gaming Laptop",
     price: "$129.99",
-    slug: "smart-watch",
+    slug: "gaming-mouse",
     image:
-      "https://images.unsplash.com/photo-1517433456452-f9633a875f6f?auto=format&fit=crop&w=800&q=80",
+      "/home/slider1.jpg",
   },
   {
     id: 3,
@@ -68,15 +63,15 @@ const trendingProducts = [
     price: "$39.99",
     slug: "gaming-mouse",
     image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+      "/home/slider2.jpg",
   },
   {
     id: 4,
-    name: "Bluetooth Speaker",
+    name: "Gaming Speaker",
     price: "$49.99",
     slug: "bluetooth-speaker",
     image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+      "/home/slider3.jpg",
   },
 ];
 
@@ -91,51 +86,33 @@ const slugToId: Record<string, string> = {
 const featuredCategories = [
   {
     id: 1,
-    name: "Electronics",
-    slug: "electronics",
+    name: "CPUs",
+    slug: "cpu",
     image: "/home/category1.jpg",
   },
   {
     id: 2,
-    name: "Clothing",
-    slug: "clothing",
+    name: "Keyboard",
+    slug: "keyboard",
     image: "/home/category2.jpg",
   },
   {
     id: 3,
-    name: "Home & Kitchen",
-    slug: "home-kitchen",
+    name: "Monitor",
+    slug: "monitor",
     image: "/home/category3.jpg",
   },
   {
     id: 4,
-    name: "Sports & Fitness",
-    slug: "sports-fitness",
+    name: "Speakers",
+    slug: "speaker",
     image: "/home/category4.jpg",
   },
   {
     id: 5,
-    name: "Books & Media",
-    slug: "books-media",
+    name: "Mouse",
+    slug: "mouse",
     image: "/home/category5.jpg",
-  },
-  {
-    id: 6,
-    name: "Beauty & Health",
-    slug: "beauty-health",
-    image: "/home/category6.jpg",
-  },
-  {
-    id: 7,
-    name: "Toys & Games",
-    slug: "toys-games",
-    image: "/home/category7.jpg",
-  },
-  {
-    id: 8,
-    name: "Automotive",
-    slug: "automotive",
-    image: "/home/category8.jpg",
   },
 ];
 

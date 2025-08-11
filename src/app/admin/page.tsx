@@ -284,15 +284,11 @@ export default function AdminPage() {
             onChange={(e) => setCategory(e.target.value)}
             className="border rounded px-3 py-2 bg-white dark:bg-gray-800"
           >
-            <option value="electronics">Electronics</option>
-            <option value="clothing">Clothing</option>
-            <option value="books-media">Books & Media</option>
-            <option value="home-kitchen">Home Kitchen</option>
-            <option value="sports-fitness">Sports-Fitness</option>
-            <option value="toys-games">Toys</option>
-            <option value="beauty-health">Beauty & health</option>
-            <option value="automotive">Automotive</option>
-            {/* Add or modify options as needed */}
+            <option value="cpu">CPU</option>
+            <option value="keyboard">Keyboard</option>
+            <option value="monitor">Monitor</option>
+            <option value="speaker">Speaker</option>
+            <option value="mouse">Mouse</option>
           </select>
 
           {/* File input for image upload */}

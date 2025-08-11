@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import ProductActions from "./ProductActions"; // import client component
 
 async function fetchProduct(slug: string) {
   const res = await fetch(`http://localhost:5000/products/${slug}`, { cache: 'no-store' })
@@ -14,7 +15,7 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await fetchProduct(slug)
+  const product = await fetchProduct(slug);
   if (!product) return notFound();
 
   return (
@@ -30,6 +31,9 @@ export default async function ProductDetailPage({
       <p className="text-sm text-gray-500 mb-2 capitalize">Category: {product.category.replace('-', ' ')}</p>
       <p className="text-xl text-orange-600 font-semibold mb-4">${product.price.toFixed(2)}</p>
       <p className="text-gray-700 leading-relaxed">Great product from our {product.category.replace('-', ' ')} collection.</p>
+
+      {/* Render client component and pass correct props */}
+      <ProductActions productId={product.id} slug={product.slug} />
     </div>
   );
 }

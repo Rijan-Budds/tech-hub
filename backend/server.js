@@ -7,6 +7,9 @@ import cookieParser from "cookie-parser";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { config } from "dotenv";
+
+config();
 
 const app = express();
 const port = 5000;
@@ -55,7 +58,7 @@ const upload = multer({
 });
 
 // MongoDB connection - you can use MongoDB Atlas or local MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://rijanbuddhacharya:Rijan123@rijan.cmzjbaa.mongodb.net/ecommerce?retryWrites=true&w=majority&appName=Rijan';
 
 mongoose.connect(MONGODB_URI)
 .then(() => console.log('Connected to MongoDB'))
