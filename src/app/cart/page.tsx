@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -18,6 +19,7 @@ interface CityFee {
 }
 
 export default function CartPage() {
+  const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [cities, setCities] = useState<CityFee[]>([]);
@@ -55,7 +57,15 @@ export default function CartPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Checkout failed");
         toast.success("Order placed!");
+        const createdOrder = Array.isArray(data.orders)
+          ? data.orders[data.orders.length - 1]
+          : null;
         setItems([]);
+        if (createdOrder && createdOrder._id) {
+          router.push(`/orders/${createdOrder._id}`);
+        } else {
+          router.push("/profile");
+        }
       } catch (e: any) {
         toast.error(e.message || "Checkout failed");
       } finally {
@@ -101,11 +111,11 @@ export default function CartPage() {
   const grandTotal = subtotal + deliveryFee;
 
   const updateQuantity = async (productId: string, delta: number) => {
+    const current = items.find((it) => it.productId === productId);
+    const newQuantity = Math.max(1, (current?.quantity || 0) + delta);
     setItems((prev) =>
       prev.map((item) =>
-        item.productId === productId
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
+        item.productId === productId ? { ...item, quantity: newQuantity } : item
       )
     );
     try {
@@ -113,7 +123,7 @@ export default function CartPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ productId, quantity: delta }),
+        body: JSON.stringify({ productId, quantity: newQuantity }),
       });
     } catch (error) {
       toast.error("Failed to update quantity");
@@ -124,7 +134,7 @@ export default function CartPage() {
     setItems((prev) => prev.filter((item) => item.productId !== productId));
     try {
       await fetch("http://localhost:5000/cart/remove", {
-        method: "DELETE",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ productId }),

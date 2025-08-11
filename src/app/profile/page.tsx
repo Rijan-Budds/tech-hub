@@ -22,9 +22,18 @@ interface OrderItem {
 }
 
 interface Order {
+  _id: string;
   items: OrderItem[];
   createdAt: string;
-  total: number;
+  status: "pending" | "canceled" | "delivered";
+  subtotal: number;
+  deliveryFee: number;
+  grandTotal: number;
+  customer?: {
+    name?: string;
+    email?: string;
+    address?: { street?: string; city?: string };
+  };
 }
 
 export default function ProfilePage() {
@@ -163,23 +172,25 @@ export default function ProfilePage() {
           <p className="text-gray-600 dark:text-gray-300">No orders yet.</p>
         ) : (
           <div className="space-y-4">
-            {orders.map((o, idx) => (
+            {orders.map((o) => (
               <div
-                key={idx}
+                key={o._id}
                 className="border rounded-lg p-4 shadow bg-white dark:bg-gray-900 dark:text-white"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="font-semibold">Order #{idx + 1}</div>
+                  <div className="font-semibold">Order ID: {o._id}</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {new Date(o.createdAt).toLocaleString()}
                   </div>
                 </div>
                 <div className="text-sm text-gray-700 dark:text-gray-300">
+                  Status: <span className="capitalize font-medium">{o.status}</span>
+                </div>
+                <div className="text-sm text-gray-700 dark:text-gray-300">
                   Items: {o.items.reduce((s, it) => s + it.quantity, 0)}
                 </div>
                 <div className="text-orange-600 font-bold mt-1">
-                  Total: $
-                  {typeof o.total === "number" ? o.total.toFixed(2) : "N/A"}
+                  Total: ${o.grandTotal?.toFixed(2)}
                 </div>
               </div>
             ))}
