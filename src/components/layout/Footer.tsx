@@ -8,10 +8,9 @@ function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center md:items-start gap-6">
         {/* Company Info */}
         <div className="text-center md:text-left">
-          <h2 className="text-2xl font-bold mb-2">Ecommerce website</h2>
+          <h2 className="text-2xl font-bold mb-2">Tech Store</h2>
           <p className="text-sm max-w-xs">
-            Bringing you the best products since 2025. Quality and service you
-            can trust.
+           Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, excepturi accusamus repellat expedita provident, hic minus ipsa, maxime corporis a culpa repudiandae labore. Sunt amet eius voluptatibus, harum aliquid quasi?
           </p>
           <p className="mt-2 text-xs opacity-80">
             © {new Date().getFullYear()} Ecommerce website. All rights reserved.

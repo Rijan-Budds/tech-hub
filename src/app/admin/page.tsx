@@ -108,6 +108,21 @@ export default function AdminPage() {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    try {
+      const res = await fetch(`http://localhost:5000/admin/users/${userId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete user");
+      setUsers((prev) => prev.filter((u) => u._id !== userId));
+      toast.success("User deleted");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete user");
+    }
+  };
+
   const addProduct = async () => {
     if (!name || !price || !category || !image) {
       toast.error("Fill all fields");
@@ -227,6 +242,7 @@ export default function AdminPage() {
               <tr>
                 <th className="text-left p-2">Username</th>
                 <th className="text-left p-2">Email</th>
+                <th className="text-right p-2">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -234,6 +250,14 @@ export default function AdminPage() {
                 <tr key={u._id} className="border-t">
                   <td className="p-2">{u.username}</td>
                   <td className="p-2">{u.email}</td>
+                  <td className="p-2 text-right">
+                    <button
+                      onClick={() => deleteUser(u._id)}
+                      className="px-3 py-1 rounded border text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

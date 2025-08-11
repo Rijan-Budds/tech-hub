@@ -369,6 +369,18 @@ app.get('/admin/users', requireAuth, requireAdmin, async (_req, res) => {
   res.json({ users });
 });
 
+app.delete('/admin/users/:userId', requireAuth, requireAdmin, async (req, res) => {
+  const { userId } = req.params;
+  // Prevent deleting the hard-coded admin
+  if (!userId || userId === 'admin') {
+    return res.status(400).json({ message: 'Invalid userId' });
+  }
+  const user = await User.findById(userId);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  await User.deleteOne({ _id: userId });
+  return res.json({ message: 'User deleted' });
+});
+
 app.get('/admin/orders', requireAuth, requireAdmin, async (_req, res) => {
   const users = await User.find({}).lean();
   const allOrders = [];
@@ -418,6 +430,12 @@ app.post('/admin/products', requireAuth, requireAdmin, (req, res) => {
     return res.status(400).json({ message: 'Missing fields' });
   }
 
+  // Enforce unique product name (case-insensitive)
+  const normalizedName = String(name).trim().toLowerCase();
+  if (products.some((p) => (p.name || '').trim().toLowerCase() === normalizedName)) {
+    return res.status(400).json({ message: 'Product name already exists' });
+  }
+
   let slug = (incomingSlug || '').toString().trim();
   if (!slug) {
     slug = generateUniqueSlugFromName(name);
@@ -460,6 +478,14 @@ app.patch('/admin/products/:slug', requireAuth, requireAdmin, (req, res) => {
     category: category != null ? String(category).toLowerCase().trim() : current.category,
     image: image != null ? String(image).trim() : current.image,
   };
+
+  // If name changed, check uniqueness (case-insensitive)
+  if ((updated.name || '').trim().toLowerCase() !== (current.name || '').trim().toLowerCase()) {
+    const normalized = (updated.name || '').trim().toLowerCase();
+    if (products.some((p, i) => i !== index && (p.name || '').trim().toLowerCase() === normalized)) {
+      return res.status(400).json({ message: 'Product name already exists' });
+    }
+  }
   products[index] = updated;
   saveProductsToFile();
   res.json({ message: 'Product updated', product: updated });

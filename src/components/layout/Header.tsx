@@ -12,7 +12,7 @@ const Header = () => {
       <div className="bg-primary px-4 py-4 flex items-center justify-between text-primary-foreground">
         {/* Title - now redirects to home */}
         <Link href="/" className="font-bold text-xl">
-          Ecommerce website
+          Tech Store
         </Link>
 
         {/* Search Bar */}
