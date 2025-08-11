@@ -432,6 +432,28 @@ app.post('/admin/products', requireAuth, requireAdmin, (req, res) => {
   res.status(201).json({ message: 'Product added', product: prod });
 });
 
+// Admin update product (by slug)
+app.patch('/admin/products/:slug', requireAuth, requireAdmin, (req, res) => {
+  const { slug } = req.params;
+  const { name, price, category, image } = req.body || {};
+
+  const index = products.findIndex((p) => p.slug === slug);
+  if (index === -1) return res.status(404).json({ message: 'Product not found' });
+
+  const current = products[index];
+  // Slug is immutable after creation
+  const updated = {
+    ...current,
+    name: name != null ? String(name).trim() : current.name,
+    price: price != null ? Number(price) : current.price,
+    category: category != null ? String(category).toLowerCase().trim() : current.category,
+    image: image != null ? String(image).trim() : current.image,
+  };
+  products[index] = updated;
+  saveProductsToFile();
+  res.json({ message: 'Product updated', product: updated });
+});
+
 // Admin delete product (by slug)
 app.delete('/admin/products/:slug', requireAuth, requireAdmin, async (req, res) => {
   const { slug } = req.params;

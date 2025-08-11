@@ -1,66 +1,26 @@
 [
   {
     "id": "p1",
-    "slug": "wireless-headphones",
-    "name": "Wireless Headphones",
-    "price": 59.99,
-    "category": "electronics",
-    "image": "/home/headphones.jpg"
+    "name": "asdf",
+    "slug": "asdf",
+    "price": 1234,
+    "category": "cpu",
+    "image": "http://localhost:5000/uploads/1754906963606-142824082.jpg"
   },
   {
     "id": "p2",
-    "slug": "smart-watch",
-    "name": "Smart Watch",
-    "price": 129.99,
-    "category": "electronics",
-    "image": "/home/smartwatch.jpg"
+    "name": "asdfasdf",
+    "slug": "asdfasdf",
+    "price": 1234,
+    "category": "trending",
+    "image": "http://localhost:5000/uploads/1754907073766-605466987.jpg"
   },
   {
     "id": "p3",
-    "slug": "gaming-mouse",
-    "name": "Gaming Mouse",
-    "price": 39.99,
-    "category": "electronics",
-    "image": "/home/mouse.jpg"
-  },
-  {
-    "id": "p4",
-    "slug": "bluetooth-speaker",
-    "name": "Bluetooth Speaker",
-    "price": 49.99,
-    "category": "electronics",
-    "image": "/home/speaker.jpg"
-  },
-  {
-    "id": "p5",
-    "name": "cpu ",
-    "slug": "cpu",
-    "price": 123,
-    "category": "electronics",
-    "image": "http://localhost:5000/uploads/1754906137508-107042729.jpg"
-  },
-  {
-    "id": "p6",
-    "name": "asdf",
-    "slug": "asdf",
-    "price": 2134,
-    "category": "electronics",
-    "image": "http://localhost:5000/uploads/1754906157366-869380568.jpg"
-  },
-  {
-    "id": "p7",
-    "name": "asdfasdfasdf",
-    "slug": "asdfasdfasdf",
-    "price": 12312312,
-    "category": "speaker",
-    "image": "http://localhost:5000/uploads/1754906216982-575967233.jpg"
-  },
-  {
-    "id": "p8",
-    "name": "cpu",
-    "slug": "cpu-2",
+    "name": "123412341234",
+    "slug": "123412341234",
     "price": 1234,
-    "category": "electronics",
-    "image": "http://localhost:5000/uploads/1754906414259-765481100.jpg"
+    "category": "trending",
+    "image": "http://localhost:5000/uploads/1754907087859-631865278.jpg"
   }
 ]

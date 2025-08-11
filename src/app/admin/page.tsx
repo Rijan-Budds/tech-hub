@@ -31,10 +31,18 @@ interface Order {
 export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [products, setProducts] = useState<{
+    id: string;
+    slug: string;
+    name: string;
+    price: number;
+    category: string;
+    image: string;
+  }[]>([]);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("electronics");
+  const [category, setCategory] = useState("cpu");
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -44,11 +52,14 @@ export default function AdminPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [uRes, oRes] = await Promise.all([
+        const [uRes, oRes, pRes] = await Promise.all([
           fetch("http://localhost:5000/admin/users", {
             credentials: "include",
           }),
           fetch("http://localhost:5000/admin/orders", {
+            credentials: "include",
+          }),
+          fetch("http://localhost:5000/products", {
             credentials: "include",
           }),
         ]);
@@ -61,8 +72,10 @@ export default function AdminPage() {
 
         const uData = await uRes.json();
         const oData = await oRes.json();
+        const pData = await pRes.json();
         setUsers(uData.users || []);
         setOrders(oData.orders || []);
+        setProducts(pData.products || []);
       } catch (e: any) {
         toast.error(e.message || "Failed to load admin data");
       } finally {
@@ -121,6 +134,38 @@ export default function AdminPage() {
       setImage("");
     } catch (e: any) {
       toast.error(e.message || "Failed to add product");
+    }
+  };
+
+  const deleteProduct = async (slug: string) => {
+    try {
+      const res = await fetch(`http://localhost:5000/admin/products/${slug}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete");
+      setProducts((prev) => prev.filter((p) => p.slug !== slug));
+      toast.success("Product deleted");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete product");
+    }
+  };
+
+  const updateProduct = async (slug: string, updates: Partial<{ name: string; price: number; category: string; image: string }>) => {
+    try {
+      const res = await fetch(`http://localhost:5000/admin/products/${slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update");
+      setProducts((prev) => prev.map((p) => (p.slug === slug ? data.product : p)));
+      toast.success("Product updated");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to update product");
     }
   };
 
@@ -262,6 +307,71 @@ export default function AdminPage() {
         </div>
       </section>
 
+      {/* Products Management */}
+      <section>
+        <h2 className="text-xl font-semibold mb-2">Products</h2>
+        <div className="overflow-x-auto border rounded">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100 dark:bg-gray-800">
+              <tr>
+                <th className="text-left p-2">Image</th>
+                <th className="text-left p-2">Name</th>
+                <th className="text-left p-2">Category</th>
+                <th className="text-right p-2">Price</th>
+                <th className="text-right p-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr key={p.id} className="border-t">
+                  <td className="p-2">
+                    <img src={p.image} alt={p.name} className="w-14 h-14 object-cover rounded" />
+                  </td>
+                  <td className="p-2">
+                    <input
+                      defaultValue={p.name}
+                      onBlur={(e) => updateProduct(p.slug, { name: e.target.value })}
+                      className="border rounded px-2 py-1 bg-white dark:bg-gray-800"
+                    />
+                  </td>
+                  <td className="p-2">
+                    <select
+                      defaultValue={p.category}
+                      onChange={(e) => updateProduct(p.slug, { category: e.target.value })}
+                      className="border rounded px-2 py-1 bg-white dark:bg-gray-800"
+                    >
+                      <option value="cpu">CPU</option>
+                      <option value="keyboard">Keyboard</option>
+                      <option value="monitor">Monitor</option>
+                      <option value="speaker">Speaker</option>
+                      <option value="mouse">Mouse</option>
+                      <option value="trending">Trending</option>
+                    </select>
+                  </td>
+                  <td className="p-2 text-right">
+                    <input
+                      type="number"
+                      step="0.01"
+                      defaultValue={p.price}
+                      onBlur={(e) => updateProduct(p.slug, { price: Number(e.target.value) })}
+                      className="border rounded px-2 py-1 w-28 text-right bg-white dark:bg-gray-800"
+                    />
+                  </td>
+                  <td className="p-2 text-right">
+                    <button
+                      onClick={() => deleteProduct(p.slug)}
+                      className="px-3 py-1 rounded border text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Add Product Section */}
       <section>
         <h2 className="text-xl font-semibold mb-2">Add Product</h2>
@@ -289,6 +399,7 @@ export default function AdminPage() {
             <option value="monitor">Monitor</option>
             <option value="speaker">Speaker</option>
             <option value="mouse">Mouse</option>
+            <option value="trending">Trending</option>
           </select>
 
           {/* File input for image upload */}
