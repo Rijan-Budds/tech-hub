@@ -22,5 +22,21 @@
     "price": 1234,
     "category": "trending",
     "image": "http://localhost:5000/uploads/1754907087859-631865278.jpg"
+  },
+  {
+    "id": "p4",
+    "name": "mouse",
+    "slug": "mouse",
+    "price": 123,
+    "category": "monitor",
+    "image": "http://localhost:5000/uploads/1754908666229-620965839.jpg"
+  },
+  {
+    "id": "p5",
+    "name": "mouse",
+    "slug": "mouse-2",
+    "price": 12412341234,
+    "category": "mouse",
+    "image": "http://localhost:5000/uploads/1754908707676-400099345.jpg"
   }
 ]

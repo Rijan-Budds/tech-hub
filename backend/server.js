@@ -234,6 +234,17 @@ app.get('/products', (req, res) => {
   res.json({ products: list });
 });
 
+// Product search by name, slug, or category (case-insensitive)
+app.get('/search', (req, res) => {
+  const q = (req.query.q || '').toString().trim().toLowerCase();
+  if (!q) return res.json({ products: [] });
+  const result = products.filter((p) => {
+    const hay = `${p.name} ${p.slug} ${p.category}`.toLowerCase();
+    return hay.includes(q);
+  });
+  res.json({ products: result });
+});
+
 app.get('/products/:slug', (req, res) => {
   const prod = products.find(p => p.slug === req.params.slug);
   if (!prod) return res.status(404).json({ message: 'Not found' });

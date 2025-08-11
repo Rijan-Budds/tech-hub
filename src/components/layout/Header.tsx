@@ -16,16 +16,17 @@ const Header = () => {
         </Link>
 
         {/* Search Bar */}
-        <div className="flex flex-1 max-w-xl mx-6">
+        <form action="/search" className="flex flex-1 max-w-xl mx-6">
           <input
             type="text"
+            name="q"
             placeholder="Search for item..."
             className="w-full px-4 py-2 rounded-l-md focus:outline-none bg-white text-black"
           />
-          <button className="bg-accent px-4 py-2 rounded-r-md text-accent-foreground">
+          <button type="submit" className="bg-accent px-4 py-2 rounded-r-md text-accent-foreground">
             <FaSearch />
           </button>
-        </div>
+        </form>
 
         {/* Icons */}
         <div className="flex items-center gap-4">
