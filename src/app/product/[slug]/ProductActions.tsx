@@ -43,8 +43,8 @@ export default function ProductActions({ productId, slug }: ProductActionsProps)
 
   return (
     <div className="flex space-x-4 mt-4">
-      <button onClick={handleAddToCart} className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]">Add to Cart</button>
-      <button onClick={handleAddToWishlist} className="border border-gray-300 dark:border-gray-700 px-4 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800">Add to Wishlist</button>
+      <button onClick={handleAddToCart} className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90">Add to Cart</button>
+      <button onClick={handleAddToWishlist} className="border border-border px-4 py-2 rounded hover:bg-muted">Add to Wishlist</button>
     </div>
   );
 }

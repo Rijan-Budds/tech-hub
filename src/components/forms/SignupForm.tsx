@@ -81,7 +81,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
                 type="text"
                 name="name"
                 id="name"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Enter your full name"
               />
               <ErrorMessage
@@ -100,7 +100,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
                 type="email"
                 name="email"
                 id="email"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Enter your email"
               />
               <ErrorMessage
@@ -119,7 +119,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
                 type="password"
                 name="password"
                 id="password"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Enter your password"
               />
               <ErrorMessage
@@ -138,7 +138,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
                 type="password"
                 name="confirmPassword"
                 id="confirmPassword"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Confirm your password"
               />
               <ErrorMessage
@@ -152,7 +152,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#f85606] text-white py-2 px-4 rounded-md hover:bg-[#e14e00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Signing up...' : 'Sign Up'}
             </button>

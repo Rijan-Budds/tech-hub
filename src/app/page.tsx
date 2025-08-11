@@ -170,12 +170,12 @@ function Page() {
                   />
                 </Link>
                 <h3 className="font-semibold text-lg">{product.name}</h3>
-                <p className="text-orange-600 font-bold">${product.price.toFixed(2)}</p>
+                <p className="text-secondary font-bold">${product.price.toFixed(2)}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button onClick={() => handleAddToCart(product.id)} className="w-full bg-[#f85606] text-white py-2 rounded hover:bg-[#e14e00] transition">
+                  <button onClick={() => handleAddToCart(product.id)} className="w-full bg-primary text-primary-foreground py-2 rounded hover:bg-primary/90 transition">
                     Add to Cart
                   </button>
-                  <button onClick={() => handleToggleWishlist(product.id)} className="w-full border border-gray-300 dark:border-gray-700 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                  <button onClick={() => handleToggleWishlist(product.id)} className="w-full border border-border py-2 rounded hover:bg-muted transition">
                     Wishlist
                   </button>
                 </div>

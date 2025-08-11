@@ -79,7 +79,7 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
                 type="email"
                 name="email"
                 id="email"
-                className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="example@example.com"
               />
               <ErrorMessage
@@ -101,7 +101,7 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
                 type="password"
                 name="password"
                 id="password"
-                className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f85606] focus:border-transparent"
+                className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="********"
               />
               <ErrorMessage
@@ -115,7 +115,7 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#f85606] text-white p-2 rounded hover:bg-[#e94c00] disabled:opacity-50"
+              className="w-full bg-primary text-primary-foreground p-2 rounded hover:bg-primary/90 disabled:opacity-50"
             >
               {isSubmitting ? "Logging in..." : "Log In"}
             </button>

@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ProductCardActions } from "./product-card-actions";
+import { ProductCardActions } from "@/components/ProductCardActions";
 
 async function fetchProductsByCategory(slug: string) {
   const res = await fetch(`http://localhost:5000/products?category=${slug}`, {
@@ -35,7 +35,7 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
                     className="w-full h-40 object-cover rounded mb-3"
                   />
                   <div className="font-semibold">{p.name}</div>
-                  <div className="text-orange-600 font-bold">${p.price.toFixed(2)}</div>
+                  <div className="text-secondary font-bold">${p.price.toFixed(2)}</div>
                 </div>
               </Link>
               <ProductCardActions productId={p.id} />

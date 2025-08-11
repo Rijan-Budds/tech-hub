@@ -9,9 +9,9 @@ const Header = () => {
     <header>
       <Navbar />
 
-      <div className="bg-[#f85606] px-4 py-4 flex items-center justify-between">
+      <div className="bg-primary px-4 py-4 flex items-center justify-between text-primary-foreground">
         {/* Title - now redirects to home */}
-        <Link href="/" className="text-white font-bold text-xl ">
+        <Link href="/" className="font-bold text-xl">
           Ecommerce website
         </Link>
 
@@ -22,7 +22,7 @@ const Header = () => {
             placeholder="Search for item..."
             className="w-full px-4 py-2 rounded-l-md focus:outline-none bg-white text-black"
           />
-          <button className="bg-[#febd69] px-4 py-2 rounded-r-md text-black">
+          <button className="bg-accent px-4 py-2 rounded-r-md text-accent-foreground">
             <FaSearch />
           </button>
         </div>

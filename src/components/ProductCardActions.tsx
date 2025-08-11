@@ -40,13 +40,13 @@ export function ProductCardActions({ productId }: { productId: string }) {
     <div className="mt-3 grid grid-cols-2 gap-2">
       <button
         onClick={handleAddToCart}
-        className="w-full bg-[#f85606] text-white py-2 rounded hover:bg-[#e14e00] transition"
+        className="w-full bg-primary text-primary-foreground py-2 rounded hover:bg-primary/90 transition"
       >
         Add to Cart
       </button>
       <button
         onClick={handleToggleWishlist}
-        className="w-full border border-gray-300 dark:border-gray-700 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+        className="w-full border border-border py-2 rounded hover:bg-muted transition"
       >
         Wishlist
       </button>

@@ -79,7 +79,7 @@ export default function OrderConfirmationPage() {
         <h1 className="text-2xl font-bold">Order not found</h1>
         <button
           onClick={() => router.push("/profile")}
-          className="bg-[#f85606] text-white px-4 py-2 rounded"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded"
         >
           Go to profile
         </button>
@@ -145,7 +145,7 @@ export default function OrderConfirmationPage() {
       <div>
         <button
           onClick={() => router.push("/profile")}
-          className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
         >
           View your orders
         </button>

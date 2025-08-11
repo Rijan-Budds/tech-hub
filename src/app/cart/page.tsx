@@ -289,7 +289,7 @@ export default function CartPage() {
           <button
             type="submit"
             disabled={items.length === 0 || submitting}
-            className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00] disabled:opacity-50"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90 disabled:opacity-50"
           >
             {submitting ? "Placing..." : "Checkout"}
           </button>

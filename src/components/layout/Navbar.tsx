@@ -62,7 +62,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="bg-[#f85606] text-sm text-white px-4 py-2 flex justify-end gap-4">
+      <div className="bg-primary text-sm text-primary-foreground px-4 py-2 flex justify-end gap-4">
         {currentUser ? (
           <div className="flex items-center gap-3">
             {currentUser.role === 'admin' && (
@@ -103,7 +103,7 @@ const Navbar = () => {
                   Don't have an account?{' '}
                   <button
                     onClick={() => setModalType('signup')}
-                    className="text-[#f85606] hover:underline font-medium"
+                    className="text-primary hover:underline font-medium"
                   >
                     Sign Up
                   </button>
@@ -116,7 +116,7 @@ const Navbar = () => {
                   Already have an account?{' '}
                   <button
                     onClick={() => setModalType('login')}
-                    className="text-[#f85606] hover:underline font-medium"
+                    className="text-primary hover:underline font-medium"
                   >
                     Log In
                   </button>

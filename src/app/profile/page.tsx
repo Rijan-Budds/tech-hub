@@ -124,7 +124,7 @@ export default function ProfilePage() {
         </div>
         <button
           onClick={handleLogout}
-          className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
         >
           Logout
         </button>
@@ -151,7 +151,7 @@ export default function ProfilePage() {
                   className="w-full h-40 object-cover rounded mb-3"
                 />
                 <div className="font-semibold">{p.name}</div>
-                <div className="text-orange-600 font-bold mb-3">
+                <div className="text-secondary font-bold mb-3">
                   ${p.price.toFixed(2)}
                 </div>
                 <button
@@ -189,7 +189,7 @@ export default function ProfilePage() {
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   Items: {o.items.reduce((s, it) => s + it.quantity, 0)}
                 </div>
-                <div className="text-orange-600 font-bold mt-1">
+                <div className="text-secondary font-bold mt-1">
                   Total: ${o.grandTotal?.toFixed(2)}
                 </div>
               </div>
