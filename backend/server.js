@@ -8,6 +8,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { config } from "dotenv";
+import { fileURLToPath } from "url";
 
 config();
 
@@ -102,21 +103,67 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// Sample products (in-memory for now)
-const products = [
+// Sample products (seed); persisted to file below
+let products = [
   { id: 'p1', slug: 'wireless-headphones', name: 'Wireless Headphones', price: 59.99, category: 'electronics', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80' },
   { id: 'p2', slug: 'smart-watch', name: 'Smart Watch', price: 129.99, category: 'electronics', image: 'https://images.unsplash.com/photo-1517433456452-f9633a875f6f?auto=format&fit=crop&w=800&q=80' },
   { id: 'p3', slug: 'gaming-mouse', name: 'Gaming Mouse', price: 39.99, category: 'electronics', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80' },
   { id: 'p4', slug: 'bluetooth-speaker', name: 'Bluetooth Speaker', price: 49.99, category: 'electronics', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p5', slug: 'men-hoodie', name: 'Men Hoodie', price: 35.5, category: 'clothing', image: 'https://images.unsplash.com/photo-1520975964562-25f53a38f04b?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p6', slug: 'women-dress', name: 'Women Dress', price: 79.0, category: 'clothing', image: 'https://images.unsplash.com/photo-1475180098004-ca77a66827be?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p7', slug: 'chef-knife', name: 'Chef Knife', price: 24.99, category: 'home-kitchen', image: 'https://images.unsplash.com/photo-1607305387299-07bd86da72bb?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p8', slug: 'yoga-mat', name: 'Yoga Mat', price: 19.99, category: 'sports-fitness', image: 'https://images.unsplash.com/photo-1599050751732-b77ed2cbf9c6?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p9', slug: 'novel-book', name: 'Novel Book', price: 12.99, category: 'books-media', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p10', slug: 'face-cream', name: 'Face Cream', price: 22.5, category: 'beauty-health', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p11', slug: 'toy-car', name: 'Toy Car', price: 9.99, category: 'toys-games', image: 'https://images.unsplash.com/photo-1602143407151-7111542de2db?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p12', slug: 'car-vacuum', name: 'Car Vacuum', price: 45.0, category: 'automotive', image: 'https://images.unsplash.com/photo-1542367597-8849ebd5a0a6?auto=format&fit=crop&w=800&q=80' },
 ];
+
+// Persist products to local JSON so they survive restarts (always inside backend folder)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const dataDir = path.join(__dirname, 'data');
+const productsFile = path.join(dataDir, 'products.json');
+
+function loadProductsFromFile() {
+  try {
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    if (fs.existsSync(productsFile)) {
+      const raw = fs.readFileSync(productsFile, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        products.length = 0;
+        for (const p of parsed) products.push(p);
+      }
+    } else {
+      fs.writeFileSync(productsFile, JSON.stringify(products, null, 2), 'utf-8');
+    }
+  } catch (err) {
+    console.error('Failed to load products file:', err);
+  }
+}
+
+function saveProductsToFile() {
+  try {
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    fs.writeFileSync(productsFile, JSON.stringify(products, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Failed to save products file:', err);
+  }
+}
+
+loadProductsFromFile();
+
+// Remove unwanted products if present in persisted file as well
+(() => {
+  const disallowedSlugs = new Set([
+    'men-hoodie',
+    'women-dress',
+    'chef-knife',
+    'yoga-mat',
+    'novel-book',
+    'face-cream',
+    'toy-car',
+    'car-vacuum',
+  ]);
+  const before = products.length;
+  products = products.filter((p) => !disallowedSlugs.has(p.slug));
+  if (products.length !== before) {
+    saveProductsToFile();
+  }
+})();
 
 // Shipping cities and fees (example)
 const cityFees = {
@@ -179,7 +226,11 @@ function generateUniqueSlugFromName(name) {
 
 app.get('/products', (req, res) => {
   const { category } = req.query;
-  const list = category ? products.filter(p => p.category === category) : products;
+  const list = category
+    ? products.filter(
+        (p) => (p.category || '').toLowerCase().trim() === String(category).toLowerCase().trim()
+      )
+    : products;
   res.json({ products: list });
 });
 
@@ -368,9 +419,38 @@ app.post('/admin/products', requireAuth, requireAdmin, (req, res) => {
   }
 
   const nextId = `p${products.length + 1}`;
-  const prod = { id: nextId, name, slug, price: Number(price), category, image };
+  const prod = {
+    id: nextId,
+    name: String(name).trim(),
+    slug,
+    price: Number(price),
+    category: String(category).toLowerCase().trim(),
+    image: String(image).trim(),
+  };
   products.push(prod);
+  saveProductsToFile();
   res.status(201).json({ message: 'Product added', product: prod });
+});
+
+// Admin delete product (by slug)
+app.delete('/admin/products/:slug', requireAuth, requireAdmin, async (req, res) => {
+  const { slug } = req.params;
+  const idx = products.findIndex((p) => p.slug === slug);
+  if (idx === -1) return res.status(404).json({ message: 'Product not found' });
+  const removed = products.splice(idx, 1)[0];
+  // Remove from users' carts and wishlists to avoid dangling references
+  try {
+    const users = await User.find({});
+    for (const u of users) {
+      u.cart = u.cart.filter((ci) => ci.productId !== removed.id);
+      u.wishlist = u.wishlist.filter((pid) => pid !== removed.id);
+      await u.save();
+    }
+  } catch (e) {
+    console.error('Failed to cascade delete from users:', e);
+  }
+  saveProductsToFile();
+  res.json({ message: 'Product deleted' });
 });
 
 // Wishlist

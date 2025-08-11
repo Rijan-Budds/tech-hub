@@ -30,7 +30,7 @@ export default async function ProductDetailPage({
       <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
       <p className="text-sm text-gray-500 mb-2 capitalize">Category: {product.category.replace('-', ' ')}</p>
       <p className="text-xl text-orange-600 font-semibold mb-4">${product.price.toFixed(2)}</p>
-      <p className="text-gray-700 leading-relaxed">Great product from our {product.category.replace('-', ' ')} collection.</p>
+      <p className="text-gray-700 leading-relaxed">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Provident, aspernatur praesentium. Quis dolorem voluptates id tempora vel vero quo exercitationem iste, eligendi ad expedita, qui non beatae nisi aliquid ut?</p>
 
       {/* Render client component and pass correct props */}
       <ProductActions productId={product.id} slug={product.slug} />

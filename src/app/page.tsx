@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -39,49 +40,7 @@ const sliderData = [
   },
 ];
 
-// Dummy Data
-const trendingProducts = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    price: "$59.99",
-    slug: "wireless-headphones",
-    image:
-      "/home/slider4.jpg",
-  },
-  {
-    id: 2,
-    name: "Gaming Laptop",
-    price: "$129.99",
-    slug: "gaming-mouse",
-    image:
-      "/home/slider1.jpg",
-  },
-  {
-    id: 3,
-    name: "Gaming Mouse",
-    price: "$39.99",
-    slug: "gaming-mouse",
-    image:
-      "/home/slider2.jpg",
-  },
-  {
-    id: 4,
-    name: "Gaming Speaker",
-    price: "$49.99",
-    slug: "bluetooth-speaker",
-    image:
-      "/home/slider3.jpg",
-  },
-];
-
-// Map slug to backend productId (for demo trending items)
-const slugToId: Record<string, string> = {
-  "wireless-headphones": "p1",
-  "smart-watch": "p2",
-  "gaming-mouse": "p3",
-  "bluetooth-speaker": "p4",
-};
+type Product = { id: string; slug: string; name: string; price: number; image: string; category: string };
 
 const featuredCategories = [
   {
@@ -121,8 +80,23 @@ function Page() {
     Autoplay({ delay: 2000, stopOnInteraction: false })
   );
 
-  const handleAddToCart = async (slug: string) => {
-    const productId = slugToId[slug];
+  const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/products", { cache: "no-store" });
+        const data = await res.json();
+        const list: Product[] = Array.isArray(data.products) ? data.products : [];
+        setTrendingProducts(list.slice(0, 8));
+      } catch (e) {
+        setTrendingProducts([]);
+      }
+    };
+    load();
+  }, []);
+
+  const handleAddToCart = async (productId: string) => {
     try {
       const res = await fetch("http://localhost:5000/cart/add", {
         method: "POST",
@@ -138,8 +112,7 @@ function Page() {
     }
   };
 
-  const handleToggleWishlist = async (slug: string) => {
-    const productId = slugToId[slug];
+  const handleToggleWishlist = async (productId: string) => {
     try {
       const res = await fetch("http://localhost:5000/wishlist/toggle", {
         method: "POST",
@@ -197,12 +170,12 @@ function Page() {
                   />
                 </Link>
                 <h3 className="font-semibold text-lg">{product.name}</h3>
-                <p className="text-orange-600 font-bold">{product.price}</p>
+                <p className="text-orange-600 font-bold">${product.price.toFixed(2)}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button onClick={() => handleAddToCart(product.slug)} className="w-full bg-[#f85606] text-white py-2 rounded hover:bg-[#e14e00] transition">
+                  <button onClick={() => handleAddToCart(product.id)} className="w-full bg-[#f85606] text-white py-2 rounded hover:bg-[#e14e00] transition">
                     Add to Cart
                   </button>
-                  <button onClick={() => handleToggleWishlist(product.slug)} className="w-full border border-gray-300 dark:border-gray-700 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                  <button onClick={() => handleToggleWishlist(product.id)} className="w-full border border-gray-300 dark:border-gray-700 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                     Wishlist
                   </button>
                 </div>

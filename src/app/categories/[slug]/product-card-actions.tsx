@@ -3,12 +3,7 @@
 import React from "react";
 import { toast } from "sonner";
 
-interface ProductActionsProps {
-  productId: string;
-  slug: string;
-}
-
-export default function ProductActions({ productId, slug }: ProductActionsProps) {
+export function ProductCardActions({ productId }: { productId: string }) {
   const handleAddToCart = async () => {
     try {
       const res = await fetch("http://localhost:5000/cart/add", {
@@ -25,7 +20,7 @@ export default function ProductActions({ productId, slug }: ProductActionsProps)
     }
   };
 
-  const handleAddToWishlist = async () => {
+  const handleToggleWishlist = async () => {
     try {
       const res = await fetch("http://localhost:5000/wishlist/toggle", {
         method: "POST",
@@ -42,9 +37,21 @@ export default function ProductActions({ productId, slug }: ProductActionsProps)
   };
 
   return (
-    <div className="flex space-x-4 mt-4">
-      <button onClick={handleAddToCart} className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]">Add to Cart</button>
-      <button onClick={handleAddToWishlist} className="border border-gray-300 dark:border-gray-700 px-4 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800">Add to Wishlist</button>
+    <div className="mt-3 grid grid-cols-2 gap-2">
+      <button
+        onClick={handleAddToCart}
+        className="w-full bg-[#f85606] text-white py-2 rounded hover:bg-[#e14e00] transition"
+      >
+        Add to Cart
+      </button>
+      <button
+        onClick={handleToggleWishlist}
+        className="w-full border border-gray-300 dark:border-gray-700 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+      >
+        Wishlist
+      </button>
     </div>
   );
 }
+
+
