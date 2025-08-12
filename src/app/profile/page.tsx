@@ -46,7 +46,7 @@ export default function ProfilePage() {
   }, [loadProfile]);
 
   const handleLogout = async () => {
-    await fetch("http://localhost:5000/logout", {
+    await fetch("/api/logout", {
       method: "POST",
       credentials: "include",
     });
@@ -55,7 +55,7 @@ export default function ProfilePage() {
 
   const handleRemoveFromWishlist = async (productId: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"}/wishlist/toggle`, {
+      const res = await fetch(`/api/wishlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -20,7 +20,7 @@ const Navbar = () => {
   useEffect(() => {
     const loadMe = async () => {
       try {
-        const res = await fetch('http://localhost:5000/me', { credentials: 'include' });
+        const res = await fetch('/api/me', { credentials: 'include' });
         const data = await res.json();
         setCurrentUser(data.user);
       } catch (e) {
@@ -32,7 +32,7 @@ const Navbar = () => {
 
   const handleLoginSubmit = (values: { email: string; password: string }) => {
     // After LoginForm success, refetch me
-    fetch('http://localhost:5000/me', { credentials: 'include' })
+    fetch('/api/me', { credentials: 'include' })
       .then((r) => r.json())
       .then((d) => setCurrentUser(d.user))
       .catch(() => setCurrentUser(null));
@@ -41,7 +41,7 @@ const Navbar = () => {
 
   const handleSignupSubmit = (values: { name: string; email: string; password: string }) => {
     // After SignupForm success, refetch me
-    fetch('http://localhost:5000/me', { credentials: 'include' })
+    fetch('/api/me', { credentials: 'include' })
       .then((r) => r.json())
       .then((d) => setCurrentUser(d.user))
       .catch(() => setCurrentUser(null));
@@ -50,7 +50,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5000/logout', {
+      await fetch('/api/logout', {
         method: 'POST',
         credentials: 'include',
       });

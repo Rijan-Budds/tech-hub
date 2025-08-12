@@ -28,7 +28,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
     { setSubmitting, resetForm }: any
   ) => {
     try {
-      const response = await fetch('http://localhost:5000/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

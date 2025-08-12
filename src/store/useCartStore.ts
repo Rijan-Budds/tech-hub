@@ -1,7 +1,7 @@
 "use client";
 import { create } from "zustand";
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
+const API = ""; // use Next.js internal API routes
 
 type CartItem = { productId: string; quantity: number; product?: any };
 
@@ -16,34 +16,34 @@ interface CartState {
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   fetchCart: async () => {
-    const res = await fetch(`${API}/cart`, { credentials: "include" });
+    const res = await fetch(`/api/cart`, { credentials: "include" });
     const data = await res.json();
     set({ items: data.items ?? [] });
   },
   add: async (productId, quantity = 1) => {
-    await fetch(`${API}/cart/add`, {
+    await fetch(`/api/cart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ productId, quantity }),
+      body: JSON.stringify({ action: 'add', productId, quantity }),
     });
     await get().fetchCart();
   },
   update: async (productId, quantity) => {
-    await fetch(`${API}/cart/update`, {
+    await fetch(`/api/cart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ productId, quantity }),
+      body: JSON.stringify({ action: 'update', productId, quantity }),
     });
     await get().fetchCart();
   },
   remove: async (productId) => {
-    await fetch(`${API}/cart/remove`, {
+    await fetch(`/api/cart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ productId }),
+      body: JSON.stringify({ action: 'remove', productId }),
     });
     await get().fetchCart();
   },

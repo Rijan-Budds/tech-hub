@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import ProductActions from "./ProductActions"; // import client component
 
 async function fetchProduct(slug: string) {
-  const res = await fetch(`http://localhost:5000/products/${slug}`, { cache: 'no-store' })
+  const res = await fetch(`/api/products/${slug}`, { cache: 'no-store' })
+  
   if (!res.ok) return null
   const data = await res.json()
   return data.product as { id: string; name: string; price: number; slug: string; image: string; category: string }

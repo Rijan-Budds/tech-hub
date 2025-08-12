@@ -23,7 +23,7 @@ interface ProfileState {
   removeFromWishlistLocal: (productId: string) => void;
 }
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
+const API = ""; // use Next.js internal API routes
 
 export const useProfileStore = create<ProfileState>((set, get) => ({
   loading: false,
@@ -34,9 +34,9 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     set({ loading: true });
     try {
       const [meRes, wlRes, ordersRes] = await Promise.all([
-        fetch(`${API}/me`, { credentials: "include" }),
-        fetch(`${API}/wishlist`, { credentials: "include" }),
-        fetch(`${API}/orders`, { credentials: "include" }),
+        fetch(`/api/me`, { credentials: "include" }),
+        fetch(`/api/wishlist`, { credentials: "include" }),
+        fetch(`/api/orders`, { credentials: "include" }),
       ]);
       const me = await meRes.json();
       const user = me?.user ?? null;

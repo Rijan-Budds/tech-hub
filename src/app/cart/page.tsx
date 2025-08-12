@@ -43,7 +43,7 @@ export default function CartPage() {
       if (items.length === 0) return;
       setSubmitting(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"}/orders/checkout`, {
+        const res = await fetch(`/api/orders`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -79,7 +79,7 @@ export default function CartPage() {
     const load = async () => {
       try {
         await cart.fetchCart();
-        const citiesRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"}/shipping/cities`);
+        const citiesRes = await fetch(`/api/shipping/cities`);
         const citiesData = await citiesRes.json();
         setCities(citiesData.cities || []);
         if ((citiesData.cities || []).length > 0) {

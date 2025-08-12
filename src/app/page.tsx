@@ -86,7 +86,7 @@ function Page() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("http://localhost:5000/products?category=trending", { cache: "no-store" });
+        const res = await fetch("/api/products?category=trending", { cache: "no-store" });
         const data = await res.json();
         const list: Product[] = Array.isArray(data.products) ? data.products : [];
         setTrendingProducts(list.slice(0, 8));
@@ -109,7 +109,7 @@ function Page() {
 
   const handleToggleWishlist = async (productId: string) => {
     try {
-      const res = await fetch("http://localhost:5000/wishlist/toggle", {
+      const res = await fetch("/api/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

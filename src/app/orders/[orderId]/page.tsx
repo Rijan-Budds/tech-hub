@@ -35,7 +35,7 @@ export default function OrderConfirmationPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const meRes = await fetch("http://localhost:5000/me", {
+        const meRes = await fetch("/api/me", {
           credentials: "include",
         });
         const me = await meRes.json();
@@ -45,7 +45,7 @@ export default function OrderConfirmationPage() {
           return;
         }
 
-        const ordersRes = await fetch("http://localhost:5000/orders", {
+        const ordersRes = await fetch("/api/orders", {
           credentials: "include",
         });
         const data = await ordersRes.json();

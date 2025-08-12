@@ -53,13 +53,13 @@ export default function AdminPage() {
     const load = async () => {
       try {
         const [uRes, oRes, pRes] = await Promise.all([
-          fetch("http://localhost:5000/admin/users", {
+          fetch("/api/admin/users", {
             credentials: "include",
           }),
-          fetch("http://localhost:5000/admin/orders", {
+          fetch("/api/admin/orders", {
             credentials: "include",
           }),
-          fetch("http://localhost:5000/products", {
+          fetch("/api/products", {
             credentials: "include",
           }),
         ]);
@@ -87,7 +87,7 @@ export default function AdminPage() {
 
   const reloadProducts = async () => {
     try {
-      const res = await fetch("http://localhost:5000/products", {
+      const res = await fetch("/api/products", {
         credentials: "include",
       });
       const data = await res.json();
@@ -102,7 +102,7 @@ export default function AdminPage() {
     status: "pending" | "canceled" | "delivered"
   ) => {
     try {
-      const res = await fetch(`http://localhost:5000/admin/orders/${orderId}`, {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -122,7 +122,7 @@ export default function AdminPage() {
 
   const deleteOrder = async (orderId: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/admin/orders/${orderId}`, {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -137,7 +137,7 @@ export default function AdminPage() {
 
   const deleteUser = async (userId: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/admin/users/${userId}`, {
+      const res = await fetch(`/api/admin/users/${userId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -156,7 +156,7 @@ export default function AdminPage() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/admin/products", {
+      const res = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -182,7 +182,7 @@ export default function AdminPage() {
 
   const deleteProduct = async (slug: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/admin/products/${slug}`, {
+      const res = await fetch(`/api/admin/products/${slug}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -197,7 +197,7 @@ export default function AdminPage() {
 
   const updateProduct = async (slug: string, updates: Partial<{ name: string; price: number; category: string; image: string }>) => {
     try {
-      const res = await fetch(`http://localhost:5000/admin/products/${slug}`, {
+      const res = await fetch(`/api/admin/products/${slug}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -213,7 +213,7 @@ export default function AdminPage() {
   };
 
   const handleLogout = async () => {
-    await fetch("http://localhost:5000/logout", {
+    await fetch("/api/logout", {
       method: "POST",
       credentials: "include",
     });
@@ -229,7 +229,7 @@ export default function AdminPage() {
       const formData = new FormData();
       formData.append("image", file);
 
-      const res = await fetch("http://localhost:5000/upload", {
+      const res = await fetch("/api/upload", {
         method: "POST",
         credentials: "include",
         body: formData,

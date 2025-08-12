@@ -11,11 +11,11 @@ interface ProductActionsProps {
 export default function ProductActions({ productId, slug }: ProductActionsProps) {
   const handleAddToCart = async () => {
     try {
-      const res = await fetch("http://localhost:5000/cart/add", {
+      const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ productId, quantity: 1 }),
+        body: JSON.stringify({ action: 'add', productId, quantity: 1 }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to add to cart");
@@ -27,7 +27,7 @@ export default function ProductActions({ productId, slug }: ProductActionsProps)
 
   const handleAddToWishlist = async () => {
     try {
-      const res = await fetch("http://localhost:5000/wishlist/toggle", {
+      const res = await fetch("/api/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -2,13 +2,13 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCardActions } from "@/components/ProductCardActions";
+import { connectToDatabase } from "@/lib/db";
+import { Product } from "@/lib/models";
 
 async function fetchProductsByCategory(slug: string) {
-  const res = await fetch(`http://localhost:5000/products?category=${slug}`, {
-    cache: 'no-store'
-  });
-  const data = await res.json();
-  return data.products || [];
+  await connectToDatabase();
+  const docs = await Product.find({ category: { $regex: `^${slug}$`, $options: 'i' } }).lean();
+  return docs.map((d: any) => ({ id: d._id.toString(), slug: d.slug, name: d.name, price: d.price, image: d.image, category: d.category }));
 }
 
 const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) => {

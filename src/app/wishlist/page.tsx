@@ -20,7 +20,7 @@ export default function WishlistPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch('http://localhost:5000/wishlist', { credentials: 'include' })
+        const res = await fetch('/api/wishlist', { credentials: 'include' })
         const data = await res.json()
         setItems(data.items || [])
       } finally {
@@ -32,7 +32,7 @@ export default function WishlistPage() {
 
   const removeItem = async (productId: string) => {
     try {
-      const res = await fetch('http://localhost:5000/wishlist/toggle', {
+      const res = await fetch('/api/wishlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
