@@ -85,6 +85,18 @@ export default function AdminPage() {
     load();
   }, []);
 
+  const reloadProducts = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/products", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch (e: any) {
+      toast.error(e.message || "Failed to reload products");
+    }
+  };
+
   const updateStatus = async (
     orderId: string,
     status: "pending" | "canceled" | "delivered"
@@ -105,6 +117,21 @@ export default function AdminPage() {
       toast.success("Order status updated");
     } catch (e: any) {
       toast.error(e.message || "Failed to update status");
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    try {
+      const res = await fetch(`http://localhost:5000/admin/orders/${orderId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete order");
+      setOrders((prev) => prev.filter((o) => o.orderId !== orderId));
+      toast.success("Order deleted");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete order");
     }
   };
 
@@ -145,8 +172,9 @@ export default function AdminPage() {
       toast.success("Product added");
       setName("");
       setPrice("");
-      setCategory("electronics");
+      setCategory("cpu");
       setImage("");
+      await reloadProducts();
     } catch (e: any) {
       toast.error(e.message || "Failed to add product");
     }
@@ -324,6 +352,12 @@ export default function AdminPage() {
                   className="px-3 py-1 rounded border"
                 >
                   Delivered
+                </button>
+                <button
+                  onClick={() => deleteOrder(o.orderId)}
+                  className="px-3 py-1 rounded border text-red-600"
+                >
+                  Delete
                 </button>
               </div>
             </div>

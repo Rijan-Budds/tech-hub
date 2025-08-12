@@ -103,67 +103,22 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// Sample products (seed); persisted to file below
-let products = [
-  { id: 'p1', slug: 'wireless-headphones', name: 'Wireless Headphones', price: 59.99, category: 'electronics', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p2', slug: 'smart-watch', name: 'Smart Watch', price: 129.99, category: 'electronics', image: 'https://images.unsplash.com/photo-1517433456452-f9633a875f6f?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p3', slug: 'gaming-mouse', name: 'Gaming Mouse', price: 39.99, category: 'electronics', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80' },
-  { id: 'p4', slug: 'bluetooth-speaker', name: 'Bluetooth Speaker', price: 49.99, category: 'electronics', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80' },
-];
-
-// Persist products to local JSON so they survive restarts (always inside backend folder)
+// Products: switch from file-based storage to MongoDB model
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const dataDir = path.join(__dirname, 'data');
-const productsFile = path.join(dataDir, 'products.json');
 
-function loadProductsFromFile() {
-  try {
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-    if (fs.existsSync(productsFile)) {
-      const raw = fs.readFileSync(productsFile, 'utf-8');
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        products.length = 0;
-        for (const p of parsed) products.push(p);
-      }
-    } else {
-      fs.writeFileSync(productsFile, JSON.stringify(products, null, 2), 'utf-8');
-    }
-  } catch (err) {
-    console.error('Failed to load products file:', err);
-  }
-}
+const productSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, unique: true },
+    slug: { type: String, required: true, unique: true },
+    price: { type: Number, required: true },
+    category: { type: String, required: true },
+    image: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
-function saveProductsToFile() {
-  try {
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-    fs.writeFileSync(productsFile, JSON.stringify(products, null, 2), 'utf-8');
-  } catch (err) {
-    console.error('Failed to save products file:', err);
-  }
-}
-
-loadProductsFromFile();
-
-// Remove unwanted products if present in persisted file as well
-(() => {
-  const disallowedSlugs = new Set([
-    'men-hoodie',
-    'women-dress',
-    'chef-knife',
-    'yoga-mat',
-    'novel-book',
-    'face-cream',
-    'toy-car',
-    'car-vacuum',
-  ]);
-  const before = products.length;
-  products = products.filter((p) => !disallowedSlugs.has(p.slug));
-  if (products.length !== before) {
-    saveProductsToFile();
-  }
-})();
+const Product = mongoose.model('Product', productSchema);
 
 // Shipping cities and fees (example)
 const cityFees = {
@@ -214,41 +169,76 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-function generateUniqueSlugFromName(name) {
+async function generateUniqueSlugFromName(name) {
   const base = slugify(name || 'item');
   let candidate = base || 'item';
   let counter = 2;
-  while (products.find((p) => p.slug === candidate)) {
+  // Ensure slug uniqueness against the database
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    // eslint-disable-next-line no-await-in-loop
+    const exists = await Product.exists({ slug: candidate });
+    if (!exists) return candidate;
     candidate = `${base}-${counter++}`;
   }
-  return candidate;
 }
 
-app.get('/products', (req, res) => {
-  const { category } = req.query;
-  const list = category
-    ? products.filter(
-        (p) => (p.category || '').toLowerCase().trim() === String(category).toLowerCase().trim()
-      )
-    : products;
-  res.json({ products: list });
+function escapeRegex(str = '') {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function mapProduct(doc) {
+  if (!doc) return null;
+  return {
+    id: doc._id.toString(),
+    slug: doc.slug,
+    name: doc.name,
+    price: doc.price,
+    category: doc.category,
+    image: doc.image,
+  };
+}
+
+app.get('/products', async (req, res) => {
+  try {
+    const { category } = req.query;
+    let query = {};
+    if (category) {
+      query = { category: { $regex: `^${escapeRegex(String(category))}$`, $options: 'i' } };
+    }
+    const docs = await Product.find(query).lean();
+    res.json({ products: docs.map((d) => mapProduct(d)) });
+  } catch (err) {
+    console.error('GET /products error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // Product search by name, slug, or category (case-insensitive)
-app.get('/search', (req, res) => {
-  const q = (req.query.q || '').toString().trim().toLowerCase();
+app.get('/search', async (req, res) => {
+  const q = (req.query.q || '').toString().trim();
   if (!q) return res.json({ products: [] });
-  const result = products.filter((p) => {
-    const hay = `${p.name} ${p.slug} ${p.category}`.toLowerCase();
-    return hay.includes(q);
-  });
-  res.json({ products: result });
+  try {
+    const regex = new RegExp(escapeRegex(q), 'i');
+    const docs = await Product.find({
+      $or: [{ name: regex }, { slug: regex }, { category: regex }],
+    }).lean();
+    res.json({ products: docs.map((d) => mapProduct(d)) });
+  } catch (err) {
+    console.error('GET /search error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
-app.get('/products/:slug', (req, res) => {
-  const prod = products.find(p => p.slug === req.params.slug);
-  if (!prod) return res.status(404).json({ message: 'Not found' });
-  res.json({ product: prod });
+app.get('/products/:slug', async (req, res) => {
+  try {
+    const doc = await Product.findOne({ slug: req.params.slug }).lean();
+    if (!doc) return res.status(404).json({ message: 'Not found' });
+    res.json({ product: mapProduct(doc) });
+  } catch (err) {
+    console.error('GET /products/:slug error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // Shipping cities endpoint
@@ -424,99 +414,137 @@ app.patch('/admin/orders/:orderId', requireAuth, requireAdmin, async (req, res) 
   res.json({ message: 'Order updated' });
 });
 
-app.post('/admin/products', requireAuth, requireAdmin, (req, res) => {
+// Admin delete order
+app.delete('/admin/orders/:orderId', requireAuth, requireAdmin, async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    const users = await User.find({});
+    let removed = false;
+    for (const u of users) {
+      const order = u.orders.id(orderId);
+      if (order) {
+        // Remove the subdocument and save
+        order.deleteOne();
+        await u.save();
+        removed = true;
+        break;
+      }
+    }
+    if (!removed) return res.status(404).json({ message: 'Order not found' });
+    res.json({ message: 'Order deleted' });
+  } catch (err) {
+    console.error('DELETE /admin/orders/:orderId error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/admin/products', requireAuth, requireAdmin, async (req, res) => {
   const { name, slug: incomingSlug, price, category, image } = req.body || {};
   if (!name || price == null || !category || !image) {
     return res.status(400).json({ message: 'Missing fields' });
   }
+  try {
+    // Enforce unique product name (case-insensitive)
+    const existingByName = await Product.findOne({ name: { $regex: `^${escapeRegex(String(name).trim())}$`, $options: 'i' } });
+    if (existingByName) return res.status(400).json({ message: 'Product name already exists' });
 
-  // Enforce unique product name (case-insensitive)
-  const normalizedName = String(name).trim().toLowerCase();
-  if (products.some((p) => (p.name || '').trim().toLowerCase() === normalizedName)) {
-    return res.status(400).json({ message: 'Product name already exists' });
-  }
-
-  let slug = (incomingSlug || '').toString().trim();
-  if (!slug) {
-    slug = generateUniqueSlugFromName(name);
-  } else {
-    slug = slugify(slug);
-    // Ensure uniqueness if client provided a conflicting slug
-    if (products.find((p) => p.slug === slug)) {
-      slug = generateUniqueSlugFromName(name);
+    let slug = (incomingSlug || '').toString().trim();
+    if (!slug) {
+      slug = await generateUniqueSlugFromName(name);
+    } else {
+      slug = slugify(slug);
+      const conflict = await Product.exists({ slug });
+      if (conflict) slug = await generateUniqueSlugFromName(name);
     }
-  }
 
-  const nextId = `p${products.length + 1}`;
-  const prod = {
-    id: nextId,
-    name: String(name).trim(),
-    slug,
-    price: Number(price),
-    category: String(category).toLowerCase().trim(),
-    image: String(image).trim(),
-  };
-  products.push(prod);
-  saveProductsToFile();
-  res.status(201).json({ message: 'Product added', product: prod });
+    const created = await Product.create({
+      name: String(name).trim(),
+      slug,
+      price: Number(price),
+      category: String(category).toLowerCase().trim(),
+      image: String(image).trim(),
+    });
+    res.status(201).json({ message: 'Product added', product: mapProduct(created) });
+  } catch (err) {
+    console.error('POST /admin/products error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // Admin update product (by slug)
-app.patch('/admin/products/:slug', requireAuth, requireAdmin, (req, res) => {
+app.patch('/admin/products/:slug', requireAuth, requireAdmin, async (req, res) => {
   const { slug } = req.params;
   const { name, price, category, image } = req.body || {};
+  try {
+    const doc = await Product.findOne({ slug });
+    if (!doc) return res.status(404).json({ message: 'Product not found' });
 
-  const index = products.findIndex((p) => p.slug === slug);
-  if (index === -1) return res.status(404).json({ message: 'Product not found' });
-
-  const current = products[index];
-  // Slug is immutable after creation
-  const updated = {
-    ...current,
-    name: name != null ? String(name).trim() : current.name,
-    price: price != null ? Number(price) : current.price,
-    category: category != null ? String(category).toLowerCase().trim() : current.category,
-    image: image != null ? String(image).trim() : current.image,
-  };
-
-  // If name changed, check uniqueness (case-insensitive)
-  if ((updated.name || '').trim().toLowerCase() !== (current.name || '').trim().toLowerCase()) {
-    const normalized = (updated.name || '').trim().toLowerCase();
-    if (products.some((p, i) => i !== index && (p.name || '').trim().toLowerCase() === normalized)) {
-      return res.status(400).json({ message: 'Product name already exists' });
+    // If name changes, ensure uniqueness (case-insensitive)
+    if (name != null && String(name).trim().toLowerCase() !== doc.name.trim().toLowerCase()) {
+      const existingByName = await Product.findOne({ name: { $regex: `^${escapeRegex(String(name).trim())}$`, $options: 'i' } });
+      if (existingByName && existingByName._id.toString() !== doc._id.toString()) {
+        return res.status(400).json({ message: 'Product name already exists' });
+      }
     }
+
+    if (name != null) doc.name = String(name).trim();
+    if (price != null) doc.price = Number(price);
+    if (category != null) doc.category = String(category).toLowerCase().trim();
+    if (image != null) doc.image = String(image).trim();
+
+    await doc.save();
+    res.json({ message: 'Product updated', product: mapProduct(doc) });
+  } catch (err) {
+    console.error('PATCH /admin/products/:slug error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
-  products[index] = updated;
-  saveProductsToFile();
-  res.json({ message: 'Product updated', product: updated });
 });
 
 // Admin delete product (by slug)
 app.delete('/admin/products/:slug', requireAuth, requireAdmin, async (req, res) => {
   const { slug } = req.params;
-  const idx = products.findIndex((p) => p.slug === slug);
-  if (idx === -1) return res.status(404).json({ message: 'Product not found' });
-  const removed = products.splice(idx, 1)[0];
-  // Remove from users' carts and wishlists to avoid dangling references
   try {
-    const users = await User.find({});
-    for (const u of users) {
-      u.cart = u.cart.filter((ci) => ci.productId !== removed.id);
-      u.wishlist = u.wishlist.filter((pid) => pid !== removed.id);
-      await u.save();
+    const product = await Product.findOne({ slug });
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    const productIdStr = product._id.toString();
+    await Product.deleteOne({ _id: product._id });
+
+    // Remove from users' carts and wishlists to avoid dangling references
+    try {
+      const users = await User.find({});
+      for (const u of users) {
+        u.cart = u.cart.filter((ci) => ci.productId !== productIdStr);
+        u.wishlist = u.wishlist.filter((pid) => pid !== productIdStr);
+        // Save only if modified
+        await u.save();
+      }
+    } catch (e) {
+      console.error('Failed to cascade delete from users:', e);
     }
-  } catch (e) {
-    console.error('Failed to cascade delete from users:', e);
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    console.error('DELETE /admin/products/:slug error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
-  saveProductsToFile();
-  res.json({ message: 'Product deleted' });
 });
 
 // Wishlist
 app.get('/wishlist', requireAuth, async (req, res) => {
-  const user = await User.findById(req.user.sub);
-  const items = user.wishlist.map(id => products.find(p => p.id === id)).filter(Boolean);
-  res.json({ items });
+  try {
+    // Admin does not have a user document; return empty wishlist for admin
+    if (req.user?.role === 'admin') {
+      return res.json({ items: [] });
+    }
+    const user = await User.findById(req.user.sub);
+    if (!user) return res.json({ items: [] });
+    const ids = (user.wishlist || []).filter(Boolean).filter((id) => mongoose.Types.ObjectId.isValid(id)).map((id) => new mongoose.Types.ObjectId(id));
+    if (ids.length === 0) return res.json({ items: [] });
+    const docs = await Product.find({ _id: { $in: ids } }).lean();
+    res.json({ items: docs.map((d) => mapProduct(d)) });
+  } catch (err) {
+    console.error('GET /wishlist error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/wishlist/toggle', requireAuth, async (req, res) => {
@@ -531,12 +559,24 @@ app.post('/wishlist/toggle', requireAuth, async (req, res) => {
 
 // Cart
 app.get('/cart', requireAuth, async (req, res) => {
-  const user = await User.findById(req.user.sub);
-  const detailed = user.cart.map(ci => ({
-    ...ci.toObject(),
-    product: products.find(p => p.id === ci.productId) || null,
-  }));
-  res.json({ items: detailed });
+  try {
+    const user = await User.findById(req.user.sub);
+    const ids = (user.cart || [])
+      .map((ci) => ci.productId)
+      .filter(Boolean)
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+    const docs = ids.length ? await Product.find({ _id: { $in: ids } }).lean() : [];
+    const map = new Map(docs.map((d) => [d._id.toString(), mapProduct(d)]));
+    const detailed = user.cart.map((ci) => ({
+      ...ci.toObject(),
+      product: map.get(ci.productId) || null,
+    }));
+    res.json({ items: detailed });
+  } catch (err) {
+    console.error('GET /cart error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/cart/add', requireAuth, async (req, res) => {
@@ -576,44 +616,66 @@ app.post('/cart/remove', requireAuth, async (req, res) => {
 
 // Orders
 app.get('/orders', requireAuth, async (req, res) => {
-  const user = await User.findById(req.user.sub);
-  res.json({ orders: user.orders });
+  try {
+    // Admin does not have a user document; return empty orders for admin
+    if (req.user?.role === 'admin') {
+      return res.json({ orders: [] });
+    }
+    const user = await User.findById(req.user.sub);
+    if (!user) return res.json({ orders: [] });
+    res.json({ orders: user.orders });
+  } catch (err) {
+    console.error('GET /orders error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/orders/checkout', requireAuth, async (req, res) => {
-  const user = await User.findById(req.user.sub);
-  const { name, email, address } = req.body || {};
-  if (!name || !email || !address?.city ) {
-    return res.status(400).json({ message: 'name, email, city are required' });
-  }
-  if (user.cart.length === 0) return res.status(400).json({ message: 'Cart is empty' });
+  try {
+    const user = await User.findById(req.user.sub);
+    const { name, email, address } = req.body || {};
+    if (!name || !email || !address?.city) {
+      return res.status(400).json({ message: 'name, email, city are required' });
+    }
+    if (user.cart.length === 0) return res.status(400).json({ message: 'Cart is empty' });
 
-  const subtotal = user.cart.reduce((sum, ci) => {
-    const prod = products.find(p => p.id === ci.productId);
-    return sum + (prod ? prod.price * ci.quantity : 0);
-  }, 0);
+    const ids = (user.cart || [])
+      .map((ci) => ci.productId)
+      .filter(Boolean)
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+      .map((id) => new mongoose.Types.ObjectId(id));
+    const docs = ids.length ? await Product.find({ _id: { $in: ids } }).lean() : [];
+    const priceMap = new Map(docs.map((d) => [d._id.toString(), d.price]));
+    const subtotal = user.cart.reduce((sum, ci) => {
+      const price = priceMap.get(ci.productId) || 0;
+      return sum + price * ci.quantity;
+    }, 0);
 
-  const deliveryFee = cityFees[address.city] ?? 5.0;
-  const grandTotal = subtotal + deliveryFee;
+    const deliveryFee = cityFees[address.city] ?? 5.0;
+    const grandTotal = subtotal + deliveryFee;
 
-  user.orders.push({
-    items: user.cart.map(ci => ({ productId: ci.productId, quantity: ci.quantity })),
-    status: 'pending',
-    subtotal,
-    deliveryFee,
-    grandTotal,
-    customer: {
-      name,
-      email,
-      address: {
-        street: address?.street || '',
-        city: address.city,
+    user.orders.push({
+      items: user.cart.map((ci) => ({ productId: ci.productId, quantity: ci.quantity })),
+      status: 'pending',
+      subtotal,
+      deliveryFee,
+      grandTotal,
+      customer: {
+        name,
+        email,
+        address: {
+          street: address?.street || '',
+          city: address.city,
+        },
       },
-    },
-  });
-  user.cart = [];
-  await user.save();
-  res.json({ message: 'Order placed', orders: user.orders });
+    });
+    user.cart = [];
+    await user.save();
+    res.json({ message: 'Order placed', orders: user.orders });
+  } catch (err) {
+    console.error('POST /orders/checkout error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // Logout
