@@ -1,7 +1,9 @@
 import React from "react";
+import Footer from "@/components/layout/Footer";
 
 export default function ServicesPage() {
   return (
+    <>
     <main className="max-w-6xl mx-auto px-4 py-10 space-y-10">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold">Our Services</h1>
@@ -44,5 +46,7 @@ export default function ServicesPage() {
         </p>
       </section>
     </main>
+    <Footer />
+    </>
   );
 }

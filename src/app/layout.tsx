@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+import { config as faConfig } from "@fortawesome/fontawesome-svg-core";
+faConfig.autoAddCss = false;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +37,8 @@ export default function RootLayout({
           themes={["light", "dark"]}
           disableTransitionOnChange
         >
+          {/* Initialize Font Awesome library icons */}
+          {/* Optional: import '@/lib/fontawesome' here if you want to pre-add icons */}
           {children}
           <Toaster />
         </ThemeProvider>

@@ -1,61 +1,178 @@
-import React from "react";
+import PixelTransition from "@/components/PixelTransition";
+import Footer from "@/components/layout/Footer";
+
+const teamMembers = [
+  {
+    name: "Rijan Shakya",
+    role: "Founder & CEO",
+    image: "https://randomuser.me/api/portraits/men/75.jpg",
+    description:
+      "Visionary leader and passionate about building amazing products.",
+  },
+  {
+    name: "Sita Rai",
+    role: "Lead Designer",
+    image: "https://randomuser.me/api/portraits/women/65.jpg",
+    description:
+      "Creative mind behind our sleek and user-friendly designs.",
+  },
+  {
+    name: "Ram Thapa",
+    role: "Senior Developer",
+    image: "https://randomuser.me/api/portraits/men/33.jpg",
+    description:
+      "Code ninja making sure everything runs smoothly and efficiently.",
+  },
+];
 
 export default function AboutPage() {
   return (
-    <main className="max-w-6xl mx-auto px-4 py-10 space-y-10">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold">About Tech Store</h1>
-        <p className="text-gray-600 dark:text-gray-300">
-          We are a modern e‑commerce store focused on quality computer parts and
-          accessories. Our goal is to make tech shopping simple, transparent, and fast.
+    <>
+    <div style={{ padding: "2rem", maxWidth: "900px", margin: "auto", textAlign: "center" }}>
+      {/* Our Story with image side by side */}
+      <h1 style={{ fontSize: "2.8rem", fontWeight: "bold", marginBottom: "1rem" }}>
+        Our Story
+      </h1>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "2rem",
+          marginBottom: "3rem",
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
+        <p style={{ color: "#555", lineHeight: "1.6rem", flex: "1 1 300px", minWidth: "280px" }}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus nec
+          dui euismod, commodo urna in, convallis erat. Praesent dignissim
+          pharetra justo, id congue nulla. Maecenas a lorem vitae magna suscipit
+          efficitur. Morbi consectetur nunc eu nulla faucibus, nec condimentum
+          purus efficitur. Donec faucibus lorem nec leo pretium, nec convallis
+          urna ultricies. Pellentesque habitant morbi tristique senectus et
+          netus et malesuada fames ac turpis egestas. Nullam malesuada semper
+          rhoncus.
         </p>
-      </header>
+        <img
+          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
+          alt="Our story"
+          style={{ width: "300px", height: "200px", objectFit: "cover", borderRadius: "12px", flexShrink: 0 }}
+        />
+      </div>
 
-      <section className="grid md:grid-cols-2 gap-8">
-        <div className="p-6 rounded border bg-white dark:bg-gray-900 dark:text-white">
-          <h2 className="text-xl font-semibold mb-2">Our Mission</h2>
-          <p className="text-gray-600 dark:text-gray-300">
-            To deliver reliable tech products at fair prices with exceptional customer
-            service and quick delivery across Nepal.
-          </p>
-        </div>
-        <div className="p-6 rounded border bg-white dark:bg-gray-900 dark:text-white">
-          <h2 className="text-xl font-semibold mb-2">Our Values</h2>
-          <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
-            <li>Quality products from trusted brands</li>
-            <li>Honest pricing and clear information</li>
-            <li>Fast, careful shipping</li>
-            <li>Friendly, responsive support</li>
-          </ul>
-        </div>
-      </section>
-
-      <section className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Our Values Section */}
+      <h2 style={{ fontSize: "2.4rem", fontWeight: "bold", marginBottom: "1rem" }}>
+        Our Values
+      </h2>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "2.5rem",
+          flexWrap: "wrap",
+          marginBottom: "3rem",
+        }}
+      >
         {[
-          { label: "Products", value: "500+" },
-          { label: "Happy Customers", value: "10k+" },
-          { label: "Cities Served", value: "25+" },
-          { label: "Support Hrs/day", value: "12" },
-        ].map((s) => (
+          {
+            title: "Quality Assurance",
+            description:
+              "We strive for excellence and ensure the highest standards in every product.",
+          },
+          {
+            title: "Customer Focus",
+            description:
+              "Our customers are at the heart of everything we do. Their satisfaction drives us.",
+          },
+          {
+            title: "Innovation",
+            description:
+              "Constantly pushing boundaries to create cutting-edge solutions.",
+          },
+        ].map(({ title, description }) => (
           <div
-            key={s.label}
-            className="p-6 rounded border text-center bg-white dark:bg-gray-900 dark:text-white"
+            key={title}
+            style={{
+              maxWidth: "280px",
+              backgroundColor: "#f9f9f9",
+              padding: "1.5rem",
+              borderRadius: "12px",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+              textAlign: "left",
+            }}
           >
-            <div className="text-2xl font-bold">{s.value}</div>
-            <div className="text-gray-600 dark:text-gray-300">{s.label}</div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: "700", marginBottom: "0.5rem" }}>
+              {title}
+            </h3>
+            <p style={{ color: "#555", fontSize: "0.95rem" }}>{description}</p>
           </div>
         ))}
-      </section>
+      </div>
 
-      <section className="p-6 rounded border bg-white dark:bg-gray-900 dark:text-white">
-        <h2 className="text-xl font-semibold mb-2">Why shop with us?</h2>
-        <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
-          <li>Carefully curated parts and accessories</li>
-          <li>Secure payments and safe checkout</li>
-          <li>Warranty support on eligible items</li>
-          <li>Helpful guides and quick responses</li>
-        </ul>
-      </section>
-    </main>
+      {/* Meet Our Team */}
+      <h2 style={{ fontSize: "2.4rem", fontWeight: "bold", marginBottom: "1.5rem" }}>
+        Meet Our Team
+      </h2>
+      <div
+        style={{
+          display: "flex",
+          gap: "2rem",
+          justifyContent: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        {teamMembers.map(({ name, role, image, description }) => (
+          <div
+            key={name}
+            style={{
+              width: "280px",
+              height: "350px",
+              cursor: "pointer",
+              borderRadius: "12px",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+              overflow: "hidden",
+            }}
+          >
+            <PixelTransition
+              firstContent={
+                <img
+                  src={image}
+                  alt={`${name}`}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              }
+              secondContent={
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "#111",
+                    color: "#fff",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "1.5rem",
+                    textAlign: "center",
+                  }}
+                >
+                  <h3 style={{ fontSize: "1.4rem", fontWeight: "700", marginBottom: "0.3rem" }}>
+                    {name}
+                  </h3>
+                  <p style={{ fontStyle: "italic", marginBottom: "1rem" }}>{role}</p>
+                  <p style={{ fontSize: "0.9rem", color: "#ccc" }}>{description}</p>
+                </div>
+              }
+              gridSize={12}
+              pixelColor="#ffffff"
+              animationStepDuration={0.4}
+              className="custom-pixel-card"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+    <Footer />
+    </>
   );
 }
