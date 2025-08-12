@@ -73,6 +73,10 @@ const cartItemSchema = new mongoose.Schema({
 const orderItemSchema = new mongoose.Schema({
   productId: { type: String, required: true },
   quantity: { type: Number, required: true },
+  // Snapshot of product at time of order
+  name: { type: String },
+  image: { type: String },
+  price: { type: Number },
 });
 
 const orderSchema = new mongoose.Schema({
@@ -644,10 +648,10 @@ app.post('/orders/checkout', requireAuth, async (req, res) => {
       .filter(Boolean)
       .filter((id) => mongoose.Types.ObjectId.isValid(id))
       .map((id) => new mongoose.Types.ObjectId(id));
-    const docs = ids.length ? await Product.find({ _id: { $in: ids } }).lean() : [];
-    const priceMap = new Map(docs.map((d) => [d._id.toString(), d.price]));
+  const docs = ids.length ? await Product.find({ _id: { $in: ids } }).lean() : [];
+  const productMap = new Map(docs.map((d) => [d._id.toString(), { price: d.price, name: d.name, image: d.image }]));
     const subtotal = user.cart.reduce((sum, ci) => {
-      const price = priceMap.get(ci.productId) || 0;
+    const price = productMap.get(ci.productId)?.price || 0;
       return sum + price * ci.quantity;
     }, 0);
 
@@ -655,7 +659,13 @@ app.post('/orders/checkout', requireAuth, async (req, res) => {
     const grandTotal = subtotal + deliveryFee;
 
     user.orders.push({
-      items: user.cart.map((ci) => ({ productId: ci.productId, quantity: ci.quantity })),
+      items: user.cart.map((ci) => ({
+        productId: ci.productId,
+        quantity: ci.quantity,
+        name: productMap.get(ci.productId)?.name,
+        image: productMap.get(ci.productId)?.image,
+        price: productMap.get(ci.productId)?.price,
+      })),
       status: 'pending',
       subtotal,
       deliveryFee,

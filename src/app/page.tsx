@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { useCartStore } from "@/store/useCartStore";
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -96,16 +97,10 @@ function Page() {
     load();
   }, []);
 
+  const cartStore = useCartStore();
   const handleAddToCart = async (productId: string) => {
     try {
-      const res = await fetch("http://localhost:5000/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ productId, quantity: 1 }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to add to cart");
+      await cartStore.add(productId, 1);
       toast.success("Added to cart");
     } catch (e: any) {
       toast.error(e.message || "Failed to add to cart");

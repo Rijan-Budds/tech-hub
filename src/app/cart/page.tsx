@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useCartStore } from "@/store/useCartStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useFormik } from "formik";
@@ -20,7 +21,7 @@ interface CityFee {
 
 export default function CartPage() {
   const router = useRouter();
-  const [items, setItems] = useState<CartItem[]>([]);
+  const cart = useCartStore();
   const [loading, setLoading] = useState(true);
   const [cities, setCities] = useState<CityFee[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -42,7 +43,7 @@ export default function CartPage() {
       if (items.length === 0) return;
       setSubmitting(true);
       try {
-        const res = await fetch("http://localhost:5000/orders/checkout", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"}/orders/checkout`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -60,7 +61,7 @@ export default function CartPage() {
         const createdOrder = Array.isArray(data.orders)
           ? data.orders[data.orders.length - 1]
           : null;
-        setItems([]);
+        await cart.fetchCart();
         if (createdOrder && createdOrder._id) {
           router.push(`/orders/${createdOrder._id}`);
         } else {
@@ -77,13 +78,9 @@ export default function CartPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [cartRes, citiesRes] = await Promise.all([
-          fetch("http://localhost:5000/cart", { credentials: "include" }),
-          fetch("http://localhost:5000/shipping/cities"),
-        ]);
-        const cartData = await cartRes.json();
+        await cart.fetchCart();
+        const citiesRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"}/shipping/cities`);
         const citiesData = await citiesRes.json();
-        setItems(cartData.items || []);
         setCities(citiesData.cities || []);
         if ((citiesData.cities || []).length > 0) {
           formik.setFieldValue("city", citiesData.cities[0].name);
@@ -95,6 +92,7 @@ export default function CartPage() {
     load();
   }, []);
 
+  const items = cart.items as CartItem[];
   const subtotal = useMemo(
     () =>
       items.reduce(
@@ -113,32 +111,16 @@ export default function CartPage() {
   const updateQuantity = async (productId: string, delta: number) => {
     const current = items.find((it) => it.productId === productId);
     const newQuantity = Math.max(1, (current?.quantity || 0) + delta);
-    setItems((prev) =>
-      prev.map((item) =>
-        item.productId === productId ? { ...item, quantity: newQuantity } : item
-      )
-    );
     try {
-      await fetch("http://localhost:5000/cart/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ productId, quantity: newQuantity }),
-      });
+      await cart.update(productId, newQuantity);
     } catch (error) {
       toast.error("Failed to update quantity");
     }
   };
 
   const removeItem = async (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.productId !== productId));
     try {
-      await fetch("http://localhost:5000/cart/remove", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ productId }),
-      });
+      await cart.remove(productId);
       toast.success("Item removed from cart");
     } catch (error) {
       toast.error("Failed to remove item from cart");

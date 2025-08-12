@@ -13,7 +13,7 @@ function Footer() {
            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, excepturi accusamus repellat expedita provident, hic minus ipsa, maxime corporis a culpa repudiandae labore. Sunt amet eius voluptatibus, harum aliquid quasi?
           </p>
           <p className="mt-2 text-xs opacity-80">
-            © {new Date().getFullYear()} Ecommerce website. All rights reserved.
+            © {new Date().getFullYear()} Tech Store. All rights reserved.
           </p>
         </div>
 

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useProfileStore } from "@/store/useProfileStore";
 
 interface Product {
   id: string;
@@ -38,43 +39,11 @@ interface Order {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{
-    id: string;
-    email: string;
-    username: string;
-  } | null>(null);
-  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const { loading, user, wishlist, orders, loadProfile, removeFromWishlistLocal } = useProfileStore();
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [meRes, wlRes, ordersRes] = await Promise.all([
-          fetch("http://localhost:5000/me", { credentials: "include" }),
-          fetch("http://localhost:5000/wishlist", { credentials: "include" }),
-          fetch("http://localhost:5000/orders", { credentials: "include" }),
-        ]);
-        const me = await meRes.json();
-        if (!me.user) {
-          setUser(null);
-        } else {
-          setUser(me.user);
-        }
-        const wl = wlRes.ok ? await wlRes.json() : { items: [] };
-        const or = ordersRes.ok ? await ordersRes.json() : { orders: [] };
-        setWishlist(wl.items || []);
-        setOrders(or.orders || []);
-      } catch {
-        setUser(null);
-        setWishlist([]);
-        setOrders([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
+    loadProfile();
+  }, [loadProfile]);
 
   const handleLogout = async () => {
     await fetch("http://localhost:5000/logout", {
@@ -86,7 +55,7 @@ export default function ProfilePage() {
 
   const handleRemoveFromWishlist = async (productId: string) => {
     try {
-      const res = await fetch("http://localhost:5000/wishlist/toggle", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"}/wishlist/toggle`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -94,7 +63,7 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update wishlist");
-      setWishlist((prev) => prev.filter((p) => p.id !== productId));
+      removeFromWishlistLocal(productId);
       toast.success("Removed from wishlist");
     } catch (e: any) {
       toast.error(e.message || "Failed to update wishlist");
@@ -138,7 +107,7 @@ export default function ProfilePage() {
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {wishlist.map((p) => (
+            {wishlist.map((p: { id: string; name: string; image: string; price: number }) => (
               <div
                 key={p.id}
                 className="border rounded-lg p-4 shadow bg-white dark:bg-gray-900 dark:text-white"
@@ -172,7 +141,7 @@ export default function ProfilePage() {
           <p className="text-gray-600 dark:text-gray-300">No orders yet.</p>
         ) : (
           <div className="space-y-4">
-            {orders.map((o) => (
+            {orders.map((o: { _id: string; createdAt: string; status: string; items: { quantity: number; name?: string; image?: string; price?: number }[]; grandTotal: number }) => (
               <div
                 key={o._id}
                 className="border rounded-lg p-4 shadow bg-white dark:bg-gray-900 dark:text-white"
@@ -187,8 +156,26 @@ export default function ProfilePage() {
                   Status: <span className="capitalize font-medium">{o.status}</span>
                 </div>
                 <div className="text-sm text-gray-700 dark:text-gray-300">
-                  Items: {o.items.reduce((s, it) => s + it.quantity, 0)}
+                  Items: {o.items.reduce((s: number, it: { quantity: number }) => s + it.quantity, 0)}
                 </div>
+                {o.items && o.items.length > 0 && (
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {o.items.map((it, idx) => (
+                      <div key={idx} className="flex items-center gap-3 border rounded p-2 bg-white/50 dark:bg-gray-800/50">
+                        {it.image && (
+                          // @ts-ignore
+                          <img src={it.image} alt={it.name || "Item"} className="w-16 h-16 object-cover rounded" />
+                        )}
+                        <div className="flex-1">
+                          <div className="font-medium">{it.name || "Item"}</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">
+                            Qty: {it.quantity} {typeof it.price === 'number' ? ` • $${(it.price * it.quantity).toFixed(2)}` : ''}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="text-secondary font-bold mt-1">
                   Total: ${o.grandTotal?.toFixed(2)}
                 </div>
