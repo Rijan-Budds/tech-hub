@@ -82,7 +82,7 @@ export default function AboutPage() {
           {
             title: "Customer Focus",
             description:
-              "Our customers are at the heart of everything we do. Their satisfaction drives us.",
+              "lorem",
           },
           {
             title: "Innovation",
