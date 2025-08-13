@@ -62,7 +62,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="bg-primary text-sm text-primary-foreground px-4 py-2 flex justify-end gap-4">
+      <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] text-sm text-white px-4 py-2 flex justify-end gap-4">
         {currentUser ? (
           <div className="flex items-center gap-3">
             {currentUser.role === 'admin' && (

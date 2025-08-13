@@ -6,6 +6,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/useCartStore";
+import { FaShoppingCart, FaHeart, FaArrowRight, FaStar, FaTruck, FaShieldAlt, FaHeadset } from "react-icons/fa";
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -22,22 +23,30 @@ const sliderData = [
   {
     image: "/home/slider1.jpg",
     categorySlug: "keyboard",
-    alt: "keyboard"
+    alt: "keyboard",
+    title: "Premium Keyboards",
+    subtitle: "Experience the perfect typing sensation"
   },
   {
     image: "/home/slider2.jpg", 
     categorySlug: "mouse",
-    alt: "Mouse"
+    alt: "Mouse",
+    title: "Gaming Mice",
+    subtitle: "Precision and speed for every click"
   },
   {
     image: "/home/slider3.jpg",
     categorySlug: "speaker", 
-    alt: "Speaker"
+    alt: "Speaker",
+    title: "High-Fidelity Speakers",
+    subtitle: "Crystal clear sound quality"
   },
   {
     image: "/home/slider4.jpg",
     categorySlug: "monitor",
-    alt: "Monitor"
+    alt: "Monitor",
+    title: "Ultra HD Monitors",
+    subtitle: "Stunning visuals for work and play"
   },
 ];
 
@@ -56,36 +65,64 @@ const featuredCategories = [
     name: "CPUs",
     slug: "cpu",
     image: "/home/category1.jpg",
+    description: "High-performance processors"
   },
   {
     id: 2,
     name: "Keyboard",
     slug: "keyboard",
     image: "/home/category2.jpg",
+    description: "Mechanical & wireless keyboards"
   },
   {
     id: 3,
     name: "Monitor",
     slug: "monitor",
     image: "/home/category3.jpg",
+    description: "4K & gaming monitors"
   },
   {
     id: 4,
     name: "Speakers",
     slug: "speaker",
     image: "/home/category4.jpg",
+    description: "Premium audio systems"
   },
   {
     id: 5,
     name: "Mouse",
     slug: "mouse",
     image: "/home/category5.jpg",
+    description: "Gaming & wireless mice"
   },
+];
+
+const features = [
+  {
+    icon: <FaTruck className="text-3xl" />,
+    title: "Free Shipping",
+    description: "Free delivery on orders over $50"
+  },
+  {
+    icon: <FaShieldAlt className="text-3xl" />,
+    title: "Secure Payment",
+    description: "100% secure payment processing"
+  },
+  {
+    icon: <FaHeadset className="text-3xl" />,
+    title: "24/7 Support",
+    description: "Round the clock customer support"
+  },
+  {
+    icon: <FaStar className="text-3xl" />,
+    title: "Quality Guarantee",
+    description: "30-day money back guarantee"
+  }
 ];
 
 function Page() {
   const autoplayPlugin = React.useRef(
-    Autoplay({ delay: 2000, stopOnInteraction: false })
+    Autoplay({ delay: 4000, stopOnInteraction: false })
   );
 
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
@@ -136,86 +173,193 @@ function Page() {
     <>
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-12 bg-white dark:bg-black transition-colors">
-        {/* Carousel */}
-        <Carousel plugins={[autoplayPlugin.current]} opts={{ loop: true }}>
-          <CarouselContent>
-            {sliderData.map((slider, i) => (
-              <CarouselItem key={i} className="basis-full">
-                <Link href={`/categories/${slider.categorySlug}`}>
-                  <Image
-                    src={slider.image}
-                    alt={slider.alt}
-                    width={1200}
-                    height={400}
-                    className="w-full h-64 object-cover object-center mb-4 rounded cursor-pointer hover:opacity-90 transition-opacity"
-                  />
-                </Link>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+        {/* Hero Carousel */}
+        <section className="relative">
+          <Carousel plugins={[autoplayPlugin.current]} opts={{ loop: true }}>
+            <CarouselContent>
+              {sliderData.map((slider, i) => (
+                <CarouselItem key={i} className="basis-full">
+                  <div className="relative h-[500px] overflow-hidden">
+                    <Image
+                      src={slider.image}
+                      alt={slider.alt}
+                      width={1400}
+                      height={500}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent">
+                      <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
+                        <div className="text-white max-w-lg">
+                          <h1 className="text-5xl font-bold mb-4">{slider.title}</h1>
+                          <p className="text-xl mb-6 text-gray-200">{slider.subtitle}</p>
+                          <Link 
+                            href={`/categories/${slider.categorySlug}`}
+                            className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg hover:shadow-xl"
+                          >
+                            <span>Shop Now</span>
+                            <FaArrowRight />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </section>
 
-        {/* Trending Products */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
-            Trending Products
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {trendingProducts.map((product) => (
-              <div key={product.id} className="border rounded-lg p-4 shadow hover:shadow-lg transition-shadow cursor-pointer bg-white dark:bg-gray-900 dark:text-white">
-                <Link href={`/product/${product.slug}`}>
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    width={300}
-                    height={192}
-                    className="w-full h-48 object-cover mb-4 rounded"
-                  />
-                </Link>
-                <h3 className="font-semibold text-lg">{product.name}</h3>
-                <p className="text-secondary font-bold">${product.price.toFixed(2)}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button 
-                    onClick={() => handleAddToCart(product.id)} 
-                    className="w-full bg-primary text-primary-foreground py-2 rounded hover:bg-primary/90 transition"
-                  >
-                    Add to Cart
-                  </button>
-                  <button 
-                    onClick={() => handleToggleWishlist(product.id)} 
-                    className="w-full border border-border py-2 rounded hover:bg-muted transition"
-                  >
-                    Wishlist
-                  </button>
+        {/* Features Section */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {features.map((feature, index) => (
+                <div key={index} className="text-center group">
+                  <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div className="w-16 h-16 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Categories */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
-            Categories
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {featuredCategories.map((cat) => (
-              <Link key={cat.id} href={`/categories/${cat.slug}`}>
-                <div className="relative rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform shadow-md">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    width={300}
-                    height={200}
-                    className="w-full h-32 object-cover"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-2 font-semibold text-sm">
-                    {cat.name}
+        {/* Trending Products */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Trending <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Products</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Discover our most popular products loved by customers worldwide
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {trendingProducts.map((product) => (
+                <div key={product.id} className="group">
+                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <Link href={`/product/${product.slug}`}>
+                      <div className="relative overflow-hidden">
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          width={400}
+                          height={300}
+                          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                      </div>
+                    </Link>
+                    
+                    <div className="p-6 space-y-4">
+                      <div>
+                        <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-[#0D3B66] transition-colors">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-baseline space-x-2">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                            ${product.price.toFixed(2)}
+                          </span>
+                          <span className="text-sm text-gray-500">USD</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <button 
+                          onClick={() => handleAddToCart(product.id)} 
+                          className="flex-1 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 flex items-center justify-center space-x-2"
+                        >
+                          <FaShoppingCart />
+                          <span>Add to Cart</span>
+                        </button>
+                        <button 
+                          onClick={() => handleToggleWishlist(product.id)} 
+                          className="px-4 py-3 border-2 border-[#0D3B66] text-[#0D3B66] rounded-xl hover:bg-[#0D3B66] hover:text-white transition-all duration-200"
+                        >
+                          <FaHeart />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </Link>
-            ))}
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Categories Section */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Shop by <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Category</span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Explore our wide range of products organized by category
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {featuredCategories.map((cat) => (
+                <Link key={cat.id} href={`/categories/${cat.slug}`}>
+                  <div className="group">
+                    <div className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                      <Image
+                        src={cat.image}
+                        alt={cat.name}
+                        width={300}
+                        height={200}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <h3 className="text-white text-xl font-bold mb-2">{cat.name}</h3>
+                          <p className="text-gray-200 text-sm mb-4">{cat.description}</p>
+                          <div className="flex items-center text-white text-sm font-semibold">
+                            <span>Explore</span>
+                            <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="bg-gradient-to-r from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl p-12 text-center text-white">
+              <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Setup?</h2>
+              <p className="text-xl mb-8 text-blue-100 max-w-2xl mx-auto">
+                Join thousands of satisfied customers who have upgraded their tech experience with our premium products.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link 
+                  href="/categories/trending"
+                  className="bg-white text-[#0D3B66] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  <span>Shop Trending</span>
+                  <FaArrowRight />
+                </Link>
+                <Link 
+                  href="/about"
+                  className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-[#0D3B66] transition-all duration-200"
+                >
+                  Learn More
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
       </main>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 function Footer() {
   return (
-    <footer className="bg-primary text-primary-foreground py-8">
+    <footer className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] text-white py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center md:items-start gap-6">
         {/* Company Info */}
         <div className="text-center md:text-left">

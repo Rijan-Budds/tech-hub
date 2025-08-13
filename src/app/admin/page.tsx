@@ -4,6 +4,9 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { FaUsers, FaShoppingCart, FaBox, FaPlus, FaTrash, FaEdit, FaSignOutAlt, FaUpload, FaEye } from "react-icons/fa";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 interface User {
   _id: string;
@@ -47,6 +50,7 @@ export default function AdminPage() {
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'orders' | 'products'>('overview');
 
   const router = useRouter();
 
@@ -257,259 +261,429 @@ export default function AdminPage() {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'delivered': return 'bg-green-100 text-green-800';
+      case 'canceled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   if (loading)
-    return <div className="max-w-6xl mx-auto px-4 py-8">Loading...</div>;
-
-  return (
-    <main className="max-w-6xl mx-auto px-4 py-8 space-y-10">
-      <div className="flex gap-4">
-        <button
-          onClick={handleLogout}
-          className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]"
-        >
-          Logout
-        </button>
-      </div>
-
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-
-      {/* Users Section */}
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Users</h2>
-        <div className="overflow-x-auto border rounded">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 dark:bg-gray-800">
-              <tr>
-                <th className="text-left p-2">Username</th>
-                <th className="text-left p-2">Email</th>
-                <th className="text-right p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u._id} className="border-t">
-                  <td className="p-2">{u.username}</td>
-                  <td className="p-2">{u.email}</td>
-                  <td className="p-2 text-right">
-                    <button
-                      onClick={() => deleteUser(u._id)}
-                      className="px-3 py-1 rounded border text-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Orders Section */}
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Orders</h2>
-        <div className="space-y-4">
-          {orders.map((o) => (
-            <div
-              key={o.orderId}
-              className="border rounded p-4 bg-white dark:bg-gray-900 dark:text-white"
-            >
-              <div className="flex items-center justify-between">
-                <div className="font-semibold">
-                  {o.username} ({o.email})
-                </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {new Date(o.createdAt).toLocaleString()}
-                </div>
-              </div>
-              <div className="text-sm">
-                Status:{" "}
-                <span className="font-medium capitalize">{o.status}</span>
-              </div>
-              <div className="text-sm">
-                Address: {o.customer?.address?.street},{" "}
-                {o.customer?.address?.city}
-              </div>
-              <div className="text-sm">
-                Totals: Subtotal $
-                {o.subtotal !== undefined ? o.subtotal.toFixed(2) : "0.00"} +
-                Delivery $
-                {o.deliveryFee !== undefined
-                  ? o.deliveryFee.toFixed(2)
-                  : "0.00"}{" "}
-                ={" "}
-                <span className="font-semibold">
-                  $
-                  {o.grandTotal !== undefined
-                    ? o.grandTotal.toFixed(2)
-                    : "0.00"}
-                </span>
-              </div>
-
-              <div className="mt-2 flex gap-2">
-                <button
-                  onClick={() => updateStatus(o.orderId, "pending")}
-                  className="px-3 py-1 rounded border"
-                >
-                  Pending
-                </button>
-                <button
-                  onClick={() => updateStatus(o.orderId, "canceled")}
-                  className="px-3 py-1 rounded border"
-                >
-                  Canceled
-                </button>
-                <button
-                  onClick={() => updateStatus(o.orderId, "delivered")}
-                  className="px-3 py-1 rounded border"
-                >
-                  Delivered
-                </button>
-                <button
-                  onClick={() => deleteOrder(o.orderId)}
-                  className="px-3 py-1 rounded border text-red-600"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Products Management */}
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Products</h2>
-        <div className="overflow-x-auto border rounded">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 dark:bg-gray-800">
-              <tr>
-                <th className="text-left p-2">Image</th>
-                <th className="text-left p-2">Name</th>
-                <th className="text-left p-2">Category</th>
-                <th className="text-right p-2">Price</th>
-                <th className="text-right p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p.id} className="border-t">
-                  <td className="p-2">
-                    <Image 
-                      src={p.image} 
-                      alt={p.name} 
-                      width={56}
-                      height={56}
-                      className="w-14 h-14 object-cover rounded" 
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input
-                      defaultValue={p.name}
-                      onBlur={(e) => updateProduct(p.slug, { name: e.target.value })}
-                      className="border rounded px-2 py-1 bg-white dark:bg-gray-800"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <select
-                      defaultValue={p.category}
-                      onChange={(e) => updateProduct(p.slug, { category: e.target.value })}
-                      className="border rounded px-2 py-1 bg-white dark:bg-gray-800"
-                    >
-                      <option value="cpu">CPU</option>
-                      <option value="keyboard">Keyboard</option>
-                      <option value="monitor">Monitor</option>
-                      <option value="speaker">Speaker</option>
-                      <option value="mouse">Mouse</option>
-                      <option value="trending">Trending</option>
-                    </select>
-                  </td>
-                  <td className="p-2 text-right">
-                    <input
-                      type="number"
-                      step="0.01"
-                      defaultValue={p.price}
-                      onBlur={(e) => updateProduct(p.slug, { price: Number(e.target.value) })}
-                      className="border rounded px-2 py-1 w-28 text-right bg-white dark:bg-gray-800"
-                    />
-                  </td>
-                  <td className="p-2 text-right">
-                    <button
-                      onClick={() => deleteProduct(p.slug)}
-                      className="px-3 py-1 rounded border text-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Add Product Section */}
-      <section>
-        <h2 className="text-xl font-semibold mb-2">Add Product</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border rounded p-4 bg-white dark:bg-gray-900 dark:text-white">
-          <input
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border rounded px-3 py-2 bg-white dark:bg-gray-800"
-          />
-          {/* Slug is auto-generated on the server from the product name */}
-          <input
-            placeholder="Price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="border rounded px-3 py-2 bg-white dark:bg-gray-800"
-          />
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border rounded px-3 py-2 bg-white dark:bg-gray-800"
-          >
-            <option value="cpu">CPU</option>
-            <option value="keyboard">Keyboard</option>
-            <option value="monitor">Monitor</option>
-            <option value="speaker">Speaker</option>
-            <option value="mouse">Mouse</option>
-            <option value="trending">Trending</option>
-          </select>
-
-          {/* File input for image upload */}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="border rounded px-3 py-2 bg-white dark:bg-gray-800 md:col-span-2"
-            disabled={uploading}
-          />
-
-          {/* Image preview */}
-          {image && (
-            <Image
-              src={image}
-              alt="Uploaded preview"
-              width={160}
-              height={160}
-              className="w-40 h-40 object-cover rounded mt-2 md:col-span-2"
-            />
-          )}
-
-          {/* Add product button */}
-          <div className="md:col-span-2">
-            <button
-              onClick={addProduct}
-              disabled={uploading}
-              className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00] disabled:opacity-50"
-            >
-              {uploading ? "Uploading..." : "Add Product"}
-            </button>
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66] mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading admin dashboard...</p>
           </div>
         </div>
-      </section>
-    </main>
+        <Footer />
+      </>
+    );
+
+  return (
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                Admin <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Dashboard</span>
+              </h1>
+              <p className="text-gray-600">Manage your ecommerce platform</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center space-x-2 shadow-lg"
+            >
+              <FaSignOutAlt />
+              <span>Logout</span>
+            </button>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Total Users</p>
+                  <p className="text-3xl font-bold text-gray-900">{users.length}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center">
+                  <FaUsers className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Total Orders</p>
+                  <p className="text-3xl font-bold text-gray-900">{orders.length}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center">
+                  <FaShoppingCart className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Total Products</p>
+                  <p className="text-3xl font-bold text-gray-900">{products.length}</p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center">
+                  <FaBox className="text-white text-xl" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Revenue</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    ${orders.reduce((sum, order) => sum + (order.grandTotal || 0), 0).toFixed(2)}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center">
+                  <span className="text-white text-xl font-bold">$</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="bg-white rounded-2xl shadow-lg mb-8">
+            <div className="flex border-b">
+              {[
+                { id: 'overview', label: 'Overview', icon: FaEye },
+                { id: 'users', label: 'Users', icon: FaUsers },
+                { id: 'orders', label: 'Orders', icon: FaShoppingCart },
+                { id: 'products', label: 'Products', icon: FaBox }
+              ].map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id as any)}
+                  className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
+                    activeTab === id
+                      ? 'text-[#0D3B66] border-b-2 border-[#0D3B66]'
+                      : 'text-gray-600 hover:text-[#0D3B66]'
+                  }`}
+                >
+                  <Icon />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Content Sections */}
+          {activeTab === 'overview' && (
+            <div className="space-y-8">
+              {/* Recent Orders */}
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Orders</h3>
+                <div className="space-y-4">
+                  {orders.slice(0, 5).map((order) => (
+                    <div key={order.orderId} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                      <div>
+                        <p className="font-semibold">{order.username}</p>
+                        <p className="text-sm text-gray-600">${order.grandTotal?.toFixed(2)}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                        {order.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recent Products */}
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Products</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {products.slice(0, 6).map((product) => (
+                    <div key={product.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
+                      <div>
+                        <p className="font-semibold text-sm">{product.name}</p>
+                        <p className="text-sm text-gray-600">${product.price.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'users' && (
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="p-6 border-b">
+                <h3 className="text-xl font-bold text-gray-900">User Management</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left p-4 font-semibold text-gray-900">Username</th>
+                      <th className="text-left p-4 font-semibold text-gray-900">Email</th>
+                      <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user._id} className="border-t hover:bg-gray-50">
+                        <td className="p-4">{user.username}</td>
+                        <td className="p-4">{user.email}</td>
+                        <td className="p-4 text-right">
+                          <button
+                            onClick={() => deleteUser(user._id)}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-2 mx-auto"
+                          >
+                            <FaTrash />
+                            <span>Delete</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'orders' && (
+            <div className="space-y-6">
+              {orders.map((order) => (
+                <div key={order.orderId} className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900">{order.username}</h4>
+                      <p className="text-gray-600">{order.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleString()}</p>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                        {order.status}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600">Address</p>
+                      <p className="font-medium">{order.customer?.address?.street}, {order.customer?.address?.city}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Total</p>
+                      <p className="font-bold text-lg text-[#0D3B66]">${order.grandTotal?.toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => updateStatus(order.orderId, "pending")}
+                      className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                    >
+                      Pending
+                    </button>
+                    <button
+                      onClick={() => updateStatus(order.orderId, "delivered")}
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                    >
+                      Delivered
+                    </button>
+                    <button
+                      onClick={() => updateStatus(order.orderId, "canceled")}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    >
+                      Canceled
+                    </button>
+                    <button
+                      onClick={() => deleteOrder(order.orderId)}
+                      className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center space-x-2"
+                    >
+                      <FaTrash />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'products' && (
+            <div className="space-y-8">
+              {/* Products Table */}
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="p-6 border-b">
+                  <h3 className="text-xl font-bold text-gray-900">Product Management</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left p-4 font-semibold text-gray-900">Image</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Name</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Category</th>
+                        <th className="text-right p-4 font-semibold text-gray-900">Price</th>
+                        <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products.map((product) => (
+                        <tr key={product.id} className="border-t hover:bg-gray-50">
+                          <td className="p-4">
+                            <Image 
+                              src={product.image} 
+                              alt={product.name} 
+                              width={64}
+                              height={64}
+                              className="w-16 h-16 object-cover rounded-lg" 
+                            />
+                          </td>
+                          <td className="p-4">
+                            <input
+                              defaultValue={product.name}
+                              onBlur={(e) => updateProduct(product.slug, { name: e.target.value })}
+                              className="border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                            />
+                          </td>
+                          <td className="p-4">
+                            <select
+                              defaultValue={product.category}
+                              onChange={(e) => updateProduct(product.slug, { category: e.target.value })}
+                              className="border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                            >
+                              <option value="cpu">CPU</option>
+                              <option value="keyboard">Keyboard</option>
+                              <option value="monitor">Monitor</option>
+                              <option value="speaker">Speaker</option>
+                              <option value="mouse">Mouse</option>
+                              <option value="trending">Trending</option>
+                            </select>
+                          </td>
+                          <td className="p-4 text-right">
+                            <input
+                              type="number"
+                              step="0.01"
+                              defaultValue={product.price}
+                              onBlur={(e) => updateProduct(product.slug, { price: Number(e.target.value) })}
+                              className="border rounded-lg px-3 py-2 w-32 text-right bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                            />
+                          </td>
+                          <td className="p-4 text-right">
+                            <button
+                              onClick={() => deleteProduct(product.slug)}
+                              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-2"
+                            >
+                              <FaTrash />
+                              <span>Delete</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Add Product Section */}
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
+                  <FaPlus className="text-[#0D3B66]" />
+                  <span>Add New Product</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <input
+                    placeholder="Product Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                  />
+                  <input
+                    placeholder="Price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                  />
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                  >
+                    <option value="cpu">CPU</option>
+                    <option value="keyboard">Keyboard</option>
+                    <option value="monitor">Monitor</option>
+                    <option value="speaker">Speaker</option>
+                    <option value="mouse">Mouse</option>
+                    <option value="trending">Trending</option>
+                  </select>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Image
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full"
+                      disabled={uploading}
+                    />
+                  </div>
+
+                  {image && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Image Preview
+                      </label>
+                      <Image
+                        src={image}
+                        alt="Uploaded preview"
+                        width={200}
+                        height={200}
+                        className="w-48 h-48 object-cover rounded-lg border"
+                      />
+                    </div>
+                  )}
+
+                  <div className="md:col-span-2">
+                    <button
+                      onClick={addProduct}
+                      disabled={uploading}
+                      className="w-full bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 disabled:opacity-50 flex items-center justify-center space-x-2"
+                    >
+                      {uploading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <span>Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FaPlus />
+                          <span>Add Product</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <Footer />
+    </>
   );
 }

@@ -9,7 +9,7 @@ const Header = () => {
     <header>
       <Navbar />
 
-      <div className="bg-primary px-4 py-4 flex items-center justify-between text-primary-foreground">
+      <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] px-4 py-4 flex items-center justify-between text-white">
         {/* Title - now redirects to home */}
         <Link href="/" className="font-bold text-xl">
           Tech Store
