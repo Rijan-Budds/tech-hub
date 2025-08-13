@@ -12,7 +12,19 @@ npm install cloudinary
 
 Create a `.env.local` file in your project root with the following variables:
 
+```env
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=dgjliothg
+CLOUDINARY_API_KEY=731944593645963
+CLOUDINARY_API_SECRET=V6iA7bQLaRszHeyLnvilBPVS4U8
+CLOUDINARY_URL=cloudinary://731944593645963:V6iA7bQLaRszHeyLnvilBPVS4U8@dgjliothg
 
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/ecommerce
+
+# JWT Secret
+JWT_SECRET=your-jwt-secret-here
+```
 
 ## Features
 
