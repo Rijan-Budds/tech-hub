@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import dbConnect from "@/lib/db";
 import { User, Product } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 import mongoose from "mongoose";
 
 export async function GET() {
-  await connectToDatabase();
+  await dbConnect();
   const auth = await getAuth();
   console.log("GET /api/wishlist - Auth result:", auth);
   if (!auth || auth.role === 'admin') return NextResponse.json({ items: [] });
@@ -22,7 +22,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  await connectToDatabase();
+  await dbConnect();
   const auth = await getAuth();
   console.log("POST /api/wishlist - Auth result:", auth);
   if (!auth || auth.role === 'admin') {

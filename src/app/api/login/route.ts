@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import dbConnect from "@/lib/db";
 import { User } from "@/lib/models";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
@@ -8,7 +8,7 @@ const ADMIN_EMAIL = "admin@admin.com";
 const ADMIN_PASSWORD = "Admin/1234";
 
 export async function POST(req: Request) {
-  await connectToDatabase();
+  await dbConnect();
   const { email, password } = await req.json();
   if (!email || !password) return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });
 

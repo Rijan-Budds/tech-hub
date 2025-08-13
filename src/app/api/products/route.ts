@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import dbConnect from "@/lib/db";
 import { Product } from "@/lib/models";
 
 function escapeRegex(str = "") {
@@ -7,7 +7,7 @@ function escapeRegex(str = "") {
 }
 
 export async function GET(req: Request) {
-  await connectToDatabase();
+  await dbConnect();
   const { searchParams } = new URL(req.url);
   const category = searchParams.get("category");
   const q = searchParams.get("q");

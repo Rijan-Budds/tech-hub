@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import dbConnect from "@/lib/db";
 import { User } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 import { Document, FlattenMaps } from "mongoose";
@@ -44,7 +44,7 @@ interface OrderResponse {
 }
 
 export async function GET() {
-  await connectToDatabase();
+  await dbConnect();
   const auth = await getAuth();
   if (!auth || auth.role !== 'admin') {
     return NextResponse.json({ message: 'Forbidden' }, { status: 403 });

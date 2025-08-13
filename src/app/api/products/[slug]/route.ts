@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import dbConnect from "@/lib/db";
 import { Product, IProduct } from "@/lib/models";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
-    await connectToDatabase();
+    await dbConnect();
     const { slug } = await params;
     const doc = await Product.findOne({ slug }).lean() as IProduct | null;
     if (!doc) return NextResponse.json({ message: "Not found" }, { status: 404 });

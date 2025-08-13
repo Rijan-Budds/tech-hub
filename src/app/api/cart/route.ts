@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import dbConnect from "@/lib/db";
 import { User, Product, ICartItem } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 
 export async function GET() {
-  await connectToDatabase();
+  await dbConnect();
   const auth = await getAuth();
   console.log("GET /api/cart - Auth result:", auth);
   if (!auth || auth.role === 'admin') return NextResponse.json({ items: [] });
@@ -50,7 +50,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  await connectToDatabase();
+  await dbConnect();
   const auth = await getAuth();
   console.log("POST /api/cart - Auth result:", auth);
   if (!auth || auth.role === 'admin') {

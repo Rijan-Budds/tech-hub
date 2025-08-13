@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import dbConnect from "@/lib/db";
 import { Product } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 
@@ -25,7 +25,7 @@ async function generateUniqueSlugFromName(name: string) {
 }
 
 export async function POST(req: Request) {
-  await connectToDatabase();
+  await dbConnect();
   const auth = await getAuth();
   if (!auth || auth.role !== "admin")
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
