@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuth } from "@/lib/auth";
-import { randomBytes } from "crypto";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { uploadImageToCloudinary } from "@/lib/cloudinary-utils";
 
 export const runtime = 'nodejs';
 
@@ -16,21 +14,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'No file uploaded' }, { status: 400 });
   }
 
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const ext = (file.type && file.type.includes('/')) ? `.${file.type.split('/')[1]}` : '';
-  const filename = `${Date.now()}-${randomBytes(6).toString('hex')}${ext}`;
-  const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-  await mkdir(uploadsDir, { recursive: true });
-  const filePath = path.join(uploadsDir, filename);
-  await writeFile(filePath, buffer);
+  try {
+    // Upload to Cloudinary using utility function
+    const result = await uploadImageToCloudinary(file, 'ecommerce');
 
-  const url = `/uploads/${filename}`;
-  // Build absolute URL
-  const origin = (req.headers.get('x-forwarded-proto') && req.headers.get('x-forwarded-host'))
-    ? `${req.headers.get('x-forwarded-proto')}://${req.headers.get('x-forwarded-host')}`
-    : new URL(req.url).origin;
-  return NextResponse.json({ url: `${origin}${url}`, path: url }, { status: 201 });
+    return NextResponse.json({ 
+      url: result.secure_url, 
+      path: result.secure_url,
+      public_id: result.public_id 
+    }, { status: 201 });
+
+  } catch (error: unknown) {
+    console.error('Cloudinary upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
+  }
 }
 
 
