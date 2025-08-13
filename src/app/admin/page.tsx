@@ -220,6 +220,21 @@ export default function AdminPage() {
     router.push("/");
   };
 
+  const fixImageUrls = async () => {
+    try {
+      const res = await fetch("/api/fix-images", {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fix images");
+      toast.success(data.message);
+      await reloadProducts();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to fix image URLs");
+    }
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -252,12 +267,14 @@ export default function AdminPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8 space-y-10">
-      <button
-        onClick={handleLogout}
-        className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]"
-      >
-        Logout
-      </button>
+      <div className="flex gap-4">
+        <button
+          onClick={handleLogout}
+          className="bg-[#f85606] text-white px-4 py-2 rounded hover:bg-[#e14e00]"
+        >
+          Logout
+        </button>
+      </div>
 
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
 
