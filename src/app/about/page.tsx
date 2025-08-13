@@ -1,7 +1,7 @@
 import PixelTransition from "@/components/PixelTransition";
 import Footer from "@/components/layout/Footer";
 import Image from "next/image";
-import { FaUsers, FaLightbulb, FaShieldAlt, FaHeart } from "react-icons/fa";
+import { FaLightbulb, FaShieldAlt, FaHeart } from "react-icons/fa";
 
 const teamMembers = [
   {
@@ -55,8 +55,8 @@ export default function AboutPage() {
             About <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Us</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            We're passionate about creating exceptional products that enhance your digital experience. 
-            Our journey is driven by innovation, quality, and unwavering commitment to customer satisfaction.
+                         We&apos;re passionate about creating exceptional products that enhance your digital experience. 
+             Our journey is driven by innovation, quality, and unwavering commitment to customer satisfaction.
           </p>
         </div>
 
@@ -66,9 +66,9 @@ export default function AboutPage() {
             <div className="space-y-6">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Story</h2>
               <p className="text-lg text-gray-700 leading-relaxed">
-                Founded with a vision to revolutionize digital experiences, we've grown from a small startup 
-                to a trusted name in technology. Our journey began with a simple belief: that technology 
-                should be both powerful and accessible to everyone.
+                                 Founded with a vision to revolutionize digital experiences, we&apos;ve grown from a small startup 
+                 to a trusted name in technology. Our journey began with a simple belief: that technology 
+                 should be both powerful and accessible to everyone.
               </p>
               <p className="text-lg text-gray-700 leading-relaxed">
                 Today, we continue to push boundaries, creating innovative solutions that empower businesses 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ProductCardActions } from "@/components/ProductCardActions";
 import { connectToDatabase } from "@/lib/db";
 import { Product } from "@/lib/models";
-import { FaArrowLeft, FaFilter } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -75,7 +75,7 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
           {products.length === 0 ? (
             <div className="text-center py-20">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">No Products Found</h2>
-              <p className="text-gray-600 mb-6">We couldn't find any products in this category.</p>
+              <p className="text-gray-600 mb-6">We couldn&apos;t find any products in this category.</p>
               <Link 
                 href="/" 
                 className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"

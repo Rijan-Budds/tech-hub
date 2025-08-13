@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FaUsers, FaShoppingCart, FaBox, FaPlus, FaTrash, FaEdit, FaSignOutAlt, FaUpload, FaEye } from "react-icons/fa";
+import { FaUsers, FaShoppingCart, FaBox, FaPlus, FaTrash, FaSignOutAlt, FaEye } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -367,7 +367,7 @@ export default function AdminPage() {
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
-                  onClick={() => setActiveTab(id as any)}
+                  onClick={() => setActiveTab(id as 'overview' | 'users' | 'orders' | 'products')}
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
                     activeTab === id
                       ? 'text-[#0D3B66] border-b-2 border-[#0D3B66]'

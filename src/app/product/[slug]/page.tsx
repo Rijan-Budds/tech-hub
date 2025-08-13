@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import ProductActions from "./ProductActions"; // import client component
@@ -45,9 +46,9 @@ export default async function ProductDetailPage({
           {/* Breadcrumb */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-2 text-sm text-gray-600">
-              <li><a href="/" className="hover:text-blue-600 transition-colors">Home</a></li>
+              <li><Link href="/" className="hover:text-blue-600 transition-colors">Home</Link></li>
               <li>/</li>
-              <li><a href={`/categories/${product.category}`} className="hover:text-blue-600 transition-colors capitalize">{product.category.replace('-', ' ')}</a></li>
+                              <li><Link href={`/categories/${product.category}`} className="hover:text-blue-600 transition-colors capitalize">{product.category.replace('-', ' ')}</Link></li>
               <li>/</li>
               <li className="text-gray-900 font-medium">{product.name}</li>
             </ol>
@@ -97,7 +98,7 @@ export default async function ProductDetailPage({
                 <p className="text-gray-700 leading-relaxed text-lg">
                   Experience the perfect blend of innovation and performance with this exceptional product. 
                   Designed with cutting-edge technology and premium materials, it delivers outstanding quality 
-                  and reliability for all your needs. Whether you're a professional or enthusiast, this product 
+                  and reliability for all your needs. Whether you&apos;re a professional or enthusiast, this product 
                   will exceed your expectations and provide years of dependable service.
                 </p>
               </div>
