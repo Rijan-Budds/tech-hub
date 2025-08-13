@@ -5,27 +5,6 @@ import { toast } from "sonner";
 import { FaShoppingCart, FaHeart } from "react-icons/fa";
 
 export function ProductCardActions({ productId, inStock = true }: { productId: string; inStock?: boolean }) {
-  const testToast = () => {
-    console.log("Testing toast notification");
-    toast.error("This is a test error message");
-  };
-
-  const checkAuthStatus = async () => {
-    try {
-      const res = await fetch("/api/me", { credentials: "include" });
-      const data = await res.json();
-      console.log("Current auth status:", data);
-      if (data.user) {
-        toast.info(`Currently logged in as: ${data.user.username}`);
-      } else {
-        toast.info("Not currently logged in");
-      }
-    } catch (error) {
-      console.log("Auth check error:", error);
-      toast.error("Failed to check auth status");
-    }
-  };
-
   const handleAddToCart = async () => {
     if (!inStock) {
       toast.error("This product is out of stock");

@@ -128,6 +128,8 @@ function Page() {
   );
 
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -143,7 +145,6 @@ function Page() {
     load();
   }, []);
 
-  const cartStore = useCartStore();
   const handleAddToCart = async (productId: string) => {
     try {
       console.log("Adding to cart for product:", productId);

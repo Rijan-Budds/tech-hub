@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCardActions } from "@/components/ProductCardActions";
-import { FaSearch, FaArrowLeft, FaFilter } from "react-icons/fa";
+import { FaSearch, FaArrowLeft } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 

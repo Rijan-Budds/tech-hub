@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const docs = await Product.find({ $or: [{ name: regex }, { slug: regex }, { category: regex }] }).lean();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const products = docs.map((d: any) => ({ 
-      id: (d._id as any).toString(), 
+      id: (d._id as { toString(): string }).toString(), 
       slug: d.slug, 
       name: d.name, 
       price: d.price, 

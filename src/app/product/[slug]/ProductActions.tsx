@@ -7,31 +7,9 @@ import { FaShoppingCart, FaHeart } from "react-icons/fa";
 interface ProductActionsProps {
   productId: string;
   slug: string;
-  inStock?: boolean;
 }
 
-export default function ProductActions({ productId, inStock = true }: ProductActionsProps) {
-  const testToast = () => {
-    console.log("Testing toast notification");
-    toast.error("This is a test error message");
-  };
-
-  const checkAuthStatus = async () => {
-    try {
-      const res = await fetch("/api/me", { credentials: "include" });
-      const data = await res.json();
-      console.log("Current auth status:", data);
-      if (data.user) {
-        toast.info(`Currently logged in as: ${data.user.username}`);
-      } else {
-        toast.info("Not currently logged in");
-      }
-    } catch (error) {
-      console.log("Auth check error:", error);
-      toast.error("Failed to check auth status");
-    }
-  };
-
+export default function ProductActions({ productId, slug }: ProductActionsProps) {
   const handleAddToCart = async () => {
     try {
       console.log("Adding to cart for product:", productId);
@@ -90,22 +68,6 @@ export default function ProductActions({ productId, inStock = true }: ProductAct
 
   return (
     <div className="space-y-4">
-      {/* Debug buttons */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={testToast}
-          className="px-3 py-2 bg-red-500 text-white text-sm rounded-lg"
-        >
-          Test Toast
-        </button>
-        <button
-          onClick={checkAuthStatus}
-          className="px-3 py-2 bg-blue-500 text-white text-sm rounded-lg"
-        >
-          Check Auth
-        </button>
-      </div>
-
       {/* Add to Cart Button */}
       <button 
         onClick={handleAddToCart} 
