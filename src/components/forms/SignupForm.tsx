@@ -7,10 +7,17 @@ interface SignupFormProps {
   onSubmit?: (values: { name: string; email: string; password: string }) => void;
 }
 
+// Yup schema with trimming for name, email, and password
 const validationSchema = Yup.object({
-  name: Yup.string().required('Required'),
-  email: Yup.string().email('Invalid email').required('Required'),
+  name: Yup.string()
+    .transform((value) => (value ? value.trim() : ''))
+    .required('Required'),
+  email: Yup.string()
+    .transform((value) => (value ? value.trim() : ''))
+    .email('Invalid email')
+    .required('Required'),
   password: Yup.string()
+    .transform((value) => (value ? value.trim() : ''))
     .required('Required')
     .min(8, 'Must be at least 8 characters')
     .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
@@ -18,6 +25,7 @@ const validationSchema = Yup.object({
     .matches(/[0-9]/, 'Must contain at least one number')
     .matches(/[@$!%*?&]/, 'Must contain at least one special character'),
   confirmPassword: Yup.string()
+    .transform((value) => (value ? value.trim() : ''))
     .oneOf([Yup.ref('password')], 'Passwords must match')
     .required('Required'),
 });

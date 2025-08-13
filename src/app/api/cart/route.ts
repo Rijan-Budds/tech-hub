@@ -6,6 +6,7 @@ import { getAuth } from "@/lib/auth";
 export async function GET() {
   await connectToDatabase();
   const auth = await getAuth();
+  console.log("GET /api/cart - Auth result:", auth);
   if (!auth || auth.role === 'admin') return NextResponse.json({ items: [] });
   const user = await User.findById(auth.sub);
   const ids = user.cart.map((ci: ICartItem) => ci.productId);
@@ -19,7 +20,11 @@ export async function GET() {
 export async function POST(req: Request) {
   await connectToDatabase();
   const auth = await getAuth();
-  if (!auth || auth.role === 'admin') return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  console.log("POST /api/cart - Auth result:", auth);
+  if (!auth || auth.role === 'admin') {
+    console.log("User not authenticated, returning 401");
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
   const body = await req.json();
   const { action } = body || {};
   const user = await User.findById(auth.sub);

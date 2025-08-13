@@ -43,6 +43,8 @@ export interface IProduct extends Document {
   price: number;
   category: string;
   image: string;
+  discountPercentage?: number;
+  inStock: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,6 +57,8 @@ const ProductSchema = new Schema(
     price: { type: Number, required: true },
     category: { type: String, required: true },
     image: { type: String, required: true },
+    discountPercentage: { type: Number, min: 0, max: 100, default: 0 },
+    inStock: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

@@ -42,6 +42,8 @@ export default function AdminPage() {
     price: number;
     category: string;
     image: string;
+    discountPercentage?: number;
+    inStock: boolean;
   }[]>([]);
 
   const [name, setName] = useState("");
@@ -207,7 +209,7 @@ export default function AdminPage() {
     }
   };
 
-  const updateProduct = async (slug: string, updates: Partial<{ name: string; price: number; category: string; image: string }>) => {
+  const updateProduct = async (slug: string, updates: Partial<{ name: string; price: number; category: string; image: string; discountPercentage: number; inStock: boolean }>) => {
     try {
       const res = await fetch(`/api/admin/products/${slug}`, {
         method: "PATCH",
@@ -274,7 +276,7 @@ export default function AdminPage() {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66] mx-auto mb-4"></div>
             <p className="text-gray-600">Loading admin dashboard...</p>
@@ -287,7 +289,7 @@ export default function AdminPage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
@@ -307,9 +309,9 @@ export default function AdminPage() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-              <div className="flex items-center justify-between">
+                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 text-sm">Total Users</p>
                   <p className="text-3xl font-bold text-gray-900">{users.length}</p>
@@ -537,6 +539,8 @@ export default function AdminPage() {
                         <th className="text-left p-4 font-semibold text-gray-900">Name</th>
                         <th className="text-left p-4 font-semibold text-gray-900">Category</th>
                         <th className="text-right p-4 font-semibold text-gray-900">Price</th>
+                        <th className="text-center p-4 font-semibold text-gray-900">Discount %</th>
+                        <th className="text-center p-4 font-semibold text-gray-900">Stock</th>
                         <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
                       </tr>
                     </thead>
@@ -581,6 +585,29 @@ export default function AdminPage() {
                               onBlur={(e) => updateProduct(product.slug, { price: Number(e.target.value) })}
                               className="border rounded-lg px-3 py-2 w-32 text-right bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
                             />
+                          </td>
+                          <td className="p-4 text-center">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="1"
+                              defaultValue={product.discountPercentage || 0}
+                              onBlur={(e) => updateProduct(product.slug, { discountPercentage: Number(e.target.value) })}
+                              className="border rounded-lg px-3 py-2 w-20 text-center bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <button
+                              onClick={() => updateProduct(product.slug, { inStock: !product.inStock })}
+                              className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                                product.inStock 
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                                  : 'bg-red-100 text-red-800 hover:bg-red-200'
+                              }`}
+                            >
+                              {product.inStock ? 'In Stock' : 'Out of Stock'}
+                            </button>
                           </td>
                           <td className="p-4 text-right">
                             <button

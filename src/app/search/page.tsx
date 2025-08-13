@@ -14,6 +14,8 @@ interface SearchProduct {
   price: number;
   image: string;
   category: string;
+  discountPercentage?: number;
+  inStock?: boolean;
 }
 
 async function searchProducts(query: string): Promise<SearchProduct[]> {
@@ -36,7 +38,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Header Section */}
           <div className="mb-12">
@@ -98,9 +100,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             </div>
           ) : (
             <div className="space-y-8">
-              {/* Search Stats */}
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <div className="flex items-center justify-between">
+                             {/* Search Stats */}
+               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
                       <FaSearch className="text-[#0D3B66]" />
@@ -117,7 +119,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {products.map((p: SearchProduct) => (
                   <div key={p.id} className="group">
-                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                       {/* Product Image */}
                       <Link href={`/product/${p.slug}`} passHref>
                         <div className="relative cursor-pointer">
@@ -141,26 +143,55 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                               {p.category.replace('-', ' ')}
                             </span>
                           </div>
+                          
+                          {/* Discount Badge */}
+                          {p.discountPercentage && p.discountPercentage > 0 && (
+                            <div className="absolute top-4 right-4">
+                              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                -{p.discountPercentage}%
+                              </span>
+                            </div>
+                          )}
+                          
+                          {/* Stock Status Badge */}
+                          {p.inStock === false && (
+                            <div className="absolute bottom-4 right-4">
+                              <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                Out of Stock
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </Link>
 
                       {/* Product Info */}
                       <div className="p-6 space-y-4">
                         <div>
-                          <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-[#0D3B66] transition-colors">
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#0D3B66] transition-colors">
                             {p.name}
                           </h3>
                           <div className="flex items-baseline space-x-2">
-                            <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                              ${p.price.toFixed(2)}
-                            </span>
+                            {p.discountPercentage && p.discountPercentage > 0 ? (
+                              <>
+                                <span className="text-lg font-bold text-gray-400 line-through">
+                                  ${p.price.toFixed(2)}
+                                </span>
+                                <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                                  ${(p.price * (1 - p.discountPercentage / 100)).toFixed(2)}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                                ${p.price.toFixed(2)}
+                              </span>
+                            )}
                             <span className="text-sm text-gray-500">USD</span>
                           </div>
                         </div>
 
                         {/* Product Actions */}
                         <div className="pt-4 border-t border-gray-100">
-                          <ProductCardActions productId={p.id} />
+                          <ProductCardActions productId={p.id} inStock={p.inStock !== false} />
                         </div>
                       </div>
                     </div>
@@ -170,7 +201,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
               {/* Search Suggestions */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Try These Searches</h3>
+                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Try These Searches</h3>
                 <div className="flex flex-wrap gap-3">
                   {['CPU', 'Keyboard', 'Monitor', 'Speaker', 'Mouse', 'Trending'].map((suggestion) => (
                     <Link

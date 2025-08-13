@@ -28,7 +28,7 @@ const sliderData = [
     subtitle: "Experience the perfect typing sensation"
   },
   {
-    image: "/home/slider2.jpg", 
+    image: "/home/slider2.jpg",
     categorySlug: "mouse",
     alt: "Mouse",
     title: "Gaming Mice",
@@ -36,7 +36,7 @@ const sliderData = [
   },
   {
     image: "/home/slider3.jpg",
-    categorySlug: "speaker", 
+    categorySlug: "speaker",
     alt: "Speaker",
     title: "High-Fidelity Speakers",
     subtitle: "Crystal clear sound quality"
@@ -50,13 +50,15 @@ const sliderData = [
   },
 ];
 
-type Product = { 
-  id: string; 
-  slug: string; 
-  name: string; 
-  price: number; 
-  image: string; 
-  category: string 
+type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  discountPercentage?: number;
+  inStock?: boolean;
 };
 
 const featuredCategories = [
@@ -116,7 +118,7 @@ const features = [
   {
     icon: <FaStar className="text-3xl" />,
     title: "Quality Guarantee",
-    description: "30-day money back guarantee"
+    description: "30-day money back guarantee with full refund"
   }
 ];
 
@@ -144,16 +146,35 @@ function Page() {
   const cartStore = useCartStore();
   const handleAddToCart = async (productId: string) => {
     try {
-      await cartStore.add(productId, 1);
+      console.log("Adding to cart for product:", productId);
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ action: 'add', productId, quantity: 1 }),
+      });
+      const data = await res.json();
+      console.log("Cart response status:", res.status);
+      console.log("Cart response data:", data);
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.log("User not authenticated, showing login message");
+          toast.error("Please log in to add items to your cart");
+          return;
+        }
+        throw new Error(data.message || "Failed to add to cart");
+      }
       toast.success("Added to cart");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to add to cart";
-      toast.error(message);
+      console.log("Cart error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to add to cart";
+      toast.error(errorMessage);
     }
   };
 
   const handleToggleWishlist = async (productId: string) => {
     try {
+      console.log("Toggling wishlist for product:", productId);
       const res = await fetch("/api/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -161,11 +182,21 @@ function Page() {
         body: JSON.stringify({ productId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to update wishlist");
+      console.log("Wishlist response status:", res.status);
+      console.log("Wishlist response data:", data);
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.log("User not authenticated, showing login message");
+          toast.error("Please log in to add items to your wishlist");
+          return;
+        }
+        throw new Error(data.message || "Failed to update wishlist");
+      }
       toast.success("Wishlist updated");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to update wishlist";
-      toast.error(message);
+      console.log("Wishlist error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to update wishlist";
+      toast.error(errorMessage);
     }
   };
 
@@ -173,7 +204,7 @@ function Page() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         {/* Hero Carousel */}
         <section className="relative">
           <Carousel plugins={[autoplayPlugin.current]} opts={{ loop: true }}>
@@ -193,7 +224,7 @@ function Page() {
                         <div className="text-white max-w-lg">
                           <h1 className="text-5xl font-bold mb-4">{slider.title}</h1>
                           <p className="text-xl mb-6 text-gray-200">{slider.subtitle}</p>
-                          <Link 
+                          <Link
                             href={`/categories/${slider.categorySlug}`}
                             className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg hover:shadow-xl"
                           >
@@ -216,7 +247,7 @@ function Page() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
                 <div key={index} className="text-center group">
-                  <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
                     <div className="w-16 h-16 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                       {feature.icon}
                     </div>
@@ -240,11 +271,11 @@ function Page() {
                 Discover our most popular products loved by customers worldwide
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {trendingProducts.map((product) => (
                 <div key={product.id} className="group">
-                  <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                     <Link href={`/product/${product.slug}`}>
                       <div className="relative overflow-hidden">
                         <Image
@@ -255,32 +286,66 @@ function Page() {
                           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                        
+                        {/* Discount Badge */}
+                        {product.discountPercentage && product.discountPercentage > 0 && (
+                          <div className="absolute top-4 left-4">
+                            <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                              -{product.discountPercentage}%
+                            </span>
+                          </div>
+                        )}
+                        
+                        {/* Stock Status Badge */}
+                        {product.inStock === false && (
+                          <div className="absolute top-4 right-4">
+                            <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                              Out of Stock
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </Link>
-                    
+
                     <div className="p-6 space-y-4">
                       <div>
-                        <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-[#0D3B66] transition-colors">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-[#0D3B66] transition-colors">
                           {product.name}
                         </h3>
                         <div className="flex items-baseline space-x-2">
-                          <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                            ${product.price.toFixed(2)}
-                          </span>
+                          {product.discountPercentage && product.discountPercentage > 0 ? (
+                            <>
+                              <span className="text-lg font-bold text-gray-400 line-through">
+                                ${product.price.toFixed(2)}
+                              </span>
+                              <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                                ${(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                              ${product.price.toFixed(2)}
+                            </span>
+                          )}
                           <span className="text-sm text-gray-500">USD</span>
                         </div>
                       </div>
-                      
+
                       <div className="flex space-x-2">
-                        <button 
-                          onClick={() => handleAddToCart(product.id)} 
-                          className="flex-1 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 flex items-center justify-center space-x-2"
+                        <button
+                          onClick={() => handleAddToCart(product.id)}
+                          disabled={product.inStock === false}
+                          className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
+                            product.inStock === false
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                              : 'bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90'
+                          }`}
                         >
                           <FaShoppingCart />
-                          <span>Add to Cart</span>
+                          <span>{product.inStock === false ? 'Out of Stock' : 'Add to Cart'}</span>
                         </button>
-                        <button 
-                          onClick={() => handleToggleWishlist(product.id)} 
+                        <button
+                          onClick={() => handleToggleWishlist(product.id)}
                           className="px-4 py-3 border-2 border-[#0D3B66] text-[#0D3B66] rounded-xl hover:bg-[#0D3B66] hover:text-white transition-all duration-200"
                         >
                           <FaHeart />
@@ -305,7 +370,7 @@ function Page() {
                 Explore our wide range of products organized by category
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {featuredCategories.map((cat) => (
                 <Link key={cat.id} href={`/categories/${cat.slug}`}>
@@ -345,14 +410,14 @@ function Page() {
                 Join thousands of satisfied customers who have upgraded their tech experience with our premium products.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link 
+                <Link
                   href="/categories/trending"
                   className="bg-white text-[#0D3B66] px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center space-x-2"
                 >
                   <span>Shop Trending</span>
                   <FaArrowRight />
                 </Link>
-                <Link 
+                <Link
                   href="/about"
                   className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-[#0D3B66] transition-all duration-200"
                 >
