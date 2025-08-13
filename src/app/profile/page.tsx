@@ -148,7 +148,7 @@ export default function ProfilePage() {
                 <div>
                   <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Spent</p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    ${orders.reduce((sum, order) => sum + (order.grandTotal || 0), 0).toFixed(2)}
+                    रु{orders.reduce((sum, order) => sum + (order.grandTotal || 0), 0).toFixed(2)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
@@ -206,7 +206,7 @@ export default function ProfilePage() {
                       </h3>
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                          ${p.price.toFixed(2)}
+                          रु{p.price.toFixed(2)}
                         </span>
                       </div>
                       <button
@@ -284,7 +284,7 @@ export default function ProfilePage() {
                           {o.status.charAt(0).toUpperCase() + o.status.slice(1)}
                         </span>
                         <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                          ${o.grandTotal?.toFixed(2)}
+                          रु{o.grandTotal?.toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -311,7 +311,7 @@ export default function ProfilePage() {
                               </p>
                               {typeof it.price === 'number' && (
                                 <p className="text-sm font-semibold text-[#0D3B66]">
-                                  ${(it.price * it.quantity).toFixed(2)}
+                                  रु{(it.price * it.quantity).toFixed(2)}
                                 </p>
                               )}
                             </div>

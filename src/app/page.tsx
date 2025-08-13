@@ -102,7 +102,7 @@ const features = [
   {
     icon: <FaTruck className="text-3xl" />,
     title: "Free Shipping",
-    description: "Free delivery on orders over $50"
+    description: "Free delivery on orders over रु5000"
   },
   {
     icon: <FaShieldAlt className="text-3xl" />,
@@ -272,8 +272,8 @@ function Page() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {trendingProducts.map((product) => (
-                <div key={product.id} className="group">
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div key={product.id} className="group h-full">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col">
                     <Link href={`/product/${product.slug}`}>
                       <div className="relative overflow-hidden">
                         <Image
@@ -305,27 +305,27 @@ function Page() {
                       </div>
                     </Link>
 
-                    <div className="p-6 space-y-4">
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-[#0D3B66] transition-colors">
+                    <div className="p-6 space-y-4 flex-1 flex flex-col">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-[#0D3B66] transition-colors overflow-hidden text-ellipsis whitespace-nowrap">
                           {product.name}
                         </h3>
                         <div className="flex items-baseline space-x-2">
                           {product.discountPercentage && product.discountPercentage > 0 ? (
                             <>
                               <span className="text-lg font-bold text-gray-400 line-through">
-                                ${product.price.toFixed(2)}
+                                रु{product.price.toFixed(2)}
                               </span>
                               <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                                ${(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
+                                रु{(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
                               </span>
                             </>
                           ) : (
                             <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                              ${product.price.toFixed(2)}
+                              रु{product.price.toFixed(2)}
                             </span>
                           )}
-                          <span className="text-sm text-gray-500">USD</span>
+                          <span className="text-sm text-gray-500">NPR</span>
                         </div>
                       </div>
 

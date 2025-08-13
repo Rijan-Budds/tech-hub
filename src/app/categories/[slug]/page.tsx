@@ -153,18 +153,18 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
                             {p.discountPercentage && p.discountPercentage > 0 ? (
                               <>
                                 <span className="text-lg font-bold text-gray-400 line-through">
-                                  ${p.price.toFixed(2)}
+                                  रु{p.price.toFixed(2)}
                                 </span>
                                 <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                                  ${(p.price * (1 - p.discountPercentage / 100)).toFixed(2)}
+                                  रु{(p.price * (1 - p.discountPercentage / 100)).toFixed(2)}
                                 </span>
                               </>
                             ) : (
                               <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                                ${p.price.toFixed(2)}
+                                रु{p.price.toFixed(2)}
                               </span>
                             )}
-                            <span className="text-sm text-gray-500">USD</span>
+                            <span className="text-sm text-gray-500">NPR</span>
                           </div>
                         </div>
 

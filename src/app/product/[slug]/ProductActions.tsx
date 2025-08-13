@@ -90,7 +90,7 @@ export default function ProductActions({ productId }: { productId: string }) {
             </div>
             <div>
               <h4 className="font-semibold text-gray-900 dark:text-white">Free Shipping</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">On orders over $50</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">On orders over रु5000</p>
             </div>
           </div>
         </div>

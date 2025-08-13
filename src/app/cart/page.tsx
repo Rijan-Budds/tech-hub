@@ -198,7 +198,7 @@ export default function CartPage() {
               </div>
               <div className="text-orange-600 font-bold">
                 {it.product && typeof it.product.price === 'number'
-                  ? `$${(it.product.price * it.quantity).toFixed(2)}`
+                  ? `रु${(it.product.price * it.quantity).toFixed(2)}`
                   : "Price unavailable"}
               </div>
               <div>
@@ -263,7 +263,7 @@ export default function CartPage() {
             >
               {cities.map((c) => (
                 <option key={c.name} value={c.name}>
-                  {c.name} (+${c.fee.toFixed(2)})
+                  {c.name} (+रु{c.fee.toFixed(2)})
                 </option>
               ))}
             </select>
@@ -282,13 +282,13 @@ export default function CartPage() {
 
         <div className="flex items-center justify-end gap-6 pt-2">
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            Subtotal: ${subtotal.toFixed(2)}
+            Subtotal: रु{subtotal.toFixed(2)}
           </div>
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            Delivery: ${deliveryFee.toFixed(2)}
+            Delivery: रु{deliveryFee.toFixed(2)}
           </div>
           <div className="text-lg font-semibold">
-            Total: ${grandTotal.toFixed(2)}
+            Total: रु{grandTotal.toFixed(2)}
           </div>
           <button
             type="submit"

@@ -129,15 +129,15 @@ export default function OrderConfirmationPage() {
           </div>
           <div className="flex items-center justify-between text-sm">
             <span>Subtotal</span>
-            <span>${order.subtotal.toFixed(2)}</span>
+            <span>रु{order.subtotal.toFixed(2)}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span>Delivery</span>
-            <span>${order.deliveryFee.toFixed(2)}</span>
+            <span>रु{order.deliveryFee.toFixed(2)}</span>
           </div>
           <div className="flex items-center justify-between font-semibold">
             <span>Total</span>
-            <span>${order.grandTotal.toFixed(2)}</span>
+            <span>रु{order.grandTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>

@@ -61,7 +61,7 @@ export default function WishlistPage() {
             <div key={p.id} className="border rounded-lg p-4 shadow bg-white dark:bg-gray-900 dark:text-white">
               <Image src={p.image} alt={p.name} width={300} height={192} className="w-full h-40 object-cover rounded mb-3" />
               <div className="font-semibold">{p.name}</div>
-              <div className="text-orange-600 font-bold mb-3">${p.price.toFixed(2)}</div>
+              <div className="text-orange-600 font-bold mb-3">रु{p.price.toFixed(2)}</div>
               <button
                 onClick={() => removeItem(p.id)}
                 className="w-full border border-gray-300 dark:border-gray-700 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition"

@@ -1,28 +1,29 @@
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import { ModeToggle } from "@/components/ui/mode-toggle";
-import LoginForm from '../forms/LoginForm';
-import SignupForm from '../forms/SignupForm';
+import LoginForm from "../forms/LoginForm";
+import SignupForm from "../forms/SignupForm";
+import Image from "next/image";
 
 interface CurrentUser {
   id: string;
   email: string;
   username: string;
-  role?: 'user' | 'admin';
+  role?: "user" | "admin";
 }
 
 const Header = () => {
-  const [modalType, setModalType] = useState<null | 'login' | 'signup'>(null);
+  const [modalType, setModalType] = useState<null | "login" | "signup">(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const closeModal = () => setModalType(null);
 
   useEffect(() => {
     const loadMe = async () => {
       try {
-        const res = await fetch('/api/me', { credentials: 'include' });
+        const res = await fetch("/api/me", { credentials: "include" });
         const data = await res.json();
         setCurrentUser(data.user);
       } catch {
@@ -34,7 +35,7 @@ const Header = () => {
 
   const handleLoginSubmit = () => {
     // After LoginForm success, refetch me
-    fetch('/api/me', { credentials: 'include' })
+    fetch("/api/me", { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setCurrentUser(d.user))
       .catch(() => setCurrentUser(null));
@@ -43,7 +44,7 @@ const Header = () => {
 
   const handleSignupSubmit = () => {
     // After SignupForm success, refetch me
-    fetch('/api/me', { credentials: 'include' })
+    fetch("/api/me", { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setCurrentUser(d.user))
       .catch(() => setCurrentUser(null));
@@ -52,9 +53,9 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/logout', {
-        method: 'POST',
-        credentials: 'include',
+      await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include",
       });
       setCurrentUser(null);
     } catch {
@@ -68,17 +69,33 @@ const Header = () => {
       <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] text-sm text-white px-4 py-2 flex justify-end gap-4">
         {currentUser ? (
           <div className="flex items-center gap-3">
-            {currentUser.role === 'admin' && (
-              <Link href="/admin" className="hover:underline">Admin</Link>
+            {currentUser.role === "admin" && (
+              <Link href="/admin" className="hover:underline">
+                Admin
+              </Link>
             )}
             <span className="opacity-90">Hi, {currentUser.username}</span>
-            <Link href="/profile" className="hover:underline">Profile</Link>
-            <button onClick={handleLogout} className="hover:underline">Logout</button>
+            <Link href="/profile" className="hover:underline">
+              Profile
+            </Link>
+            <button onClick={handleLogout} className="hover:underline">
+              Logout
+            </button>
           </div>
         ) : (
           <>
-            <button onClick={() => setModalType('login')} className="hover:underline">LOGIN</button>
-            <button onClick={() => setModalType('signup')} className="hover:underline">SIGN UP</button>
+            <button
+              onClick={() => setModalType("login")}
+              className="hover:underline"
+            >
+              LOGIN
+            </button>
+            <button
+              onClick={() => setModalType("signup")}
+              className="hover:underline"
+            >
+              SIGN UP
+            </button>
           </>
         )}
       </div>
@@ -86,8 +103,14 @@ const Header = () => {
       {/* Main header with logo, search, and icons */}
       <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] px-4 py-4 flex items-center justify-between text-white">
         {/* Title - now redirects to home */}
-        <Link href="/" className="font-bold text-xl">
-          Tech Store
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/home/logo.jpg"
+            alt="Tech Store Logo"
+            width={85}
+            height={85}
+            priority
+          />
         </Link>
 
         {/* Search Bar */}
@@ -98,7 +121,10 @@ const Header = () => {
             placeholder="Search for item..."
             className="w-full px-4 py-2 rounded-l-md focus:outline-none bg-white text-black"
           />
-          <button type="submit" className="bg-accent px-4 py-2 rounded-r-md text-accent-foreground">
+          <button
+            type="submit"
+            className="bg-accent px-4 py-2 rounded-r-md text-accent-foreground"
+          >
             <FaSearch />
           </button>
         </form>
@@ -134,13 +160,13 @@ const Header = () => {
               ✕
             </button>
 
-            {modalType === 'login' ? (
+            {modalType === "login" ? (
               <>
                 <LoginForm onSubmit={handleLoginSubmit} />
                 <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
-                  Don&apos;t have an account?{' '}
+                  Don&apos;t have an account?{" "}
                   <button
-                    onClick={() => setModalType('signup')}
+                    onClick={() => setModalType("signup")}
                     className="text-primary hover:underline font-medium"
                   >
                     Sign Up
@@ -151,9 +177,9 @@ const Header = () => {
               <>
                 <SignupForm onSubmit={handleSignupSubmit} />
                 <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
-                  Already have an account?{' '}
+                  Already have an account?{" "}
                   <button
-                    onClick={() => setModalType('login')}
+                    onClick={() => setModalType("login")}
                     className="text-primary hover:underline font-medium"
                   >
                     Log In

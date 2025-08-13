@@ -116,18 +116,18 @@ export default async function ProductDetailPage({
                 {product.discountPercentage && product.discountPercentage > 0 ? (
                   <>
                     <span className="text-2xl font-bold text-gray-400 line-through">
-                      ${product.price.toFixed(2)}
+                      रु{product.price.toFixed(2)}
                     </span>
                     <span className="text-4xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                      ${(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
+                      रु{(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
                     </span>
                   </>
                 ) : (
                   <span className="text-4xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                    ${product.price.toFixed(2)}
+                    रु{product.price.toFixed(2)}
                   </span>
                 )}
-                <span className="text-lg text-gray-500">USD</span>
+                <span className="text-lg text-gray-500">NPR</span>
               </div>
 
               {/* Description */}
