@@ -3,20 +3,20 @@ import { connectToDatabase } from "@/lib/db";
 import { User } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 
-type RouteContext = {
-  params: { orderId: string };
-};
-
-export async function PATCH(req: Request, context: RouteContext) {
-  const { params } = context;
+export async function PATCH(
+  req: Request,
+  { params }: { params: { orderId: string } }
+) {
   await connectToDatabase();
   const auth = await getAuth();
-  if (!auth || auth.role !== "admin")
+  if (!auth || auth.role !== "admin") {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  }
 
   const { status } = await req.json();
-  if (!["pending", "canceled", "delivered"].includes(status))
+  if (!["pending", "canceled", "delivered"].includes(status)) {
     return NextResponse.json({ message: "Invalid status" }, { status: 400 });
+  }
 
   const users = await User.find({});
   for (const u of users) {
@@ -30,12 +30,15 @@ export async function PATCH(req: Request, context: RouteContext) {
   return NextResponse.json({ message: "Order not found" }, { status: 404 });
 }
 
-export async function DELETE(_req: Request, context: RouteContext) {
-  const { params } = context;
+export async function DELETE(
+  _req: Request,
+  { params }: { params: { orderId: string } }
+) {
   await connectToDatabase();
   const auth = await getAuth();
-  if (!auth || auth.role !== "admin")
+  if (!auth || auth.role !== "admin") {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  }
 
   const users = await User.find({});
   for (const u of users) {
