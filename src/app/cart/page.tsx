@@ -11,7 +11,14 @@ import { toast } from "sonner";
 interface CartItem {
   productId: string;
   quantity: number;
-  product?: { id: string; name: string; price: number; image: string };
+  product?: { 
+    id: string; 
+    name: string; 
+    price: number; 
+    image: string;
+    slug: string;
+    category: string;
+  } | null;
 }
 
 interface CityFee {
@@ -95,10 +102,23 @@ export default function CartPage() {
   }, [loadData]);
 
   const items = cart.items as CartItem[];
+  console.log("Cart items:", items);
+  console.log("Cart items structure:", items.map(item => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    quantityType: typeof item.quantity,
+    product: item.product ? {
+      id: item.product.id,
+      name: item.product.name,
+      price: item.product.price,
+      priceType: typeof item.product.price
+    } : null
+  })));
+  
   const subtotal = useMemo(
     () =>
       items.reduce(
-        (sum, it) => sum + (it.product ? it.product.price * it.quantity : 0),
+        (sum, it) => sum + (it.product && typeof it.product.price === 'number' ? it.product.price * it.quantity : 0),
         0
       ),
     [items]
@@ -165,7 +185,7 @@ export default function CartPage() {
                     −
                   </button>
                   <span className="min-w-[24px] text-center">
-                    {it.quantity}
+                    {it.quantity || 0}
                   </span>
                   <button
                     type="button"
@@ -177,9 +197,9 @@ export default function CartPage() {
                 </div>
               </div>
               <div className="text-orange-600 font-bold">
-                {it.product
+                {it.product && typeof it.product.price === 'number'
                   ? `$${(it.product.price * it.quantity).toFixed(2)}`
-                  : ""}
+                  : "Price unavailable"}
               </div>
               <div>
                 <button

@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useCartStore } from "@/store/useCartStore";
 import { FaShoppingCart, FaHeart, FaArrowRight, FaStar, FaTruck, FaShieldAlt, FaHeadset } from "react-icons/fa";
 
 import Header from "../components/layout/Header";
@@ -128,8 +127,6 @@ function Page() {
   );
 
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {

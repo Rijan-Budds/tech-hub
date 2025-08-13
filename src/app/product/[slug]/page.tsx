@@ -166,7 +166,7 @@ export default async function ProductDetailPage({
 
               {/* Product Actions */}
               <div className="pt-6 border-t border-gray-200">
-                <ProductActions productId={product.id} slug={product.slug} />
+                <ProductActions productId={product.id} />
               </div>
             </div>
           </div>

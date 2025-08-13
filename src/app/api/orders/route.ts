@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   const ids = user.cart.map((ci: ICartItem) => ci.productId);
   const docs = ids.length ? await Product.find({ _id: { $in: ids } }).lean() : [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const productMap = new Map(docs.map((d: any) => [(d._id as any).toString(), { price: d.price, name: d.name, image: d.image }]));
+  const productMap = new Map(docs.map((d: any) => [String(d._id), { price: d.price, name: d.name, image: d.image }]));
   const subtotal = user.cart.reduce((sum: number, ci: ICartItem) => {
     const price = productMap.get(ci.productId)?.price || 0;
     return sum + price * ci.quantity;

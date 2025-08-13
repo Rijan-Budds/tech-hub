@@ -10,10 +10,42 @@ export async function GET() {
   if (!auth || auth.role === 'admin') return NextResponse.json({ items: [] });
   const user = await User.findById(auth.sub);
   const ids = user.cart.map((ci: ICartItem) => ci.productId);
+  console.log("Cart product IDs:", ids);
   const docs = ids.length ? await Product.find({ _id: { $in: ids } }).lean() : [];
+  console.log("Found products:", docs.map(d => ({ 
+    id: String(d._id), 
+    name: d.name, 
+    price: d.price, 
+    priceType: typeof d.price,
+    isNaN: isNaN(d.price)
+  })));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const map = new Map(docs.map((d: any) => [(d._id as any).toString(), { id: (d._id as any).toString(), slug: d.slug, name: d.name, price: d.price, category: d.category, image: d.image }]));
-  const detailed = user.cart.map((ci: ICartItem) => ({ ...ci, product: map.get(ci.productId) || null }));
+  const map = new Map(docs.map((d: any) => [String(d._id), { 
+    id: String(d._id), 
+    slug: d.slug, 
+    name: d.name, 
+    price: Number(d.price) || 0, 
+    category: d.category, 
+    image: d.image 
+  }]));
+  const detailed = user.cart.map((ci: ICartItem) => {
+    const product = map.get(ci.productId);
+    return {
+      productId: ci.productId,
+      quantity: ci.quantity,
+      product: product || null
+    };
+  });
+  console.log("Detailed cart items:", detailed.map((item: { productId: string; product: { id: string; name: string; price: number } | null }) => ({ 
+    productId: item.productId, 
+    product: item.product ? {
+      id: item.product.id,
+      name: item.product.name,
+      price: item.product.price,
+      priceType: typeof item.product.price
+    } : null 
+  })));
+  console.log("Final response:", { items: detailed });
   return NextResponse.json({ items: detailed });
 }
 

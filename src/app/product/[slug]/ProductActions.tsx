@@ -4,12 +4,7 @@ import React from "react";
 import { toast } from "sonner";
 import { FaShoppingCart, FaHeart } from "react-icons/fa";
 
-interface ProductActionsProps {
-  productId: string;
-  slug: string;
-}
-
-export default function ProductActions({ productId, slug }: ProductActionsProps) {
+export default function ProductActions({ productId }: { productId: string }) {
   const handleAddToCart = async () => {
     try {
       console.log("Adding to cart for product:", productId);
