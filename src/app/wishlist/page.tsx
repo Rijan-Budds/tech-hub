@@ -42,8 +42,9 @@ export default function WishlistPage() {
       if (!res.ok) throw new Error(data.message || 'Failed to update wishlist')
       setItems((prev) => prev.filter((p) => p.id !== productId))
       toast.success('Removed from wishlist')
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to update wishlist')
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update wishlist';
+      toast.error(errorMessage);
     }
   }
 

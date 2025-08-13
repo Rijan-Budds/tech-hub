@@ -3,7 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import { Product } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     await connectToDatabase();
     const auth = await getAuth();
@@ -29,10 +29,11 @@ export async function POST(req: Request) {
       fixedCount 
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ 
       message: 'Failed to fix image URLs', 
-      error: error.message 
+      error: errorMessage 
     }, { status: 500 });
   }
 }

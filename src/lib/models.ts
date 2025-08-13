@@ -1,4 +1,51 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
+
+// TypeScript interfaces
+export interface ICartItem {
+  productId: string;
+  quantity: number;
+}
+
+export interface IOrderItem {
+  productId: string;
+  quantity: number;
+  name?: string;
+  image?: string;
+  price?: number;
+}
+
+export interface IOrder {
+  items: IOrderItem[];
+  createdAt: Date;
+  status: "pending" | "canceled" | "delivered";
+  subtotal: number;
+  deliveryFee: number;
+  grandTotal: number;
+  customer: {
+    name: string;
+    email: string;
+    address: { street: string; city: string };
+  };
+}
+
+export interface IUser extends Document {
+  username: string;
+  email: string;
+  password: string;
+  wishlist: string[];
+  cart: ICartItem[];
+  orders: IOrder[];
+}
+
+export interface IProduct extends Document {
+  name: string;
+  slug: string;
+  price: number;
+  category: string;
+  image: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Product
 const ProductSchema = new Schema(
@@ -13,7 +60,7 @@ const ProductSchema = new Schema(
 );
 
 export const Product =
-  mongoose.models.Product || mongoose.model("Product", ProductSchema);
+  mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);
 
 // User + embedded orders/cart
 const CartItemSchema = new Schema({
@@ -52,6 +99,6 @@ const UserSchema = new Schema({
   orders: { type: [OrderSchema], default: [] },
 });
 
-export const User = mongoose.models.User || mongoose.model("User", UserSchema);
+export const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
 

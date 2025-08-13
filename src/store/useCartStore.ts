@@ -1,9 +1,20 @@
 "use client";
 import { create } from "zustand";
 
-const API = ""; // use Next.js internal API routes
+interface Product {
+  id: string; 
+  slug: string; 
+  name: string; 
+  price: number; 
+  image: string; 
+  category: string  
+}
 
-type CartItem = { productId: string; quantity: number; product?: any };
+interface CartItem { 
+  productId: string; 
+  quantity: number; 
+  product?: Product;
+}
 
 interface CartState {
   items: CartItem[];
@@ -48,5 +59,3 @@ export const useCartStore = create<CartState>((set, get) => ({
     await get().fetchCart();
   },
 }));
-
-

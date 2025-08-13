@@ -41,7 +41,14 @@ const sliderData = [
   },
 ];
 
-type Product = { id: string; slug: string; name: string; price: number; image: string; category: string };
+type Product = { 
+  id: string; 
+  slug: string; 
+  name: string; 
+  price: number; 
+  image: string; 
+  category: string 
+};
 
 const featuredCategories = [
   {
@@ -90,7 +97,7 @@ function Page() {
         const data = await res.json();
         const list: Product[] = Array.isArray(data.products) ? data.products : [];
         setTrendingProducts(list.slice(0, 8));
-      } catch (e) {
+      } catch {
         setTrendingProducts([]);
       }
     };
@@ -102,8 +109,9 @@ function Page() {
     try {
       await cartStore.add(productId, 1);
       toast.success("Added to cart");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to add to cart");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to add to cart";
+      toast.error(message);
     }
   };
 
@@ -118,8 +126,9 @@ function Page() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update wishlist");
       toast.success("Wishlist updated");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to update wishlist");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to update wishlist";
+      toast.error(message);
     }
   };
 
@@ -167,10 +176,16 @@ function Page() {
                 <h3 className="font-semibold text-lg">{product.name}</h3>
                 <p className="text-secondary font-bold">${product.price.toFixed(2)}</p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <button onClick={() => handleAddToCart(product.id)} className="w-full bg-primary text-primary-foreground py-2 rounded hover:bg-primary/90 transition">
+                  <button 
+                    onClick={() => handleAddToCart(product.id)} 
+                    className="w-full bg-primary text-primary-foreground py-2 rounded hover:bg-primary/90 transition"
+                  >
                     Add to Cart
                   </button>
-                  <button onClick={() => handleToggleWishlist(product.id)} className="w-full border border-border py-2 rounded hover:bg-muted transition">
+                  <button 
+                    onClick={() => handleToggleWishlist(product.id)} 
+                    className="w-full border border-border py-2 rounded hover:bg-muted transition"
+                  >
                     Wishlist
                   </button>
                 </div>
@@ -203,7 +218,6 @@ function Page() {
             ))}
           </div>
         </section>
-
       </main>
 
       <Footer />

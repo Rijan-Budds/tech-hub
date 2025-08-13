@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useCartStore } from "@/store/useCartStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -67,30 +67,32 @@ export default function CartPage() {
         } else {
           router.push("/profile");
         }
-      } catch (e: any) {
-        toast.error(e.message || "Checkout failed");
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Checkout failed";
+        toast.error(message);
       } finally {
         setSubmitting(false);
       }
     },
   });
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        await cart.fetchCart();
-        const citiesRes = await fetch(`/api/shipping/cities`);
-        const citiesData = await citiesRes.json();
-        setCities(citiesData.cities || []);
-        if ((citiesData.cities || []).length > 0) {
-          formik.setFieldValue("city", citiesData.cities[0].name);
-        }
-      } finally {
-        setLoading(false);
+  const loadData = useCallback(async () => {
+    try {
+      await cart.fetchCart();
+      const citiesRes = await fetch(`/api/shipping/cities`);
+      const citiesData = await citiesRes.json();
+      setCities(citiesData.cities || []);
+      if ((citiesData.cities || []).length > 0) {
+        formik.setFieldValue("city", citiesData.cities[0].name);
       }
-    };
-    load();
-  }, []);
+    } finally {
+      setLoading(false);
+    }
+  }, [cart, formik]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const items = cart.items as CartItem[];
   const subtotal = useMemo(
@@ -113,7 +115,7 @@ export default function CartPage() {
     const newQuantity = Math.max(1, (current?.quantity || 0) + delta);
     try {
       await cart.update(productId, newQuantity);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update quantity");
     }
   };
@@ -122,7 +124,7 @@ export default function CartPage() {
     try {
       await cart.remove(productId);
       toast.success("Item removed from cart");
-    } catch (error) {
+    } catch {
       toast.error("Failed to remove item from cart");
     }
   };

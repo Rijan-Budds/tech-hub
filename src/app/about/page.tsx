@@ -1,5 +1,6 @@
 import PixelTransition from "@/components/PixelTransition";
 import Footer from "@/components/layout/Footer";
+import Image from "next/image";
 
 const teamMembers = [
   {
@@ -53,7 +54,7 @@ export default function AboutPage() {
           netus et malesuada fames ac turpis egestas. Nullam malesuada semper
           rhoncus.
         </p>
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
           alt="Our story"
           style={{ width: "300px", height: "200px", objectFit: "cover", borderRadius: "12px", flexShrink: 0 }}
@@ -135,7 +136,7 @@ export default function AboutPage() {
           >
             <PixelTransition
               firstContent={
-                <img
+                <Image
                   src={image}
                   alt={`${name}`}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}

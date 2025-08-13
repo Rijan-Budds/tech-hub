@@ -6,37 +6,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useProfileStore } from "@/store/useProfileStore";
 
-interface Product {
-  id: string;
-  slug: string;
-  name: string;
-  price: number;
-  category: string;
-  image: string;
-}
-
-interface WishlistItem extends Product {}
-
-interface OrderItem {
-  productId: string;
-  quantity: number;
-}
-
-interface Order {
-  _id: string;
-  items: OrderItem[];
-  createdAt: string;
-  status: "pending" | "canceled" | "delivered";
-  subtotal: number;
-  deliveryFee: number;
-  grandTotal: number;
-  customer?: {
-    name?: string;
-    email?: string;
-    address?: { street?: string; city?: string };
-  };
-}
-
 export default function ProfilePage() {
   const router = useRouter();
   const { loading, user, wishlist, orders, loadProfile, removeFromWishlistLocal } = useProfileStore();
@@ -65,8 +34,9 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error(data.message || "Failed to update wishlist");
       removeFromWishlistLocal(productId);
       toast.success("Removed from wishlist");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to update wishlist");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to update wishlist";
+      toast.error(errorMessage);
     }
   };
 
@@ -163,8 +133,13 @@ export default function ProfilePage() {
                     {o.items.map((it, idx) => (
                       <div key={idx} className="flex items-center gap-3 border rounded p-2 bg-white/50 dark:bg-gray-800/50">
                         {it.image && (
-                          // @ts-ignore
-                          <img src={it.image} alt={it.name || "Item"} className="w-16 h-16 object-cover rounded" />
+                          <Image 
+                            src={it.image} 
+                            alt={it.name || "Item"} 
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 object-cover rounded" 
+                          />
                         )}
                         <div className="flex-1">
                           <div className="font-medium">{it.name || "Item"}</div>

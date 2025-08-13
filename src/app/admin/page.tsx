@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface User {
   _id: string;
@@ -76,8 +77,9 @@ export default function AdminPage() {
         setUsers(uData.users || []);
         setOrders(oData.orders || []);
         setProducts(pData.products || []);
-      } catch (e: any) {
-        toast.error(e.message || "Failed to load admin data");
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to load admin data";
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -92,8 +94,9 @@ export default function AdminPage() {
       });
       const data = await res.json();
       setProducts(data.products || []);
-    } catch (e: any) {
-      toast.error(e.message || "Failed to reload products");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to reload products";
+      toast.error(errorMessage);
     }
   };
 
@@ -115,8 +118,9 @@ export default function AdminPage() {
         prev.map((o) => (o.orderId === orderId ? { ...o, status } : o))
       );
       toast.success("Order status updated");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to update status");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to update status";
+      toast.error(errorMessage);
     }
   };
 
@@ -130,8 +134,9 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to delete order");
       setOrders((prev) => prev.filter((o) => o.orderId !== orderId));
       toast.success("Order deleted");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to delete order");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete order";
+      toast.error(errorMessage);
     }
   };
 
@@ -145,8 +150,9 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to delete user");
       setUsers((prev) => prev.filter((u) => u._id !== userId));
       toast.success("User deleted");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to delete user");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete user";
+      toast.error(errorMessage);
     }
   };
 
@@ -175,8 +181,9 @@ export default function AdminPage() {
       setCategory("cpu");
       setImage("");
       await reloadProducts();
-    } catch (e: any) {
-      toast.error(e.message || "Failed to add product");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to add product";
+      toast.error(errorMessage);
     }
   };
 
@@ -190,8 +197,9 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to delete");
       setProducts((prev) => prev.filter((p) => p.slug !== slug));
       toast.success("Product deleted");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to delete product");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete product";
+      toast.error(errorMessage);
     }
   };
 
@@ -207,8 +215,9 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to update");
       setProducts((prev) => prev.map((p) => (p.slug === slug ? data.product : p)));
       toast.success("Product updated");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to update product");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to update product";
+      toast.error(errorMessage);
     }
   };
 
@@ -218,21 +227,6 @@ export default function AdminPage() {
       credentials: "include",
     });
     router.push("/");
-  };
-
-  const fixImageUrls = async () => {
-    try {
-      const res = await fetch("/api/fix-images", {
-        method: "POST",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to fix images");
-      toast.success(data.message);
-      await reloadProducts();
-    } catch (e: any) {
-      toast.error(e.message || "Failed to fix image URLs");
-    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -255,8 +249,9 @@ export default function AdminPage() {
 
       setImage(data.url);
       toast.success("Image uploaded successfully");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to upload image");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload image";
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
     }
@@ -400,7 +395,13 @@ export default function AdminPage() {
               {products.map((p) => (
                 <tr key={p.id} className="border-t">
                   <td className="p-2">
-                    <img src={p.image} alt={p.name} className="w-14 h-14 object-cover rounded" />
+                    <Image 
+                      src={p.image} 
+                      alt={p.name} 
+                      width={56}
+                      height={56}
+                      className="w-14 h-14 object-cover rounded" 
+                    />
                   </td>
                   <td className="p-2">
                     <input
@@ -488,9 +489,11 @@ export default function AdminPage() {
 
           {/* Image preview */}
           {image && (
-            <img
+            <Image
               src={image}
               alt="Uploaded preview"
+              width={160}
+              height={160}
               className="w-40 h-40 object-cover rounded mt-2 md:col-span-2"
             />
           )}

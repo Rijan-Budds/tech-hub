@@ -8,7 +8,7 @@ interface ProductActionsProps {
   slug: string;
 }
 
-export default function ProductActions({ productId, slug }: ProductActionsProps) {
+export default function ProductActions({ productId }: ProductActionsProps) {
   const handleAddToCart = async () => {
     try {
       const res = await fetch("/api/cart", {
@@ -20,8 +20,9 @@ export default function ProductActions({ productId, slug }: ProductActionsProps)
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to add to cart");
       toast.success("Added to cart");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to add to cart");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to add to cart";
+      toast.error(errorMessage);
     }
   };
 
@@ -36,8 +37,9 @@ export default function ProductActions({ productId, slug }: ProductActionsProps)
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update wishlist");
       toast.success("Wishlist updated");
-    } catch (e: any) {
-      toast.error(e.message || "Failed to update wishlist");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to update wishlist";
+      toast.error(errorMessage);
     }
   };
 

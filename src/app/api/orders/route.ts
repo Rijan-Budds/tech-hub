@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
-import { User, Product } from "@/lib/models";
+import { User, Product, ICartItem } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 
 const cityFees: Record<string, number> = {
@@ -30,10 +30,11 @@ export async function POST(req: Request) {
   const user = await User.findById(auth.sub);
   if (user.cart.length === 0) return NextResponse.json({ message: 'Cart is empty' }, { status: 400 });
 
-  const ids = user.cart.map((ci: any) => ci.productId);
+  const ids = user.cart.map((ci: ICartItem) => ci.productId);
   const docs = ids.length ? await Product.find({ _id: { $in: ids } }).lean() : [];
-  const productMap = new Map(docs.map((d: any) => [d._id.toString(), { price: d.price, name: d.name, image: d.image }]));
-  const subtotal = user.cart.reduce((sum: number, ci: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const productMap = new Map(docs.map((d: any) => [(d._id as any).toString(), { price: d.price, name: d.name, image: d.image }]));
+  const subtotal = user.cart.reduce((sum: number, ci: ICartItem) => {
     const price = productMap.get(ci.productId)?.price || 0;
     return sum + price * ci.quantity;
   }, 0);
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
   const grandTotal = subtotal + deliveryFee;
 
   user.orders.push({
-    items: user.cart.map((ci: any) => ({
+    items: user.cart.map((ci: ICartItem) => ({
       productId: ci.productId,
       quantity: ci.quantity,
       name: productMap.get(ci.productId)?.name,

@@ -10,10 +10,12 @@ export async function GET(request: Request) {
     if (!q) return NextResponse.json({ products: [] });
     const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
     const docs = await Product.find({ $or: [{ name: regex }, { slug: regex }, { category: regex }] }).lean();
-    const products = docs.map((d: any) => ({ id: d._id.toString(), slug: d.slug, name: d.name, price: d.price, category: d.category, image: d.image }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const products = docs.map((d: any) => ({ id: (d._id as any).toString(), slug: d.slug, name: d.name, price: d.price, category: d.category, image: d.image }));
     return NextResponse.json({ products });
-  } catch (e: any) {
-    return NextResponse.json({ products: [], error: e?.message || "Search failed" }, { status: 200 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Search failed";
+    return NextResponse.json({ products: [], error: errorMessage }, { status: 200 });
   }
 }
 
