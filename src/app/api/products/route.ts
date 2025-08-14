@@ -9,7 +9,10 @@ export async function GET(req: Request) {
     
     let products;
     
-    if (category) {
+    if (category === "trending") {
+      // Get trending products based on purchase count
+      products = await productService.getTrendingProducts(4);
+    } else if (category) {
       // Get products by category (simplified query)
       products = await productService.getProductsByCategory(category);
     } else if (q) {
@@ -30,6 +33,7 @@ export async function GET(req: Request) {
       image: product.image,
       discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
       inStock: product.inStock !== false, // default to true if not set
+      purchaseCount: (product as any).purchaseCount, // Include purchase count for trending products
     }));
     
     return NextResponse.json({ products: transformedProducts });

@@ -197,6 +197,47 @@ export const productService = {
   async deleteProduct(productId: string): Promise<void> {
     await deleteDoc(doc(db, COLLECTIONS.PRODUCTS, productId));
   },
+
+  // Get trending products based on purchase count
+  async getTrendingProducts(limit: number = 8): Promise<IProduct[]> {
+    try {
+      // Get all orders
+      const allOrders = await orderService.getAllOrders();
+      
+      // Count purchases for each product
+      const purchaseCounts: { [productId: string]: number } = {};
+      
+      allOrders.forEach(order => {
+        // Only count delivered orders to ensure they were actually purchased
+        if (order.status === 'delivered') {
+          order.items.forEach(item => {
+            const productId = item.productId;
+            purchaseCounts[productId] = (purchaseCounts[productId] || 0) + item.quantity;
+          });
+        }
+      });
+      
+      // Get all products
+      const allProducts = await this.getAllProducts();
+      
+      // Add purchase count to each product and filter out products with no purchases
+      const productsWithCounts = allProducts
+        .map(product => ({
+          ...product,
+          purchaseCount: purchaseCounts[product.id!] || 0
+        }))
+        .filter(product => product.purchaseCount > 0)
+        .sort((a, b) => b.purchaseCount - a.purchaseCount) // Sort by purchase count (descending)
+        .slice(0, limit); // Get top N products
+      
+      return productsWithCounts;
+    } catch (error) {
+      console.error('Error getting trending products:', error);
+      // Fallback to random products if there's an error
+      const allProducts = await this.getAllProducts();
+      return allProducts.slice(0, limit);
+    }
+  },
 };
 
 // Order operations

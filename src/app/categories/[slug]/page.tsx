@@ -16,9 +16,28 @@ interface ProductDisplay {
   category: string;
   discountPercentage?: number;
   inStock?: boolean;
+  purchaseCount?: number;
 }
 
 async function fetchProductsByCategory(slug: string): Promise<ProductDisplay[]> {
+  if (slug === "trending") {
+    // Get trending products based on purchase count
+    const trendingProducts = await productService.getTrendingProducts(20);
+    return trendingProducts
+      .filter(product => product.id) // Ensure id exists
+      .map((product) => ({
+        id: product.id!,
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+        discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
+        inStock: product.inStock !== false, // default to true if not set
+        purchaseCount: (product as any).purchaseCount,
+      }));
+  }
+  
   const allProducts = await productService.getAllProducts();
   
   return allProducts
@@ -65,11 +84,13 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
             {/* Category Header */}
             <div className="text-center">
               <h1 className="text-5xl font-bold text-gray-900 mb-4 capitalize">
-                {categoryName}
+                {slug === "trending" ? "Trending Products" : categoryName}
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Discover our premium collection of {categoryName.toLowerCase()} products.
-                Quality, innovation, and style in every item.
+                {slug === "trending" 
+                  ? "Discover our most popular products loved by customers worldwide. These are the best-sellers that everyone is talking about!"
+                  : `Discover our premium collection of ${categoryName.toLowerCase()} products. Quality, innovation, and style in every item.`
+                }
               </p>
             </div>
 
@@ -138,6 +159,16 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
                             <div className="absolute top-4 right-4">
                               <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold">
                                 Out of Stock
+                              </span>
+                            </div>
+                          )}
+                          
+                          {/* Trending Badge - Show purchase count for trending products */}
+                          {slug === "trending" && p.purchaseCount && p.purchaseCount > 0 && (
+                            <div className="absolute bottom-4 left-4">
+                              <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
+                                <span>🔥</span>
+                                <span>{p.purchaseCount} sold</span>
                               </span>
                             </div>
                           )}

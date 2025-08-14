@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { FaShoppingCart, FaHeart, FaArrowRight, FaStar, FaTruck, FaShieldAlt, FaHeadset } from "react-icons/fa";
+import { FaShoppingCart, FaHeart, FaArrowRight } from "react-icons/fa";
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -58,6 +58,7 @@ type Product = {
   category: string;
   discountPercentage?: number;
   inStock?: boolean;
+  purchaseCount?: number;
 };
 
 const featuredCategories = [
@@ -111,7 +112,7 @@ function Page() {
         const res = await fetch("/api/products?category=trending", { cache: "no-store" });
         const data = await res.json();
         const list: Product[] = Array.isArray(data.products) ? data.products : [];
-        setTrendingProducts(list.slice(0, 8));
+        setTrendingProducts(list.slice(0, 4));
       } catch {
         setTrendingProducts([]);
       }
@@ -257,6 +258,16 @@ function Page() {
                           <div className="absolute top-4 right-4">
                             <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold">
                               Out of Stock
+                            </span>
+                          </div>
+                        )}
+                        
+                        {/* Trending Badge - Show purchase count */}
+                        {product.purchaseCount && product.purchaseCount > 0 && (
+                          <div className="absolute bottom-4 left-4">
+                            <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
+                              <span>🔥</span>
+                              <span>{product.purchaseCount} sold</span>
                             </span>
                           </div>
                         )}
