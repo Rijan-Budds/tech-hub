@@ -34,3 +34,44 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Email Functionality
+
+This e-commerce application includes automated email notifications for order confirmations. The email system uses Nodemailer with Gmail SMTP.
+
+### Features:
+- **Order Confirmation Emails**: Automatically sent when customers complete checkout
+- **Order Status Update Emails**: Sent when admin changes order status (pending → delivered/canceled)
+- **Beautiful HTML Templates**: Professional-looking emails with order details
+- **Gmail Integration**: Uses Gmail SMTP for reliable email delivery
+
+### Configuration:
+The email system is configured with the following Gmail credentials:
+- **Email**: rijanmailsender@gmail.com
+- **App Password**: dkmu iaby adah zivk
+
+### Testing:
+You can test the email functionality from the admin dashboard:
+1. Navigate to `/admin`
+2. Click the "Test Email" button
+3. Check your inbox for the test email
+
+### Files:
+- `src/lib/email.ts` - Email utility functions and templates
+- `src/app/api/test-email/route.ts` - Test email API endpoint
+- `src/app/api/orders/route.ts` - Updated to send emails on order creation
+- `src/app/api/admin/orders/[orderId]/route.ts` - Updated to send status update emails
+
+### Email Template Features:
+- **Order Confirmation Emails**:
+  - Responsive HTML design
+  - Order details with product images
+  - Pricing breakdown (subtotal, delivery fee, grand total)
+  - Customer information and shipping address
+  - Professional styling with gradients and modern design
+
+- **Status Update Emails**:
+  - Color-coded status badges (yellow for pending, green for delivered, red for canceled)
+  - Status-specific messages and instructions
+  - Order summary with key information
+  - Professional styling matching confirmation emails

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { User } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
+import { sendOrderStatusUpdateEmail } from "@/lib/email";
 
 export async function PATCH(
   req: Request,
@@ -23,9 +24,23 @@ export async function PATCH(
   for (const u of users) {
     const order = u.orders.id(orderId);
     if (order) {
+      const oldStatus = order.status;
       order.status = status;
       await u.save();
-      return NextResponse.json({ message: "Order updated" });
+      
+      // Send status update email if status actually changed
+      if (oldStatus !== status) {
+        const emailResult = await sendOrderStatusUpdateEmail(order, orderId, status);
+        if (!emailResult.success) {
+          console.error('Failed to send status update email:', emailResult.error);
+          // Don't fail the status update if email fails, but log it
+        }
+      }
+      
+      return NextResponse.json({ 
+        message: "Order updated", 
+        emailSent: oldStatus !== status 
+      });
     }
   }
   return NextResponse.json({ message: "Order not found" }, { status: 404 });

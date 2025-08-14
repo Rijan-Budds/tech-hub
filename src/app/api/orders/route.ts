@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import { User, Product, ICartItem } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 const cityFees: Record<string, number> = {
   Kathmandu: 3.5,
@@ -41,7 +42,7 @@ export async function POST(req: Request) {
   const deliveryFee = cityFees[address.city] ?? 5.0;
   const grandTotal = subtotal + deliveryFee;
 
-  user.orders.push({
+  const newOrder = {
     items: user.cart.map((ci: ICartItem) => ({
       productId: ci.productId,
       quantity: ci.quantity,
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
       image: productMap.get(ci.productId)?.image,
       price: productMap.get(ci.productId)?.price,
     })),
-    status: 'pending',
+    status: 'pending' as const,
     subtotal,
     deliveryFee,
     grandTotal,
@@ -58,10 +59,27 @@ export async function POST(req: Request) {
       email,
       address: { street: address?.street || '', city: address.city },
     },
-  });
+    createdAt: new Date(),
+  };
+  
+  user.orders.push(newOrder);
   user.cart = [];
   await user.save();
-  return NextResponse.json({ message: 'Order placed', orders: user.orders });
+  
+  // Send order confirmation email
+  const orderId = user.orders[user.orders.length - 1]._id?.toString() || Date.now().toString();
+  const emailResult = await sendOrderConfirmationEmail(newOrder, orderId);
+  
+  if (!emailResult.success) {
+    console.error('Failed to send order confirmation email:', emailResult.error);
+    // Don't fail the order if email fails, but log it
+  }
+  
+  return NextResponse.json({ 
+    message: 'Order placed', 
+    orders: user.orders,
+    emailSent: emailResult.success 
+  });
 }
 
 

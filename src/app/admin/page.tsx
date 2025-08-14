@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FaUsers, FaShoppingCart, FaBox, FaPlus, FaTrash, FaSignOutAlt, FaEye } from "react-icons/fa";
+import { FaUsers, FaShoppingCart, FaBox, FaPlus, FaTrash, FaSignOutAlt, FaEye, FaEnvelope } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -235,6 +235,23 @@ export default function AdminPage() {
     router.push("/");
   };
 
+  const testEmail = async () => {
+    try {
+      const res = await fetch("/api/test-email", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        toast.success("Test email sent successfully! Check your inbox.");
+      } else {
+        toast.error(`Email test failed: ${data.error}`);
+      }
+    } catch (error) {
+      toast.error("Failed to test email functionality");
+    }
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -303,13 +320,22 @@ export default function AdminPage() {
               </h1>
               <p className="text-gray-600">Manage your ecommerce platform</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center space-x-2 shadow-lg"
-            >
-              <FaSignOutAlt />
-              <span>Logout</span>
-            </button>
+            <div className="flex space-x-4">
+              <button
+                onClick={testEmail}
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center space-x-2 shadow-lg"
+              >
+                <FaEnvelope />
+                <span>Test Email</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center space-x-2 shadow-lg"
+              >
+                <FaSignOutAlt />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
 
           {/* Stats Cards */}
