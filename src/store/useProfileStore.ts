@@ -5,7 +5,7 @@ type User = { id: string; email: string; username: string; role?: string } | nul
 type WishlistItem = { id: string; slug: string; name: string; price: number; image: string; category: string };
 type OrderItem = { productId: string; quantity: number; name?: string; image?: string; price?: number };
 type Order = {
-  _id: string;
+  id: string;
   items: OrderItem[];
   createdAt: string;
   status: "pending" | "canceled" | "delivered";

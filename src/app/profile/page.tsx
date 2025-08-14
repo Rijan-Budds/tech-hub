@@ -263,9 +263,9 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="space-y-6">
-                {orders.map((o: { _id: string; createdAt: string; status: string; items: { quantity: number; name?: string; image?: string; price?: number }[]; grandTotal: number }) => (
+                {orders.map((o: { id: string; createdAt: string; status: string; items: { quantity: number; name?: string; image?: string; price?: number }[]; grandTotal: number }) => (
                   <div
-                    key={o._id}
+                    key={o.id}
                     className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
@@ -275,7 +275,7 @@ export default function ProfilePage() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-gray-900 dark:text-white">
-                            Order #{o._id.slice(-8).toUpperCase()}
+                            Order #{o.id.slice(-8).toUpperCase()}
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
                             <FaCalendarAlt className="mr-1" />
