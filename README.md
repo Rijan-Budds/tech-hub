@@ -35,15 +35,65 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-## Database Connection
+## Environment Variables
 
-This application uses MongoDB Atlas with optimized connection pooling to prevent connection limit issues. The database connection is cached and reused across requests to minimize the number of concurrent connections to your MongoDB cluster.
+This application requires several environment variables to function properly. Create a `.env.local` file in the root directory with the following variables:
 
-### Connection Features:
-- **Connection Pooling**: Maintains up to 10 socket connections
-- **Connection Caching**: Reuses existing connections instead of creating new ones
-- **Automatic Reconnection**: Handles connection failures gracefully
-- **Connection Limits**: Prevents hitting MongoDB Atlas M0 cluster connection limits
+### Required Environment Variables:
+
+```env
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
+
+# Email Configuration
+GMAIL_USER=your_gmail_address@gmail.com
+GMAIL_APP_PASSWORD=your_gmail_app_password_here
+
+# JWT Secret (for authentication)
+JWT_SECRET=your_jwt_secret_here
+```
+
+### How to Get These Values:
+
+1. **Firebase Configuration**: 
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Select your project
+   - Go to Project Settings → General
+   - Scroll down to "Your apps" section
+   - Copy the config values
+
+2. **Gmail App Password**:
+   - Go to your Google Account settings
+   - Enable 2-factor authentication
+   - Generate an app password for "Mail"
+   - Use this password in `GMAIL_APP_PASSWORD`
+
+3. **JWT Secret**:
+   - Generate a random string for production
+   - Example: `openssl rand -base64 32`
+
+### Security Notes:
+- Never commit `.env.local` to version control
+- Use different values for development and production
+- Keep your Gmail app password secure
+- Rotate JWT secrets regularly in production
+
+## Database Configuration
+
+This application uses **Firebase Firestore** as the primary database with the following features:
+
+### Firebase Features:
+- **NoSQL Database**: Flexible document-based storage
+- **Real-time Updates**: Automatic data synchronization
+- **Scalable**: Handles high traffic and large datasets
+- **Security Rules**: Configurable access control
+- **Offline Support**: Works without internet connection
 
 ## Email Functionality
 

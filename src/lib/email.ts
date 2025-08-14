@@ -2,12 +2,20 @@ import nodemailer from 'nodemailer';
 import { IOrder } from './firebase-models';
 import { timestampToDate } from './firebase-models';
 
+// Validate email configuration
+const GMAIL_USER = process.env.GMAIL_USER;
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+
+if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
+  console.warn('⚠️ Email configuration missing! Please set GMAIL_USER and GMAIL_APP_PASSWORD in your .env.local file');
+}
+
 // Create transporter for Gmail
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'rijanmailsender@gmail.com',
-    pass: 'dkmu iaby adah zivk' // Your Gmail app password
+    user: GMAIL_USER || 'rijanmailsender@gmail.com',
+    pass: GMAIL_APP_PASSWORD || 'dkmu iaby adah zivk' // Your Gmail app password
   }
 });
 
@@ -127,7 +135,7 @@ const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
 export const sendOrderConfirmationEmail = async (order: IOrder, orderId: string) => {
   try {
     const mailOptions = {
-      from: 'rijanmailsender@gmail.com',
+      from: GMAIL_USER || 'rijanmailsender@gmail.com',
       to: order.customer.email,
       subject: `Order Confirmation - Order #${orderId}`,
       html: createOrderEmailTemplate(order, orderId)
@@ -235,7 +243,7 @@ const createStatusUpdateEmailTemplate = (order: IOrder, orderId: string, newStat
 export const sendOrderStatusUpdateEmail = async (order: IOrder, orderId: string, newStatus: string) => {
   try {
     const mailOptions = {
-      from: 'rijanmailsender@gmail.com',
+      from: GMAIL_USER || 'rijanmailsender@gmail.com',
       to: order.customer.email,
       subject: `Order Status Update - ${newStatus.toUpperCase()} - Order #${orderId}`,
       html: createStatusUpdateEmailTemplate(order, orderId, newStatus)
