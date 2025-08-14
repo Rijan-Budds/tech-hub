@@ -35,6 +35,16 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+## Database Connection
+
+This application uses MongoDB Atlas with optimized connection pooling to prevent connection limit issues. The database connection is cached and reused across requests to minimize the number of concurrent connections to your MongoDB cluster.
+
+### Connection Features:
+- **Connection Pooling**: Maintains up to 10 socket connections
+- **Connection Caching**: Reuses existing connections instead of creating new ones
+- **Automatic Reconnection**: Handles connection failures gracefully
+- **Connection Limits**: Prevents hitting MongoDB Atlas M0 cluster connection limits
+
 ## Email Functionality
 
 This e-commerce application includes automated email notifications for order confirmations. The email system uses Nodemailer with Gmail SMTP.
@@ -44,11 +54,6 @@ This e-commerce application includes automated email notifications for order con
 - **Order Status Update Emails**: Sent when admin changes order status (pending → delivered/canceled)
 - **Beautiful HTML Templates**: Professional-looking emails with order details
 - **Gmail Integration**: Uses Gmail SMTP for reliable email delivery
-
-### Configuration:
-The email system is configured with the following Gmail credentials:
-- **Email**: rijanmailsender@gmail.com
-- **App Password**: dkmu iaby adah zivk
 
 ### Testing:
 You can test the email functionality from the admin dashboard:

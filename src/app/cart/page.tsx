@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useCartStore } from "@/store/useCartStore";
+import { useProfileStore } from "@/store/useProfileStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useFormik } from "formik";
@@ -29,6 +30,7 @@ interface CityFee {
 export default function CartPage() {
   const router = useRouter();
   const cart = useCartStore();
+  const { refreshOrders } = useProfileStore();
   const [loading, setLoading] = useState(true);
   const [cities, setCities] = useState<CityFee[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -65,10 +67,20 @@ export default function CartPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Checkout failed");
         toast.success("Order placed!");
+        
+        console.log("Order creation response:", data);
+        
         const createdOrder = Array.isArray(data.orders)
           ? data.orders[data.orders.length - 1]
           : null;
+        
+        console.log("Created order:", createdOrder);
+        
         await cart.fetchCart();
+        
+        // Refresh profile store to get updated orders
+        await refreshOrders();
+        
         if (createdOrder && createdOrder._id) {
           router.push(`/orders/${createdOrder._id}`);
         } else {

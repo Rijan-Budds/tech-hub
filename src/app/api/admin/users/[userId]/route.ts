@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/db";
+import connectToDatabase from "@/lib/db";
 import { User } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ userId: string }> }) {
-  await dbConnect();
+  await connectToDatabase();
   const auth = await getAuth();
   if (!auth || auth.role !== 'admin') return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
   const { userId } = await params;

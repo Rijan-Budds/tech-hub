@@ -20,6 +20,7 @@ interface ProfileState {
   wishlist: WishlistItem[];
   orders: Order[];
   loadProfile: () => Promise<void>;
+  refreshOrders: () => Promise<void>;
   removeFromWishlistLocal: (productId: string) => void;
 }
 
@@ -45,6 +46,16 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
       set({ user: null, wishlist: [], orders: [] });
     } finally {
       set({ loading: false });
+    }
+  },
+  refreshOrders: async () => {
+    try {
+      const ordersRes = await fetch(`/api/orders`, { credentials: "include" });
+      const or = ordersRes.ok ? await ordersRes.json() : { orders: [] };
+      set({ orders: or.orders ?? [] });
+      console.log("Orders refreshed:", or.orders);
+    } catch (error) {
+      console.error("Failed to refresh orders:", error);
     }
   },
   removeFromWishlistLocal: (productId) =>

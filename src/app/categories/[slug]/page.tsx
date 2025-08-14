@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCardActions } from "@/components/ProductCardActions";
-import dbConnect from "@/lib/db";
+import connectToDatabase from "@/lib/db";
 import { Product } from "@/lib/models";
 import { FaArrowLeft } from "react-icons/fa";
 import Header from "@/components/layout/Header";
@@ -20,7 +20,7 @@ interface ProductDisplay {
 }
 
 async function fetchProductsByCategory(slug: string): Promise<ProductDisplay[]> {
-  await dbConnect();
+  await connectToDatabase();
   const docs = await Product.find({ category: { $regex: `^${slug}$`, $options: 'i' } }).lean();
 
   return docs.map((d) => ({

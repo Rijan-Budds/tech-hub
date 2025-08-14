@@ -11,11 +11,16 @@ import Footer from "@/components/layout/Footer";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { loading, user, wishlist, orders, loadProfile, removeFromWishlistLocal } = useProfileStore();
+  const { loading, user, wishlist, orders, loadProfile, refreshOrders, removeFromWishlistLocal } = useProfileStore();
 
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
+
+  // Refresh orders when component mounts or when returning from checkout
+  useEffect(() => {
+    refreshOrders();
+  }, [refreshOrders]);
 
   const handleLogout = async () => {
     await fetch("/api/logout", {
@@ -107,13 +112,22 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center space-x-2 shadow-lg"
-              >
-                <FaSignOutAlt />
-                <span>Logout</span>
-              </button>
+              <div className="flex space-x-4">
+                <button
+                  onClick={refreshOrders}
+                  className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center space-x-2 shadow-lg"
+                >
+                  <FaBox />
+                  <span>Refresh Orders</span>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center space-x-2 shadow-lg"
+                >
+                  <FaSignOutAlt />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </div>
 

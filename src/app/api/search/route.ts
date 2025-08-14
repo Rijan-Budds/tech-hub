@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/db";
+import connectToDatabase from "@/lib/db";
 import { Product } from "@/lib/models";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q") || "";
   try {
-    await dbConnect();
+    await connectToDatabase();
     if (!q) return NextResponse.json({ products: [] });
     const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
     const docs = await Product.find({ $or: [{ name: regex }, { slug: regex }, { category: regex }] }).lean();

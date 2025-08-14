@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/db";
+import connectToDatabase from "@/lib/db";
 import { User, Product, ICartItem } from "@/lib/models";
 import { getAuth } from "@/lib/auth";
 import { sendOrderConfirmationEmail } from "@/lib/email";
@@ -14,15 +14,16 @@ const cityFees: Record<string, number> = {
 };
 
 export async function GET() {
-  await dbConnect();
+  await connectToDatabase();
   const auth = await getAuth();
   if (!auth || auth.role === 'admin') return NextResponse.json({ orders: [] });
   const user = await User.findById(auth.sub);
+  console.log("GET /api/orders - User orders:", user.orders);
   return NextResponse.json({ orders: user.orders });
 }
 
 export async function POST(req: Request) {
-  await dbConnect();
+  await connectToDatabase();
   const auth = await getAuth();
   if (!auth || auth.role === 'admin') return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   const body = await req.json();
@@ -65,6 +66,9 @@ export async function POST(req: Request) {
   user.orders.push(newOrder);
   user.cart = [];
   await user.save();
+  
+  console.log("POST /api/orders - Order saved, total orders:", user.orders.length);
+  console.log("POST /api/orders - Latest order:", user.orders[user.orders.length - 1]);
   
   // Send order confirmation email
   const orderId = user.orders[user.orders.length - 1]._id?.toString() || Date.now().toString();
