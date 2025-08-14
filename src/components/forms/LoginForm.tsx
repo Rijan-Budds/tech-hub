@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation"; // ✅ import useRouter
+import { useRouter } from "next/navigation";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { toast } from "sonner";
 
 interface LoginFormProps {
   onSubmit?: (values: { email: string; password: string }) => void;
@@ -19,7 +20,10 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   const handleSubmit = async (
     values: { email: string; password: string },
-    { setSubmitting, resetForm }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void }
+    { setSubmitting, resetForm }: { 
+      setSubmitting: (isSubmitting: boolean) => void; 
+      resetForm: () => void;
+    }
   ) => {
     try {
       const response = await fetch("/api/login", {
@@ -32,7 +36,7 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.message || "Login successful!");
+        toast.success(data.message || "Login successful!");
         resetForm();
 
         if (onSubmit) {
@@ -46,10 +50,19 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
         } else {
           router.push("/profile");
         }
+      } else {
+        // Handle error responses
+        if (response.status === 401) {
+          toast.error(data.message || "Invalid email or password");
+        } else if (response.status === 400) {
+          toast.error(data.message || "Please check your input");
+        } else {
+          toast.error(data.message || "Login failed. Please try again.");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Network error. Please check your connection and try again.");
     } finally {
       setSubmitting(false);
     }

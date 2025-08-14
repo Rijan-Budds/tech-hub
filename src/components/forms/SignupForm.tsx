@@ -2,6 +2,7 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { toast } from 'sonner';
 
 interface SignupFormProps {
   onSubmit?: (values: { name: string; email: string; password: string }) => void;
@@ -50,15 +51,15 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || 'Registration failed');
+        toast.error(data.message || 'Registration failed');
       } else {
-        alert('Registration successful!');
+        toast.success('Registration successful!');
         resetForm();
         if (onSubmit) onSubmit(values);
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      alert('Something went wrong. Please try again.');
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
     }
