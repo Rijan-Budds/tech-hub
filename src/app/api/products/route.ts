@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { productService } from "@/lib/firebase-db";
+import { IProduct } from "@/lib/firebase-models";
 
 export async function GET(req: Request) {
   try {
@@ -33,7 +34,7 @@ export async function GET(req: Request) {
       image: product.image,
       discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
       inStock: product.inStock !== false, // default to true if not set
-      purchaseCount: (product as any).purchaseCount, // Include purchase count for trending products
+      purchaseCount: (product as IProduct & { purchaseCount?: number }).purchaseCount, // Include purchase count for trending products
     }));
     
     return NextResponse.json({ products: transformedProducts });

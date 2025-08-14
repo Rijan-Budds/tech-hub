@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ProductCardActions } from "@/components/ProductCardActions";
 import { productService } from "@/lib/firebase-db";
+import { IProduct } from "@/lib/firebase-models";
 import { FaArrowLeft } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -34,7 +35,7 @@ async function fetchProductsByCategory(slug: string): Promise<ProductDisplay[]> 
         category: product.category,
         discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
         inStock: product.inStock !== false, // default to true if not set
-        purchaseCount: (product as any).purchaseCount,
+        purchaseCount: (product as IProduct & { purchaseCount?: number }).purchaseCount,
       }));
   }
   
