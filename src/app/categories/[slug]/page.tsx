@@ -2,8 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCardActions } from "@/components/ProductCardActions";
-import connectToDatabase from "@/lib/db";
-import { Product } from "@/lib/models";
+import { productService } from "@/lib/firebase-db";
 import { FaArrowLeft } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -20,19 +19,21 @@ interface ProductDisplay {
 }
 
 async function fetchProductsByCategory(slug: string): Promise<ProductDisplay[]> {
-  await connectToDatabase();
-  const docs = await Product.find({ category: { $regex: `^${slug}$`, $options: 'i' } }).lean();
-
-  return docs.map((d) => ({
-    id: String(d._id),
-    slug: d.slug,
-    name: d.name,
-    price: d.price,
-    image: d.image,
-    category: d.category,
-    discountPercentage: d.discountPercentage && d.discountPercentage > 0 ? d.discountPercentage : undefined,
-    inStock: d.inStock !== false, // default to true if not set
-  }));
+  const allProducts = await productService.getAllProducts();
+  
+  return allProducts
+    .filter(product => product.category.toLowerCase() === slug.toLowerCase())
+    .filter(product => product.id) // Ensure id exists
+    .map((product) => ({
+      id: product.id!,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      category: product.category,
+      discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
+      inStock: product.inStock !== false, // default to true if not set
+    }));
 }
 
 const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) => {

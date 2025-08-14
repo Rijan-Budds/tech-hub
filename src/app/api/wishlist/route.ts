@@ -1,42 +1,60 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/db";
-import { User, Product } from "@/lib/models";
+import { userService, productService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
-import mongoose from "mongoose";
 
 export async function GET() {
-  await connectToDatabase();
   const auth = await getAuth();
   console.log("GET /api/wishlist - Auth result:", auth);
   if (!auth || auth.role === 'admin') return NextResponse.json({ items: [] });
-  const user = await User.findById(auth.sub);
-  const ids = (user?.wishlist || [])
-    .filter(Boolean)
-    .filter((id: string) => mongoose.Types.ObjectId.isValid(id))
-    .map((id: string) => new mongoose.Types.ObjectId(id));
-  if (ids.length === 0) return NextResponse.json({ items: [] });
-  const docs = await Product.find({ _id: { $in: ids } }).lean();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const items = docs.map((d: any) => ({ id: (d._id as any).toString(), slug: d.slug, name: d.name, price: d.price, category: d.category, image: d.image }));
+  
+  const user = await userService.getUserById(auth.sub);
+  if (!user || !user.wishlist || user.wishlist.length === 0) {
+    return NextResponse.json({ items: [] });
+  }
+  
+  // Get products by IDs
+  const productPromises = user.wishlist.map(id => productService.getProductById(id));
+  const products = await Promise.all(productPromises);
+  const validProducts = products.filter(product => product !== null);
+  
+  const items = validProducts.map(product => ({ 
+    id: product!.id, 
+    slug: product!.slug, 
+    name: product!.name, 
+    price: product!.price, 
+    category: product!.category, 
+    image: product!.image 
+  }));
+  
   return NextResponse.json({ items });
 }
 
 export async function POST(req: Request) {
-  await connectToDatabase();
   const auth = await getAuth();
   console.log("POST /api/wishlist - Auth result:", auth);
   if (!auth || auth.role === 'admin') {
     console.log("User not authenticated, returning 401");
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
+  
   const body = await req.json();
   const productId = body?.productId as string;
   if (!productId) return NextResponse.json({ message: 'productId required' }, { status: 400 });
-  const user = await User.findById(auth.sub);
-  const index = user.wishlist.indexOf(productId);
-  if (index >= 0) user.wishlist.splice(index, 1); else user.wishlist.push(productId);
-  await user.save();
-  return NextResponse.json({ wishlist: user.wishlist });
+  
+  const user = await userService.getUserById(auth.sub);
+  if (!user) return NextResponse.json({ message: 'User not found' }, { status: 404 });
+  
+  const wishlist = user.wishlist || [];
+  const index = wishlist.indexOf(productId);
+  
+  if (index >= 0) {
+    wishlist.splice(index, 1);
+  } else {
+    wishlist.push(productId);
+  }
+  
+  await userService.updateUserWishlist(auth.sub, wishlist);
+  return NextResponse.json({ wishlist });
 }
 
 

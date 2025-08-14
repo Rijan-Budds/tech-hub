@@ -8,14 +8,11 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
-  limit,
-  Timestamp,
   writeBatch,
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { COLLECTIONS, IUser, IProduct, IOrder, ICartItem, dateToTimestamp, timestampToDate } from './firebase-models';
+import { COLLECTIONS, IUser, IProduct, IOrder, ICartItem, timestampToDate } from './firebase-models';
 
 // User operations
 export const userService = {

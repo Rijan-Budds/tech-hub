@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/db";
-import { User } from "@/lib/models";
+import { userService } from "@/lib/firebase-db";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
 
@@ -8,7 +7,6 @@ const ADMIN_EMAIL = "admin@admin.com";
 const ADMIN_PASSWORD = "Admin/1234";
 
 export async function POST(req: Request) {
-  await connectToDatabase();
   const { email, password } = await req.json();
   if (!email || !password) return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });
 
@@ -20,12 +18,12 @@ export async function POST(req: Request) {
     return res;
   }
 
-  const user = await User.findOne({ email });
-  if (!user) return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
+  const user = await userService.getUserByEmail(email);
+  if (!user || !user.password || !user.id) return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
-  const token = signToken({ sub: user._id.toString(), email: user.email, username: user.username, role: 'user' });
-  const res = NextResponse.json({ message: 'Login successful', user: { id: user._id, email: user.email, username: user.username, role: 'user' } });
+  const token = signToken({ sub: user.id, email: user.email, username: user.username, role: 'user' });
+  const res = NextResponse.json({ message: 'Login successful', user: { id: user.id, email: user.email, username: user.username, role: 'user' } });
   res.cookies.set('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: 7 * 24 * 60 * 60 });
   return res;
 }

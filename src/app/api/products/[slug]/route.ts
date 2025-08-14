@@ -1,22 +1,20 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/db";
-import { Product, IProduct } from "@/lib/models";
+import { productService } from "@/lib/firebase-db";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
-    await connectToDatabase();
     const { slug } = await params;
-    const doc = await Product.findOne({ slug }).lean() as IProduct | null;
-    if (!doc) return NextResponse.json({ message: "Not found" }, { status: 404 });
+    const product = await productService.getProductBySlug(slug);
+    if (!product) return NextResponse.json({ message: "Not found" }, { status: 404 });
     return NextResponse.json({ product: {
-      id: (doc._id as { toString(): string }).toString(), 
-      slug: doc.slug, 
-      name: doc.name, 
-      price: doc.price, 
-      category: doc.category, 
-      image: doc.image,
-      discountPercentage: doc.discountPercentage && doc.discountPercentage > 0 ? doc.discountPercentage : undefined,
-      inStock: doc.inStock !== false, // default to true if not set
+      id: product.id, 
+      slug: product.slug, 
+      name: product.name, 
+      price: product.price, 
+      category: product.category, 
+      image: product.image,
+      discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
+      inStock: product.inStock !== false, // default to true if not set
     }});
   } catch (error: unknown) {
     console.error('Error fetching product:', error);

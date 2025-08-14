@@ -1,26 +1,26 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/db";
-import { Product } from "@/lib/models";
+import { productService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
 
 export async function POST() {
   try {
-    await connectToDatabase();
     const auth = await getAuth();
     if (!auth || auth.role !== 'admin') {
       return NextResponse.json({ message: 'Forbidden' }, { status: 403 });
     }
 
-    // Find all products with localhost:5000 in their image URLs
-    const products = await Product.find({
-      image: { $regex: /localhost:5000/, $options: 'i' }
-    });
+    // Get all products and filter for those with localhost:5000 in their image URLs
+    const allProducts = await productService.getAllProducts();
+    const productsToFix = allProducts.filter(product => 
+      product.image && product.image.includes('localhost:5000')
+    );
 
     let fixedCount = 0;
-    for (const product of products) {
+    for (const product of productsToFix) {
+      if (!product.id) continue; // Skip products without ID
       // Replace localhost:5000 with localhost:3000
-      product.image = product.image.replace(/localhost:5000/g, 'localhost:3000');
-      await product.save();
+      const updatedImage = product.image.replace(/localhost:5000/g, 'localhost:3000');
+      await productService.updateProduct(product.id, { image: updatedImage });
       fixedCount++;
     }
 

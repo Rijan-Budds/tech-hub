@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { productService } from "@/lib/firebase-db";
 
-function escapeRegex(str = "") {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
