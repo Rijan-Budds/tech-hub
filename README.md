@@ -45,11 +45,6 @@ This e-commerce application includes automated email notifications for order con
 - **Beautiful HTML Templates**: Professional-looking emails with order details
 - **Gmail Integration**: Uses Gmail SMTP for reliable email delivery
 
-### Configuration:
-The email system is configured with the following Gmail credentials:
-- **Email**: rijanmailsender@gmail.com
-- **App Password**: dkmu iaby adah zivk
-
 ### Testing:
 You can test the email functionality from the admin dashboard:
 1. Navigate to `/admin`
