@@ -1,37 +1,59 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/db";
-import { Product } from "@/lib/models";
+import { productService } from "@/lib/firebase-db";
 
 function escapeRegex(str = "") {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 export async function GET(req: Request) {
-  await connectToDatabase();
-  const { searchParams } = new URL(req.url);
-  const category = searchParams.get("category");
-  const q = searchParams.get("q");
-  
-  const query: Record<string, unknown> = {};
-  
-  if (category) query.category = { $regex: `^${escapeRegex(category)}$`, $options: "i" };
-  if (q) {
-    const regex = new RegExp(escapeRegex(q), "i");
-    Object.assign(query, { $or: [{ name: regex }, { slug: regex }, { category: regex }] });
+  try {
+    const { searchParams } = new URL(req.url);
+    const category = searchParams.get("category");
+    const q = searchParams.get("q");
+    
+    let products;
+    
+    if (category) {
+      // Get products by category (simplified query)
+      products = await productService.getProductsByCategory(category);
+    } else if (q) {
+      // Search products (simplified query)
+      products = await productService.searchProducts(q);
+    } else {
+      // Get all products (simplified query)
+      products = await productService.getAllProducts();
+    }
+    
+    // Transform products to match the expected format
+    const transformedProducts = products.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      category: product.category,
+      image: product.image,
+      discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
+      inStock: product.inStock !== false, // default to true if not set
+    }));
+    
+    return NextResponse.json({ products: transformedProducts });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    
+    // If it's an index error, provide helpful message
+    if (error instanceof Error && error.message.includes('index')) {
+      return NextResponse.json(
+        { 
+          error: 'Database index required. Please create the required index in Firebase Console.',
+          details: error.message
+        },
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json(
+      { error: 'Failed to fetch products' },
+      { status: 500 }
+    );
   }
-  
-  const docs = await Product.find(query).lean();
-  
-  const products = docs.map((d) => ({
-    id: String(d._id),
-    slug: d.slug,
-    name: d.name,
-    price: d.price,
-    category: d.category,
-    image: d.image,
-    discountPercentage: d.discountPercentage && d.discountPercentage > 0 ? d.discountPercentage : undefined,
-    inStock: d.inStock !== false, // default to true if not set
-  }));
-  
-  return NextResponse.json({ products });
 }

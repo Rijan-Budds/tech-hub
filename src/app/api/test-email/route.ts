@@ -41,6 +41,7 @@ export async function GET() {
         email: 'rijanmailsender@gmail.com', // Send to yourself for testing
         address: { street: '123 Test Street', city: 'Test City' }
       },
+      userId: 'test-user-id',
       createdAt: new Date()
     };
 

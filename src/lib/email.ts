@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
-import { IOrder } from './models';
+import { IOrder } from './firebase-models';
+import { timestampToDate } from './firebase-models';
 
 // Create transporter for Gmail
 const transporter = nodemailer.createTransport({
@@ -63,7 +64,7 @@ const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
           <div class="order-details">
             <h3>Order Information</h3>
             <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+            <p><strong>Order Date:</strong> ${timestampToDate(order.createdAt).toLocaleDateString()}</p>
             <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">${order.status.toUpperCase()}</span></p>
             
             <h4>Shipping Address:</h4>
@@ -186,7 +187,7 @@ const createStatusUpdateEmailTemplate = (order: IOrder, orderId: string, newStat
           <div class="order-summary">
             <h3>Order Information</h3>
             <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+            <p><strong>Order Date:</strong> ${timestampToDate(order.createdAt).toLocaleDateString()}</p>
             <p><strong>New Status:</strong> 
               <span class="status-badge" style="background-color: ${statusColors[newStatus as keyof typeof statusColors]}">
                 ${newStatus.toUpperCase()}
