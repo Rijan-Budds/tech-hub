@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FaUsers, FaShoppingCart, FaBox, FaPlus, FaTrash, FaSignOutAlt, FaEye } from "react-icons/fa";
+import { FaUsers, FaShoppingCart, FaBox, FaPlus, FaTrash, FaSignOutAlt, FaEye, FaSync } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -52,6 +52,10 @@ export default function AdminPage() {
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [reloadingUsers, setReloadingUsers] = useState(false);
+  const [reloadingOrders, setReloadingOrders] = useState(false);
+  const [reloadingProducts, setReloadingProducts] = useState(false);
+  const [reloadingAll, setReloadingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'orders' | 'products'>('overview');
 
   const router = useRouter();
@@ -93,16 +97,84 @@ export default function AdminPage() {
     load();
   }, []);
 
+  const reloadUsers = async () => {
+    try {
+      setReloadingUsers(true);
+      const res = await fetch("/api/admin/users", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setUsers(data.users || []);
+      toast.success("Users refreshed successfully");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to reload users";
+      toast.error(errorMessage);
+    } finally {
+      setReloadingUsers(false);
+    }
+  };
+
+  const reloadOrders = async () => {
+    try {
+      setReloadingOrders(true);
+      const res = await fetch("/api/admin/orders", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setOrders(data.orders || []);
+      toast.success("Orders refreshed successfully");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to reload orders";
+      toast.error(errorMessage);
+    } finally {
+      setReloadingOrders(false);
+    }
+  };
+
   const reloadProducts = async () => {
     try {
+      setReloadingProducts(true);
       const res = await fetch("/api/products", {
         credentials: "include",
       });
       const data = await res.json();
       setProducts(data.products || []);
+      toast.success("Products refreshed successfully");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to reload products";
       toast.error(errorMessage);
+    } finally {
+      setReloadingProducts(false);
+    }
+  };
+
+  const reloadAll = async () => {
+    try {
+      setReloadingAll(true);
+      const [uRes, oRes, pRes] = await Promise.all([
+        fetch("/api/admin/users", {
+          credentials: "include",
+        }),
+        fetch("/api/admin/orders", {
+          credentials: "include",
+        }),
+        fetch("/api/products", {
+          credentials: "include",
+        }),
+      ]);
+
+      const uData = await uRes.json();
+      const oData = await oRes.json();
+      const pData = await pRes.json();
+      setUsers(uData.users || []);
+      setOrders(oData.orders || []);
+      setProducts(pData.products || []);
+      toast.success("All data refreshed successfully");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to reload data";
+      toast.error(errorMessage);
+    } finally {
+      setReloadingAll(false);
     }
   };
 
@@ -394,6 +466,22 @@ export default function AdminPage() {
           {/* Content Sections */}
           {activeTab === 'overview' && (
             <div className="space-y-8">
+              {/* Overview Header */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 border-b flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-900">Dashboard Overview</h3>
+                <button
+                  onClick={reloadAll}
+                  className="text-gray-600 hover:text-[#0D3B66] transition-colors"
+                  disabled={reloadingAll}
+                >
+                  {reloadingAll ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                  ) : (
+                    <FaSync />
+                  )}
+                </button>
+              </div>
+
               {/* Recent Orders */}
               <div className="bg-white rounded-2xl shadow-lg p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Orders</h3>
@@ -438,8 +526,19 @@ export default function AdminPage() {
 
           {activeTab === 'users' && (
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="p-6 border-b">
+              <div className="p-6 border-b flex justify-between items-center">
                 <h3 className="text-xl font-bold text-gray-900">User Management</h3>
+                <button
+                  onClick={reloadUsers}
+                  className="text-gray-600 hover:text-[#0D3B66] transition-colors"
+                  disabled={reloadingUsers}
+                >
+                  {reloadingUsers ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                  ) : (
+                    <FaSync />
+                  )}
+                </button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -474,6 +573,20 @@ export default function AdminPage() {
 
           {activeTab === 'orders' && (
             <div className="space-y-6">
+              <div className="bg-white rounded-2xl shadow-lg p-6 border-b flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-900">Order Management</h3>
+                <button
+                  onClick={reloadOrders}
+                  className="text-gray-600 hover:text-[#0D3B66] transition-colors"
+                  disabled={reloadingOrders}
+                >
+                  {reloadingOrders ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                  ) : (
+                    <FaSync />
+                  )}
+                </button>
+              </div>
               {orders.map((order) => (
                 <div key={order.orderId} className="bg-white rounded-2xl shadow-lg p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -567,8 +680,19 @@ export default function AdminPage() {
             <div className="space-y-8">
               {/* Products Table */}
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div className="p-6 border-b">
+                <div className="p-6 border-b flex justify-between items-center">
                   <h3 className="text-xl font-bold text-gray-900">Product Management</h3>
+                  <button
+                    onClick={reloadProducts}
+                    className="text-gray-600 hover:text-[#0D3B66] transition-colors"
+                    disabled={reloadingProducts}
+                  >
+                    {reloadingProducts ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                    ) : (
+                      <FaSync />
+                    )}
+                  </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
