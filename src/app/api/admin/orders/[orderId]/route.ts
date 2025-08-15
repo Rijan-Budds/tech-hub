@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { orderService } from "@/lib/firebase-db";
+import { orderService, batchService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
 import { sendOrderStatusUpdateEmail } from "@/lib/email";
 
@@ -25,7 +25,14 @@ export async function PATCH(
     }
 
     const oldStatus = order.status;
-    await orderService.updateOrder(orderId, { status });
+    
+    // If canceling an order, use batch service to restore stock
+    if (status === "canceled" && oldStatus !== "canceled") {
+      await batchService.cancelOrderAndRestoreStock(orderId);
+    } else {
+      // For other status changes, just update the status
+      await orderService.updateOrder(orderId, { status });
+    }
     
     // Send status update email if status actually changed
     if (oldStatus !== status) {
@@ -60,6 +67,11 @@ export async function DELETE(
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
 
+    // If order is not canceled, restore stock before deleting
+    if (order.status !== "canceled") {
+      await batchService.cancelOrderAndRestoreStock(orderId);
+    }
+    
     await orderService.deleteOrder(orderId);
     return NextResponse.json({ message: "Order deleted" });
   } catch (error) {

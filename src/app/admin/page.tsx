@@ -43,13 +43,14 @@ export default function AdminPage() {
     category: string;
     image: string;
     discountPercentage?: number;
-    inStock: boolean;
+    stockQuantity: number;
   }[]>([]);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("cpu");
   const [image, setImage] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [reloadingUsers, setReloadingUsers] = useState(false);
@@ -235,7 +236,7 @@ export default function AdminPage() {
   };
 
   const addProduct = async () => {
-    if (!name || !price || !category || !image) {
+    if (!name || !price || !category || !image || !stockQuantity) {
       toast.error("Fill all fields");
       return;
     }
@@ -249,6 +250,7 @@ export default function AdminPage() {
           price: Number(price),
           category,
           image,
+          stockQuantity: Number(stockQuantity),
         }),
       });
       const data = await res.json();
@@ -258,6 +260,7 @@ export default function AdminPage() {
       setPrice("");
       setCategory("cpu");
       setImage("");
+      setStockQuantity("");
       await reloadProducts();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to add product";
@@ -281,7 +284,7 @@ export default function AdminPage() {
     }
   };
 
-  const updateProduct = async (slug: string, updates: Partial<{ name: string; price: number; category: string; image: string; discountPercentage: number; inStock: boolean }>) => {
+  const updateProduct = async (slug: string, updates: Partial<{ name: string; price: number; category: string; image: string; discountPercentage: number; stockQuantity: number }>) => {
     try {
       const res = await fetch(`/api/admin/products/${slug}`, {
         method: "PATCH",
@@ -761,16 +764,25 @@ export default function AdminPage() {
                             />
                           </td>
                           <td className="p-4 text-center">
-                            <button
-                              onClick={() => updateProduct(product.slug, { inStock: !product.inStock })}
-                              className={`px-3 py-2 rounded-lg font-medium transition-colors ${
-                                product.inStock 
-                                  ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                                  : 'bg-red-100 text-red-800 hover:bg-red-200'
-                              }`}
-                            >
-                              {product.inStock ? 'In Stock' : 'Out of Stock'}
-                            </button>
+                            <div className="flex flex-col items-center">
+                              <input
+                                type="number"
+                                min="0"
+                                defaultValue={product.stockQuantity}
+                                onBlur={(e) => updateProduct(product.slug, { stockQuantity: Number(e.target.value) })}
+                                className="border rounded-lg px-3 py-2 w-20 text-center bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                              />
+                              <span className={`text-xs mt-1 px-2 py-1 rounded-full font-medium ${
+                                product.stockQuantity === 0 
+                                  ? 'bg-red-100 text-red-800' 
+                                  : product.stockQuantity <= 5 
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-green-100 text-green-800'
+                              }`}>
+                                {product.stockQuantity === 0 ? 'Out of Stock' : 
+                                 product.stockQuantity <= 5 ? 'Low Stock' : 'In Stock'}
+                              </span>
+                            </div>
                           </td>
                           <td className="p-4 text-right">
                             <button
@@ -847,6 +859,19 @@ export default function AdminPage() {
                       />
                     </div>
                   )}
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Stock Quantity
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={stockQuantity}
+                      onChange={(e) => setStockQuantity(e.target.value)}
+                      className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full"
+                    />
+                  </div>
 
                   <div className="md:col-span-2">
                     <button

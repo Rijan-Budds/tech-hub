@@ -50,7 +50,7 @@ export interface IProduct {
   category: string;
   image: string;
   discountPercentage?: number;
-  inStock: boolean;
+  stockQuantity: number;
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
 }

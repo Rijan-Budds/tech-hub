@@ -24,7 +24,8 @@ export async function GET(request: Request) {
         category: product.category, 
         image: product.image,
         discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
-        inStock: product.inStock !== false, // default to true if not set
+        stockQuantity: product.stockQuantity || 0,
+        inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity
       }));
     
     return NextResponse.json({ products });

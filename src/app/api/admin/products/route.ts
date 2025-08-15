@@ -30,8 +30,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
     
-    const { name, slug: incomingSlug, price, category, image } = await req.json();
-    if (!name || price == null || !category || !image) {
+    const { name, slug: incomingSlug, price, category, image, stockQuantity } = await req.json();
+    if (!name || price == null || !category || !image || stockQuantity == null) {
       return NextResponse.json({ message: "Missing fields" }, { status: 400 });
     }
     
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       category: String(category).toLowerCase().trim(),
       image: String(image).trim(),
       discountPercentage: 0,
-      inStock: true,
+      stockQuantity: Number(stockQuantity),
       createdAt: new Date()
     };
     

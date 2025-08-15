@@ -8,7 +8,7 @@ interface ProductUpdates {
   category?: string;
   image?: string;
   discountPercentage?: number;
-  inStock?: boolean;
+  stockQuantity?: number;
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -19,7 +19,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     }
 
     const { slug } = await params;
-    const { name, price, category, image, discountPercentage, inStock } = await req.json();
+    const { name, price, category, image, discountPercentage, stockQuantity } = await req.json();
 
     const product = await productService.getProductBySlug(slug);
     if (!product) {
@@ -43,7 +43,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     if (category != null) updates.category = String(category).toLowerCase().trim();
     if (image != null) updates.image = String(image).trim();
     if (discountPercentage != null) updates.discountPercentage = Number(discountPercentage);
-    if (inStock != null) updates.inStock = Boolean(inStock);
+    if (stockQuantity != null) updates.stockQuantity = Number(stockQuantity);
 
     if (!product.id) {
       return NextResponse.json({ message: 'Product ID not found' }, { status: 404 });
@@ -64,7 +64,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
         category: updatedProduct?.category || product.category,
         image: updatedProduct?.image || product.image,
         discountPercentage: updatedProduct?.discountPercentage && updatedProduct.discountPercentage > 0 ? updatedProduct.discountPercentage : undefined,
-        inStock: updatedProduct?.inStock ?? product.inStock
+        stockQuantity: updatedProduct?.stockQuantity ?? product.stockQuantity
       }
     });
   } catch (error) {

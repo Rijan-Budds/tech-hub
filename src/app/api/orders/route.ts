@@ -60,6 +60,20 @@ export async function POST(req: Request) {
       }
     });
     
+    // Validate stock availability
+    for (const cartItem of user.cart) {
+      const product = productMap.get(cartItem.productId);
+      if (!product) {
+        return NextResponse.json({ message: `Product not found: ${cartItem.productId}` }, { status: 400 });
+      }
+      
+      if (product.stockQuantity < cartItem.quantity) {
+        return NextResponse.json({ 
+          message: `Insufficient stock for ${product.name}. Available: ${product.stockQuantity}, Requested: ${cartItem.quantity}` 
+        }, { status: 400 });
+      }
+    }
+    
     const subtotal = user.cart.reduce((sum, ci) => {
       const product = productMap.get(ci.productId);
       const price = product?.price || 0;

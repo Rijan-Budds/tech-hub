@@ -16,6 +16,7 @@ interface ProductDisplay {
   image: string;
   category: string;
   discountPercentage?: number;
+  stockQuantity?: number;
   inStock?: boolean;
   purchaseCount?: number;
 }
@@ -39,7 +40,8 @@ async function fetchProductsByCategory(
           product.discountPercentage && product.discountPercentage > 0
             ? product.discountPercentage
             : undefined,
-        inStock: product.inStock !== false, // default to true if not set
+        stockQuantity: product.stockQuantity || 0,
+        inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity
         purchaseCount: (product as IProduct & { purchaseCount?: number })
           .purchaseCount,
       }));
@@ -61,7 +63,8 @@ async function fetchProductsByCategory(
         product.discountPercentage && product.discountPercentage > 0
           ? product.discountPercentage
           : undefined,
-      inStock: product.inStock !== false, // default to true if not set
+      stockQuantity: product.stockQuantity || 0,
+      inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity
     }));
 }
 

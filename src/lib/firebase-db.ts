@@ -10,6 +10,7 @@ import {
   where,
   writeBatch,
   serverTimestamp,
+  increment,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { COLLECTIONS, IUser, IProduct, IOrder, ICartItem, timestampToDate } from './firebase-models';
@@ -330,7 +331,45 @@ export const batchService = {
       updatedAt: serverTimestamp(),
     });
     
+    // Reduce stock quantities for each product in the order
+    for (const item of orderData.items) {
+      const productRef = doc(db, COLLECTIONS.PRODUCTS, item.productId);
+      batch.update(productRef, {
+        stockQuantity: increment(-item.quantity),
+        updatedAt: serverTimestamp(),
+      });
+    }
+    
     await batch.commit();
     return orderRef.id;
+  },
+
+  // Cancel order and restore stock quantities
+  async cancelOrderAndRestoreStock(orderId: string): Promise<void> {
+    const batch = writeBatch(db);
+    
+    // Get the order to restore stock
+    const order = await orderService.getOrderById(orderId);
+    if (!order) {
+      throw new Error('Order not found');
+    }
+    
+    // Update order status to canceled
+    const orderRef = doc(db, COLLECTIONS.ORDERS, orderId);
+    batch.update(orderRef, { 
+      status: 'canceled',
+      updatedAt: serverTimestamp(),
+    });
+    
+    // Restore stock quantities for each product in the order
+    for (const item of order.items) {
+      const productRef = doc(db, COLLECTIONS.PRODUCTS, item.productId);
+      batch.update(productRef, {
+        stockQuantity: increment(item.quantity),
+        updatedAt: serverTimestamp(),
+      });
+    }
+    
+    await batch.commit();
   },
 };
