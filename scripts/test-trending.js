@@ -62,7 +62,7 @@ async function testTrendingProducts() {
          ...product,
          purchaseCount: purchaseCounts[product.id] || 0
        }))
-       .filter(product => product.purchaseCount > 0)
+       .filter(product => product.purchaseCount >= 15) // Only products with 15+ sales
        .sort((a, b) => b.purchaseCount - a.purchaseCount)
        .slice(0, 4);
     

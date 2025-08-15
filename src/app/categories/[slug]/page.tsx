@@ -20,12 +20,14 @@ interface ProductDisplay {
   purchaseCount?: number;
 }
 
-async function fetchProductsByCategory(slug: string): Promise<ProductDisplay[]> {
+async function fetchProductsByCategory(
+  slug: string
+): Promise<ProductDisplay[]> {
   if (slug === "trending") {
     // Get trending products based on purchase count
     const trendingProducts = await productService.getTrendingProducts(20);
     return trendingProducts
-      .filter(product => product.id) // Ensure id exists
+      .filter((product) => product.id) // Ensure id exists
       .map((product) => ({
         id: product.id!,
         slug: product.slug,
@@ -33,17 +35,21 @@ async function fetchProductsByCategory(slug: string): Promise<ProductDisplay[]> 
         price: product.price,
         image: product.image,
         category: product.category,
-        discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
+        discountPercentage:
+          product.discountPercentage && product.discountPercentage > 0
+            ? product.discountPercentage
+            : undefined,
         inStock: product.inStock !== false, // default to true if not set
-        purchaseCount: (product as IProduct & { purchaseCount?: number }).purchaseCount,
+        purchaseCount: (product as IProduct & { purchaseCount?: number })
+          .purchaseCount,
       }));
   }
-  
+
   const allProducts = await productService.getAllProducts();
-  
+
   return allProducts
-    .filter(product => product.category.toLowerCase() === slug.toLowerCase())
-    .filter(product => product.id) // Ensure id exists
+    .filter((product) => product.category.toLowerCase() === slug.toLowerCase())
+    .filter((product) => product.id) // Ensure id exists
     .map((product) => ({
       id: product.id!,
       slug: product.slug,
@@ -51,12 +57,19 @@ async function fetchProductsByCategory(slug: string): Promise<ProductDisplay[]> 
       price: product.price,
       image: product.image,
       category: product.category,
-      discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
+      discountPercentage:
+        product.discountPercentage && product.discountPercentage > 0
+          ? product.discountPercentage
+          : undefined,
       inStock: product.inStock !== false, // default to true if not set
     }));
 }
 
-const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+const CategoryPage = async ({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) => {
   const { slug } = await params;
   const products = await fetchProductsByCategory(slug);
   const categoryName = slug.replace("-", " ");
@@ -72,13 +85,18 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
             <nav className="mb-6">
               <ol className="flex items-center space-x-2 text-sm text-gray-600">
                 <li>
-                  <Link href="/" className="hover:text-blue-600 transition-colors flex items-center space-x-1">
+                  <Link
+                    href="/"
+                    className="hover:text-blue-600 transition-colors flex items-center space-x-1"
+                  >
                     <FaArrowLeft className="text-xs" />
                     <span>Back to Home</span>
                   </Link>
                 </li>
                 <li>/</li>
-                <li className="text-gray-900 font-medium capitalize">{categoryName}</li>
+                <li className="text-gray-900 font-medium capitalize">
+                  {categoryName}
+                </li>
               </ol>
             </nav>
 
@@ -88,21 +106,22 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
                 {slug === "trending" ? "Trending Products" : categoryName}
               </h1>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                {slug === "trending" 
+                {slug === "trending"
                   ? "Discover our most popular products loved by customers worldwide. These are the best-sellers that everyone is talking about!"
-                  : `Discover our premium collection of ${categoryName.toLowerCase()} products. Quality, innovation, and style in every item.`
-                }
+                  : `Discover our premium collection of ${categoryName.toLowerCase()} products. Quality, innovation, and style in every item.`}
               </p>
             </div>
-
-
           </div>
 
           {/* Products Section */}
           {products.length === 0 ? (
             <div className="text-center py-20">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">No Products Found</h2>
-              <p className="text-gray-600 mb-6">We couldn&apos;t find any products in this category.</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                No Products Found
+              </h2>
+              <p className="text-gray-600 mb-6">
+                We couldn&apos;t find any products in this category.
+              </p>
               <Link
                 href="/"
                 className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
@@ -116,9 +135,9 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
               {/* Filter Bar */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
                 <div className="flex items-center justify-between">
-
                   <div className="text-sm text-gray-600">
-                    Showing {products.length} product{products.length !== 1 ? 's' : ''}
+                    Showing {products.length} product
+                    {products.length !== 1 ? "s" : ""}
                   </div>
                 </div>
               </div>
@@ -145,7 +164,7 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
                               Quick View
                             </div>
                           </div>
-                          
+
                           {/* Discount Badge */}
                           {p.discountPercentage && p.discountPercentage > 0 && (
                             <div className="absolute top-4 left-4">
@@ -154,7 +173,7 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
                               </span>
                             </div>
                           )}
-                          
+
                           {/* Stock Status Badge */}
                           {p.inStock === false && (
                             <div className="absolute top-4 right-4">
@@ -163,16 +182,19 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
                               </span>
                             </div>
                           )}
-                          
+
                           {/* Trending Badge - Show purchase count for trending products */}
-                          {slug === "trending" && p.purchaseCount && p.purchaseCount > 0 && (
-                            <div className="absolute bottom-4 left-4">
-                              <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
-                                <span>🔥</span>
-                                <span>{p.purchaseCount} sold</span>
-                              </span>
-                            </div>
-                          )}
+                          {slug === "trending" &&
+                            p.purchaseCount &&
+                            p.purchaseCount > 0 && (
+                              <div className="absolute bottom-4 left-4">
+                                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
+                                  {" "}
+                                  <span>🔥</span>
+                                  <span>{p.purchaseCount} sold</span>
+                                </span>
+                              </div>
+                            )}
                         </div>
                       </Link>
 
@@ -183,13 +205,18 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
                             {p.name}
                           </h3>
                           <div className="flex items-baseline space-x-2">
-                            {p.discountPercentage && p.discountPercentage > 0 ? (
+                            {p.discountPercentage &&
+                            p.discountPercentage > 0 ? (
                               <>
                                 <span className="text-lg font-bold text-gray-400 line-through">
                                   रु{p.price.toFixed(2)}
                                 </span>
                                 <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                                  रु{(p.price * (1 - p.discountPercentage / 100)).toFixed(2)}
+                                  रु
+                                  {(
+                                    p.price *
+                                    (1 - p.discountPercentage / 100)
+                                  ).toFixed(2)}
                                 </span>
                               </>
                             ) : (
@@ -203,7 +230,10 @@ const CategoryPage = async ({ params }: { params: Promise<{ slug: string }> }) =
 
                         {/* Product Actions */}
                         <div className="pt-4 border-t border-gray-100">
-                          <ProductCardActions productId={p.id} inStock={p.inStock !== false} />
+                          <ProductCardActions
+                            productId={p.id}
+                            inStock={p.inStock !== false}
+                          />
                         </div>
                       </div>
                     </div>

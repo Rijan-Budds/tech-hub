@@ -220,13 +220,13 @@ export const productService = {
       // Get all products
       const allProducts = await this.getAllProducts();
       
-      // Add purchase count to each product and filter out products with no purchases
+      // Add purchase count to each product and filter out products with less than 15 sales
       const productsWithCounts = allProducts
         .map(product => ({
           ...product,
           purchaseCount: purchaseCounts[product.id!] || 0
         }))
-        .filter(product => product.purchaseCount > 0)
+        .filter(product => product.purchaseCount >= 15) // Only products with 15+ sales
         .sort((a, b) => b.purchaseCount - a.purchaseCount) // Sort by purchase count (descending)
         .slice(0, limit); // Get top N products
       

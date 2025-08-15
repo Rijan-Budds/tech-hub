@@ -80,32 +80,6 @@ export default function ProductActions({ productId }: { productId: string }) {
         <FaHeart className="text-xl" />
         <span>Add to Wishlist</span>
       </button>
-
-      {/* Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-              <span className="text-green-600 dark:text-green-400 text-lg">✓</span>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">Free Shipping</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">On orders over रु5000</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 dark:text-blue-400 text-lg">↻</span>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">Easy Returns</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">30-day return policy</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

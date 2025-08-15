@@ -24,28 +24,28 @@ const sliderData = [
     categorySlug: "keyboard",
     alt: "keyboard",
     title: "Premium Keyboards",
-    subtitle: "Experience the perfect typing sensation"
+    subtitle: "Experience the perfect typing sensation",
   },
   {
     image: "/home/slider2.jpg",
     categorySlug: "mouse",
     alt: "Mouse",
     title: "Gaming Mouse",
-    subtitle: "Precision and speed for every click"
+    subtitle: "Precision and speed for every click",
   },
   {
     image: "/home/slider3.jpg",
     categorySlug: "speaker",
     alt: "Speaker",
     title: "High-Fidelity Speakers",
-    subtitle: "Crystal clear sound quality"
+    subtitle: "Crystal clear sound quality",
   },
   {
     image: "/home/slider4.jpg",
     categorySlug: "monitor",
     alt: "Monitor",
     title: "Ultra HD Monitors",
-    subtitle: "Stunning visuals for work and play"
+    subtitle: "Stunning visuals for work and play",
   },
 ];
 
@@ -67,35 +67,35 @@ const featuredCategories = [
     name: "CPUs",
     slug: "cpu",
     image: "/home/category1.jpg",
-    description: "High-performance processors"
+    description: "High-performance processors",
   },
   {
     id: 2,
     name: "Keyboard",
     slug: "keyboard",
     image: "/home/category2.jpg",
-    description: "Mechanical & wireless keyboards"
+    description: "Mechanical & wireless keyboards",
   },
   {
     id: 3,
     name: "Monitor",
     slug: "monitor",
     image: "/home/category3.jpg",
-    description: "4K & gaming monitors"
+    description: "4K & gaming monitors",
   },
   {
     id: 4,
     name: "Speakers",
     slug: "speaker",
     image: "/home/category4.jpg",
-    description: "Premium audio systems"
+    description: "Premium audio systems",
   },
   {
     id: 5,
     name: "Mouse",
     slug: "mouse",
     image: "/home/category5.jpg",
-    description: "Gaming & wireless mouse"
+    description: "Gaming & wireless mouse",
   },
 ];
 
@@ -109,9 +109,13 @@ function Page() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("/api/products?category=trending", { cache: "no-store" });
+        const res = await fetch("/api/products?category=trending", {
+          cache: "no-store",
+        });
         const data = await res.json();
-        const list: Product[] = Array.isArray(data.products) ? data.products : [];
+        const list: Product[] = Array.isArray(data.products)
+          ? data.products
+          : [];
         setTrendingProducts(list.slice(0, 4));
       } catch {
         setTrendingProducts([]);
@@ -127,7 +131,7 @@ function Page() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ action: 'add', productId, quantity: 1 }),
+        body: JSON.stringify({ action: "add", productId, quantity: 1 }),
       });
       const data = await res.json();
       console.log("Cart response status:", res.status);
@@ -143,7 +147,8 @@ function Page() {
       toast.success("Added to cart");
     } catch (error: unknown) {
       console.log("Cart error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to add to cart";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to add to cart";
       toast.error(errorMessage);
     }
   };
@@ -171,7 +176,8 @@ function Page() {
       toast.success("Wishlist updated");
     } catch (error: unknown) {
       console.log("Wishlist error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to update wishlist";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update wishlist";
       toast.error(errorMessage);
     }
   };
@@ -198,8 +204,12 @@ function Page() {
                     <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent">
                       <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
                         <div className="text-white max-w-lg">
-                          <h1 className="text-5xl font-bold mb-4">{slider.title}</h1>
-                          <p className="text-xl mb-6 text-gray-200">{slider.subtitle}</p>
+                          <h1 className="text-5xl font-bold mb-4">
+                            {slider.title}
+                          </h1>
+                          <p className="text-xl mb-6 text-gray-200">
+                            {slider.subtitle}
+                          </p>
                           <Link
                             href={`/categories/${slider.categorySlug}`}
                             className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -222,7 +232,10 @@ function Page() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Trending <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Products</span>
+                Trending{" "}
+                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                  Products
+                </span>
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Discover our most popular products loved by customers worldwide
@@ -243,16 +256,17 @@ function Page() {
                           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                         <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                        
+
                         {/* Discount Badge */}
-                        {product.discountPercentage && product.discountPercentage > 0 && (
-                          <div className="absolute top-4 left-4">
-                            <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                              -{product.discountPercentage}%
-                            </span>
-                          </div>
-                        )}
-                        
+                        {product.discountPercentage &&
+                          product.discountPercentage > 0 && (
+                            <div className="absolute top-4 left-4">
+                              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                -{product.discountPercentage}%
+                              </span>
+                            </div>
+                          )}
+
                         {/* Stock Status Badge */}
                         {product.inStock === false && (
                           <div className="absolute top-4 right-4">
@@ -261,11 +275,12 @@ function Page() {
                             </span>
                           </div>
                         )}
-                        
+
                         {/* Trending Badge - Show purchase count */}
                         {product.purchaseCount && product.purchaseCount > 0 && (
                           <div className="absolute bottom-4 left-4">
-                            <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
+                            <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
+                              {" "}
                               <span>🔥</span>
                               <span>{product.purchaseCount} sold</span>
                             </span>
@@ -280,13 +295,18 @@ function Page() {
                           {product.name}
                         </h3>
                         <div className="flex items-baseline space-x-2">
-                          {product.discountPercentage && product.discountPercentage > 0 ? (
+                          {product.discountPercentage &&
+                          product.discountPercentage > 0 ? (
                             <>
                               <span className="text-lg font-bold text-gray-400 line-through">
                                 रु{product.price.toFixed(2)}
                               </span>
                               <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                                रु{(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
+                                रु
+                                {(
+                                  product.price *
+                                  (1 - product.discountPercentage / 100)
+                                ).toFixed(2)}
                               </span>
                             </>
                           ) : (
@@ -304,12 +324,16 @@ function Page() {
                           disabled={product.inStock === false}
                           className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
                             product.inStock === false
-                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                              : 'bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90'
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90"
                           }`}
                         >
                           <FaShoppingCart />
-                          <span>{product.inStock === false ? 'Out of Stock' : 'Add to Cart'}</span>
+                          <span>
+                            {product.inStock === false
+                              ? "Out of Stock"
+                              : "Add to Cart"}
+                          </span>
                         </button>
                         <button
                           onClick={() => handleToggleWishlist(product.id)}
@@ -331,7 +355,10 @@ function Page() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Shop by <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Category</span>
+                Shop by{" "}
+                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                  Category
+                </span>
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Explore our wide range of products organized by category
@@ -352,8 +379,12 @@ function Page() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
                         <div className="absolute bottom-0 left-0 right-0 p-6">
-                          <h3 className="text-white text-xl font-bold mb-2">{cat.name}</h3>
-                          <p className="text-gray-200 text-sm mb-4">{cat.description}</p>
+                          <h3 className="text-white text-xl font-bold mb-2">
+                            {cat.name}
+                          </h3>
+                          <p className="text-gray-200 text-sm mb-4">
+                            {cat.description}
+                          </p>
                           <div className="flex items-center text-white text-sm font-semibold">
                             <span>Explore</span>
                             <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-200" />
@@ -372,9 +403,12 @@ function Page() {
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-6">
             <div className="bg-gradient-to-r from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl p-12 text-center text-white">
-              <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Setup?</h2>
+              <h2 className="text-4xl font-bold mb-4">
+                Ready to Transform Your Setup?
+              </h2>
               <p className="text-xl mb-8 text-blue-100 max-w-2xl mx-auto">
-                Join thousands of satisfied customers who have upgraded their tech experience with our premium products.
+                Join thousands of satisfied customers who have upgraded their
+                tech experience with our premium products.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
