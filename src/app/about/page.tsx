@@ -5,7 +5,7 @@ import { FaLightbulb, FaShieldAlt, FaHeart } from "react-icons/fa";
 
 const teamMembers = [
   {
-    name: "Aastha Malla",
+    name: "Someone",
     role: "Founder & CEO",
     image: "/home/rejina.jpg",
     description:
