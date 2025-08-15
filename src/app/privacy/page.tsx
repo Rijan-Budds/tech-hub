@@ -88,7 +88,7 @@ export default function PrivacyPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Header Section */}
           <div className="text-center mb-16">
@@ -118,7 +118,7 @@ export default function PrivacyPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all">
-              <Link href="/contact">Contact Us</Link>
+                <Link href="/contact">Contact Us</Link>
               </button>
               <button className="border-2 border-[#0D3B66] text-[#0D3B66] dark:text-[#1E5CAF] dark:border-[#1E5CAF] px-8 py-3 rounded-xl font-semibold hover:bg-[#0D3B66] hover:text-white dark:hover:bg-[#1E5CAF] transition-colors" onClick={() => {
                 const link = document.createElement("a");
@@ -131,7 +131,7 @@ export default function PrivacyPage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
       <Footer />
     </>
   );

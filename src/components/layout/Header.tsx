@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
-import { ModeToggle } from "@/components/ui/mode-toggle";
-import LoginForm from "../forms/LoginForm";
-import SignupForm from "../forms/SignupForm";
 import Image from "next/image";
+import { FaSearch, FaUser, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
+import { ModeToggle } from "@/components/ui/mode-toggle";
+import LoginForm from "@/components/forms/LoginForm";
+import SignupForm from "@/components/forms/SignupForm";
 
 interface CurrentUser {
   id: string;

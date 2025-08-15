@@ -97,7 +97,7 @@ const CategoryPage = async ({
                   </Link>
                 </li>
                 <li>/</li>
-                <li className="text-gray-900 font-medium capitalize">
+                <li className="text-gray-900 dark:text-white font-medium capitalize">
                   {categoryName}
                 </li>
               </ol>
@@ -105,10 +105,10 @@ const CategoryPage = async ({
 
             {/* Category Header */}
             <div className="text-center">
-              <h1 className="text-5xl font-bold text-gray-900 mb-4 capitalize">
+              <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4 capitalize">
                 {slug === "trending" ? "Trending Products" : categoryName}
               </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 {slug === "trending"
                   ? "Discover our most popular products loved by customers worldwide. These are the best-sellers that everyone is talking about!"
                   : `Discover our premium collection of ${categoryName.toLowerCase()} products. Quality, innovation, and style in every item.`}
@@ -119,10 +119,10 @@ const CategoryPage = async ({
           {/* Products Section */}
           {products.length === 0 ? (
             <div className="text-center py-20">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 No Products Found
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 We couldn&apos;t find any products in this category.
               </p>
               <Link
@@ -138,7 +138,7 @@ const CategoryPage = async ({
               {/* Filter Bar */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
                     Showing {products.length} product
                     {products.length !== 1 ? "s" : ""}
                   </div>
@@ -148,11 +148,11 @@ const CategoryPage = async ({
               {/* Products Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {products.map((p) => (
-                  <div key={p.id} className="group">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                  <div key={p.id} className="group h-full">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col">
                       {/* Product Image */}
                       <Link href={`/product/${p.slug}`} passHref>
-                        <div className="relative cursor-pointer">
+                        <div className="relative cursor-pointer flex-shrink-0">
                           <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                           <Image
                             src={p.image}
@@ -202,9 +202,9 @@ const CategoryPage = async ({
                       </Link>
 
                       {/* Product Info */}
-                      <div className="p-6 space-y-4">
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#0D3B66] transition-colors">
+                      <div className="p-6 space-y-4 flex-1 flex flex-col">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#0D3B66] transition-colors min-h-[3.5rem]">
                             {p.name}
                           </h3>
                           <div className="flex items-baseline space-x-2">
@@ -227,12 +227,12 @@ const CategoryPage = async ({
                                 रु{p.price.toFixed(2)}
                               </span>
                             )}
-                            <span className="text-sm text-gray-500">NPR</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">NPR</span>
                           </div>
                         </div>
 
                         {/* Product Actions */}
-                        <div className="pt-4 border-t border-gray-100">
+                        <div className="pt-4 border-t border-gray-100 dark:border-gray-700 mt-auto">
                           <ProductCardActions
                             productId={p.id}
                             inStock={p.inStock !== false}
