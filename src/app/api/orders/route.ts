@@ -35,9 +35,14 @@ export async function POST(req: Request) {
     }
     
     const body = await req.json();
-    const { name, email, address } = body || {};
-    if (!name || !email || !address?.city) {
-      return NextResponse.json({ message: 'name, email, city are required' }, { status: 400 });
+    const { name, email, address, paymentMethod } = body || {};
+    if (!name || !email || !address?.city || !paymentMethod) {
+      return NextResponse.json({ message: 'name, email, city, and paymentMethod are required' }, { status: 400 });
+    }
+    
+    // Validate payment method
+    if (!['khalti', 'esewa', 'cod'].includes(paymentMethod)) {
+      return NextResponse.json({ message: 'Invalid payment method' }, { status: 400 });
     }
     
     const user = await userService.getUserById(auth.sub);
@@ -79,6 +84,7 @@ export async function POST(req: Request) {
       subtotal,
       deliveryFee,
       grandTotal,
+      paymentMethod: paymentMethod as "khalti" | "esewa" | "cod",
       customer: {
         name,
         email,

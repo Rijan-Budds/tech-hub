@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
-import { FaShoppingCart, FaTrash, FaMinus, FaPlus, FaTruck, FaCreditCard, FaUser, FaEnvelope, FaMapMarkerAlt, FaHome } from "react-icons/fa";
+import { FaShoppingCart, FaTrash, FaMinus, FaPlus, FaTruck, FaCreditCard, FaUser, FaEnvelope, FaMapMarkerAlt, FaHome, FaMobile, FaMoneyBillWave } from "react-icons/fa";
 
 interface CartItem {
   productId: string;
@@ -42,12 +42,14 @@ export default function CartPage() {
       email: "",
       city: "Kathmandu",
       street: "",
+      paymentMethod: "cod" as "khalti" | "esewa" | "cod",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
       email: Yup.string().email("Invalid email").required("Email is required"),
       city: Yup.string().required("City is required"),
       street: Yup.string(),
+      paymentMethod: Yup.string().oneOf(["khalti", "esewa", "cod"]).required("Payment method is required"),
     }),
     onSubmit: async (values) => {
       if (items.length === 0) return;
@@ -392,6 +394,91 @@ export default function CartPage() {
                     className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
                     placeholder="Enter your street address"
                   />
+                </div>
+
+                {/* Payment Method Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                    <FaMobile className="mr-2" />
+                    Payment Method
+                  </label>
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="khalti"
+                        name="paymentMethod"
+                        value="khalti"
+                        checked={formik.values.paymentMethod === "khalti"}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="mr-2"
+                      />
+                      <label htmlFor="khalti" className="flex items-center">
+                        <Image
+                          src="/home/khalti.png"
+                          alt="Khalti"
+                          width={24}
+                          height={24}
+                          className="mr-2"
+                        />
+                        Khalti
+                      </label>
+                      {formik.values.paymentMethod === "khalti" && (
+                        <span className="ml-4 text-sm text-gray-600 dark:text-gray-300">
+                          Account: 9813447225
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="esewa"
+                        name="paymentMethod"
+                        value="esewa"
+                        checked={formik.values.paymentMethod === "esewa"}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="mr-2"
+                      />
+                      <label htmlFor="esewa" className="flex items-center">
+                        <Image
+                          src="/home/esewa.png"
+                          alt="eSewa"
+                          width={24}
+                          height={24}
+                          className="mr-2"
+                        />
+                        eSewa
+                      </label>
+                      {formik.values.paymentMethod === "esewa" && (
+                        <span className="ml-4 text-sm text-gray-600 dark:text-gray-300">
+                          Account: 9813447225
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        id="cod"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={formik.values.paymentMethod === "cod"}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="mr-2"
+                      />
+                      <label htmlFor="cod" className="flex items-center">
+                        <FaMoneyBillWave className="mr-2 text-lg" />
+                        Cash on Delivery
+                      </label>
+                    </div>
+                  </div>
+                  {formik.touched.paymentMethod && formik.errors.paymentMethod && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {formik.errors.paymentMethod}
+                    </div>
+                  )}
                 </div>
 
                 {/* Checkout Button */}

@@ -74,6 +74,7 @@ const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
             <p><strong>Order ID:</strong> ${orderId}</p>
             <p><strong>Order Date:</strong> ${timestampToDate(order.createdAt).toLocaleDateString()}</p>
             <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">${order.status.toUpperCase()}</span></p>
+            ${order.paymentMethod ? `<p><strong>Payment Method:</strong> <span style="color: #667eea; font-weight: bold;">${order.paymentMethod.toUpperCase()}</span></p>` : ''}
             
             <h4>Shipping Address:</h4>
             <p>${order.customer.address.street}<br>

@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
 import { useProfileStore } from "@/store/useProfileStore";
-import { FaUser, FaHeart, FaShoppingBag, FaSignOutAlt, FaCalendarAlt, FaBox, FaDollarSign } from "react-icons/fa";
+import { FaUser, FaHeart, FaShoppingBag, FaSignOutAlt, FaCalendarAlt, FaBox, FaDollarSign, FaMoneyBillWave } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -263,7 +263,7 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="space-y-6">
-                {orders.map((o: { id: string; createdAt: string; status: string; items: { quantity: number; name?: string; image?: string; price?: number }[]; grandTotal: number }) => (
+                {orders.map((o: { id: string; createdAt: string; status: string; paymentMethod?: string; items: { quantity: number; name?: string; image?: string; price?: number }[]; grandTotal: number }) => (
                   <div
                     key={o.id}
                     className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-200"
@@ -287,6 +287,40 @@ export default function ProfilePage() {
                               minute: '2-digit'
                             })}
                           </p>
+                          {o.paymentMethod && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center mt-1">
+                              {o.paymentMethod === "khalti" && (
+                                <>
+                                  <Image
+                                    src="/home/khalti.png"
+                                    alt="Khalti"
+                                    width={16}
+                                    height={16}
+                                    className="mr-1"
+                                  />
+                                  Khalti
+                                </>
+                              )}
+                              {o.paymentMethod === "esewa" && (
+                                <>
+                                  <Image
+                                    src="/home/esewa.png"
+                                    alt="eSewa"
+                                    width={16}
+                                    height={16}
+                                    className="mr-1"
+                                  />
+                                  eSewa
+                                </>
+                              )}
+                              {o.paymentMethod === "cod" && (
+                                <>
+                                  <FaMoneyBillWave className="mr-1 text-green-600" />
+                                  Cash on Delivery
+                                </>
+                              )}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center space-x-4">

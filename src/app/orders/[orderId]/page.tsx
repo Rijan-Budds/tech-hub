@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import { FaMoneyBillWave } from "react-icons/fa";
 
 interface OrderItem {
   productId: string;
@@ -16,6 +18,7 @@ interface Order {
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
+  paymentMethod?: "khalti" | "esewa" | "cod";
   customer?: {
     name?: string;
     email?: string;
@@ -108,6 +111,43 @@ export default function OrderConfirmationPage() {
           <div className="text-sm text-gray-600 dark:text-gray-400">Status</div>
           <div className="capitalize font-medium">{order.status}</div>
         </div>
+        {order.paymentMethod && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-600 dark:text-gray-400">Payment Method</div>
+            <div className="flex items-center capitalize font-medium">
+              {order.paymentMethod === "khalti" && (
+                <>
+                  <Image
+                    src="/home/khalti.png"
+                    alt="Khalti"
+                    width={20}
+                    height={20}
+                    className="mr-2"
+                  />
+                  Khalti
+                </>
+              )}
+              {order.paymentMethod === "esewa" && (
+                <>
+                  <Image
+                    src="/home/esewa.png"
+                    alt="eSewa"
+                    width={20}
+                    height={20}
+                    className="mr-2"
+                  />
+                  eSewa
+                </>
+              )}
+              {order.paymentMethod === "cod" && (
+                <>
+                  <FaMoneyBillWave className="mr-2 text-green-600" />
+                  Cash on Delivery
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

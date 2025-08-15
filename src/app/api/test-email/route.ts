@@ -36,6 +36,7 @@ export async function GET() {
       subtotal: 109.97,
       deliveryFee: 5.0,
       grandTotal: 114.97,
+      paymentMethod: 'cod' as const,
       customer: {
         name: 'Test Customer',
         email: 'rijanmailsender@gmail.com', // Send to yourself for testing
