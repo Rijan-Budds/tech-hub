@@ -50,11 +50,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Cart is empty' }, { status: 400 });
     }
 
-    // Get product details for cart items
-    const productPromises = user.cart.map(item => productService.getProductById(item.productId));
-    const products = await Promise.all(productPromises);
+    // Get product details for cart items - optimized batch fetch
+    const allProducts = await productService.getAllProducts();
     const productMap = new Map();
-    products.forEach(product => {
+    allProducts.forEach(product => {
       if (product && product.id) {
         productMap.set(product.id, product);
       }

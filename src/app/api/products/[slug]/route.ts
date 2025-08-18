@@ -13,6 +13,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
       price: product.price, 
       category: product.category, 
       image: product.image,
+      description: product.description,
       discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
       stockQuantity: product.stockQuantity || 0,
       inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity

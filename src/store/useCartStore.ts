@@ -32,30 +32,57 @@ export const useCartStore = create<CartState>((set, get) => ({
     set({ items: data.items ?? [] });
   },
   add: async (productId, quantity = 1) => {
-    await fetch(`/api/cart`, {
+    const res = await fetch(`/api/cart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ action: 'add', productId, quantity }),
     });
-    await get().fetchCart();
+    if (res.ok) {
+      // Update local state instead of refetching
+      const currentItems = get().items;
+      const existingItem = currentItems.find(item => item.productId === productId);
+      if (existingItem) {
+        existingItem.quantity += quantity;
+        set({ items: [...currentItems] });
+      } else {
+        // Add placeholder item - will be filled with product details on next fetchCart
+        set({ items: [...currentItems, { productId, quantity, product: null }] });
+      }
+    }
   },
   update: async (productId, quantity) => {
-    await fetch(`/api/cart`, {
+    const res = await fetch(`/api/cart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ action: 'update', productId, quantity }),
     });
-    await get().fetchCart();
+    if (res.ok) {
+      // Update local state instead of refetching
+      const currentItems = get().items;
+      if (quantity <= 0) {
+        set({ items: currentItems.filter(item => item.productId !== productId) });
+      } else {
+        const existingItem = currentItems.find(item => item.productId === productId);
+        if (existingItem) {
+          existingItem.quantity = quantity;
+          set({ items: [...currentItems] });
+        }
+      }
+    }
   },
   remove: async (productId) => {
-    await fetch(`/api/cart`, {
+    const res = await fetch(`/api/cart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ action: 'remove', productId }),
     });
-    await get().fetchCart();
+    if (res.ok) {
+      // Update local state instead of refetching
+      const currentItems = get().items;
+      set({ items: currentItems.filter(item => item.productId !== productId) });
+    }
   },
 }));

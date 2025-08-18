@@ -29,6 +29,7 @@ async function fetchProduct(slug: string) {
       slug: string; 
       image: string; 
       category: string;
+      description?: string;
       discountPercentage?: number;
       inStock?: boolean;
     }
@@ -133,12 +134,15 @@ export default async function ProductDetailPage({
               {/* Description */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Product Description</h3>
-                <p className="text-gray-700 leading-relaxed text-lg">
-                  Experience the perfect blend of innovation and performance with this exceptional product. 
-                  Designed with cutting-edge technology and premium materials, it delivers outstanding quality 
-                  and reliability for all your needs. Whether you&apos;re a professional or enthusiast, this product 
-                  will exceed your expectations and provide years of dependable service.
-                </p>
+                {product.description ? (
+                  <p className="text-gray-700 leading-relaxed text-lg">
+                    {product.description}
+                  </p>
+                ) : (
+                  <p className="text-gray-500 leading-relaxed text-lg italic">
+                    No description available for this product.
+                  </p>
+                )}
               </div>
 
               {/* Features */}

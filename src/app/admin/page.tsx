@@ -42,6 +42,7 @@ export default function AdminPage() {
     price: number;
     category: string;
     image: string;
+    description?: string;
     discountPercentage?: number;
     stockQuantity: number;
   }[]>([]);
@@ -50,6 +51,7 @@ export default function AdminPage() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("cpu");
   const [image, setImage] = useState("");
+  const [description, setDescription] = useState("");
   const [stockQuantity, setStockQuantity] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -237,7 +239,7 @@ export default function AdminPage() {
 
   const addProduct = async () => {
     if (!name || !price || !category || !image || !stockQuantity) {
-      toast.error("Fill all fields");
+      toast.error("Fill all required fields");
       return;
     }
     try {
@@ -250,6 +252,7 @@ export default function AdminPage() {
           price: Number(price),
           category,
           image,
+          description: description.trim() || undefined,
           stockQuantity: Number(stockQuantity),
         }),
       });
@@ -260,6 +263,7 @@ export default function AdminPage() {
       setPrice("");
       setCategory("cpu");
       setImage("");
+      setDescription("");
       setStockQuantity("");
       await reloadProducts();
     } catch (error) {
@@ -284,7 +288,7 @@ export default function AdminPage() {
     }
   };
 
-  const updateProduct = async (slug: string, updates: Partial<{ name: string; price: number; category: string; image: string; discountPercentage: number; stockQuantity: number }>) => {
+  const updateProduct = async (slug: string, updates: Partial<{ name: string; price: number; category: string; image: string; description?: string; discountPercentage: number; stockQuantity: number }>) => {
     try {
       const res = await fetch(`/api/admin/products/${slug}`, {
         method: "PATCH",
@@ -704,6 +708,7 @@ export default function AdminPage() {
                         <th className="text-left p-4 font-semibold text-gray-900">Image</th>
                         <th className="text-left p-4 font-semibold text-gray-900">Name</th>
                         <th className="text-left p-4 font-semibold text-gray-900">Category</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Description</th>
                         <th className="text-right p-4 font-semibold text-gray-900">Price</th>
                         <th className="text-center p-4 font-semibold text-gray-900">Discount %</th>
                         <th className="text-center p-4 font-semibold text-gray-900">Stock</th>
@@ -740,8 +745,16 @@ export default function AdminPage() {
                               <option value="monitor">Monitor</option>
                               <option value="speaker">Speaker</option>
                               <option value="mouse">Mouse</option>
-                              <option value="trending">Trending</option>
                             </select>
+                          </td>
+                          <td className="p-4">
+                            <textarea
+                              defaultValue={product.description || ""}
+                              onBlur={(e) => updateProduct(product.slug, { description: e.target.value.trim() || undefined })}
+                              rows={3}
+                              className="border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full resize-none text-sm"
+                              placeholder="No description"
+                            />
                           </td>
                           <td className="p-4 text-right">
                             <input
@@ -829,8 +842,33 @@ export default function AdminPage() {
                     <option value="monitor">Monitor</option>
                     <option value="speaker">Speaker</option>
                     <option value="mouse">Mouse</option>
-                    <option value="trending">Trending</option>
                   </select>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Stock Quantity
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={stockQuantity}
+                      onChange={(e) => setStockQuantity(e.target.value)}
+                      className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Description
+                    </label>
+                    <textarea
+                      placeholder="Enter product description..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={4}
+                      className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full resize-none"
+                    />
+                  </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -859,19 +897,6 @@ export default function AdminPage() {
                       />
                     </div>
                   )}
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Stock Quantity
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={stockQuantity}
-                      onChange={(e) => setStockQuantity(e.target.value)}
-                      className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full"
-                    />
-                  </div>
 
                   <div className="md:col-span-2">
                     <button

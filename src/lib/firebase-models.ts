@@ -49,6 +49,7 @@ export interface IProduct {
   price: number;
   category: string;
   image: string;
+  description?: string;
   discountPercentage?: number;
   stockQuantity: number;
   createdAt: Timestamp | Date;

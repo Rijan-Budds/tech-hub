@@ -5,47 +5,39 @@ import { getAuth } from "@/lib/auth";
 export async function GET() {
   try {
     const auth = await getAuth();
-    console.log("GET /api/cart - Auth result:", auth);
     
     if (!auth || auth.role === 'admin') {
-      console.log("User not authenticated or is admin, returning empty cart");
       return NextResponse.json({ items: [] });
     }
     
     const user = await userService.getUserById(auth.sub);
     if (!user) {
-      console.log("User not found in database");
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
     
-    console.log("User found:", { id: user.id, cartLength: user.cart.length });
-    
     const productIds = user.cart.map(ci => ci.productId);
-    console.log("Cart product IDs:", productIds);
     
-    // Get products from Firebase
+    // Get products from Firebase - optimized batch fetch
     const products = [];
-    for (const productId of productIds) {
-      const product = await productService.getProductById(productId);
-      if (product) {
-        products.push({
-          id: product.id,
-          slug: product.slug,
-          name: product.name,
-          price: Number(product.price) || 0,
-          category: product.category,
-          image: product.image
-        });
+    if (productIds.length > 0) {
+      // Get all products at once instead of individual calls
+      const allProducts = await productService.getAllProducts();
+      const productMap = new Map(allProducts.map(p => [p.id, p]));
+      
+      for (const productId of productIds) {
+        const product = productMap.get(productId);
+        if (product) {
+          products.push({
+            id: product.id,
+            slug: product.slug,
+            name: product.name,
+            price: Number(product.price) || 0,
+            category: product.category,
+            image: product.image
+          });
+        }
       }
     }
-    
-    console.log("Found products:", products.map(p => ({ 
-      id: p.id, 
-      name: p.name, 
-      price: p.price, 
-      priceType: typeof p.price,
-      isNaN: isNaN(p.price)
-    })));
     
     // Create a map for quick lookup
     const productMap = new Map(products.map(p => [p.id, p]));
@@ -59,17 +51,6 @@ export async function GET() {
       };
     });
     
-    console.log("Detailed cart items:", detailed.map(item => ({ 
-      productId: item.productId, 
-      product: item.product ? {
-        id: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        priceType: typeof item.product.price
-      } : null 
-    })));
-    
-    console.log("Final response:", { items: detailed });
     return NextResponse.json({ items: detailed });
     
   } catch (error) {
@@ -84,10 +65,8 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const auth = await getAuth();
-    console.log("POST /api/cart - Auth result:", auth);
     
     if (!auth || auth.role === 'admin') {
-      console.log("User not authenticated, returning 401");
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
     
@@ -96,7 +75,6 @@ export async function POST(req: Request) {
     
     const user = await userService.getUserById(auth.sub);
     if (!user) {
-      console.log("User not found in database");
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
     
