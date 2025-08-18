@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaSearch, FaUser, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
+import { FaSearch, FaUser, FaShoppingCart } from "react-icons/fa";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import LoginForm from "@/components/forms/LoginForm";
 import SignupForm from "@/components/forms/SignupForm";
@@ -114,7 +114,20 @@ const Header = () => {
         </Link>
 
         {/* Search Bar */}
-        <form action="/search" className="flex flex-1 max-w-xl mx-6">
+        <form 
+          action="/search" 
+          className="flex flex-1 max-w-xl mx-6"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const query = formData.get('q') as string;
+            const trimmedQuery = query.trim();
+            
+            if (trimmedQuery) {
+              window.location.href = `/search?q=${encodeURIComponent(trimmedQuery)}`;
+            }
+          }}
+        >
           <input
             type="text"
             name="q"
