@@ -41,7 +41,7 @@ export default function MapComponent() {
       <Marker position={[27.6734, 85.4348]}>
         <Popup minWidth={250}>
           <div className="p-2">
-            <h3 className="font-semibold text-gray-900 mb-2">Tech Store</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">Wayne Enterprises</h3>
             <p className="text-sm text-gray-600 mb-3">Suryamadhi, Bhaktapur, Nepal</p>
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3533.4194566026704!2d85.43477772612894!3d27.673427826202076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb1aad4d84edbf%3A0xef9bc5713f04cee!2sSuryamadhi%2C%20Bhaktapur%2044800!5e0!3m2!1sen!2snp!4v1755233170220!5m2!1sen!2snp"

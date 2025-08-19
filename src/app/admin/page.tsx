@@ -360,6 +360,7 @@ export default function AdminPage() {
   if (loading)
     return (
       <>
+        <Header />
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66] mx-auto mb-4"></div>
@@ -372,6 +373,7 @@ export default function AdminPage() {
 
   return (
     <>
+      <Header />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Header */}
@@ -394,9 +396,9 @@ export default function AdminPage() {
           </div>
 
           {/* Stats Cards */}
-                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
-               <div className="flex items-center justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 text-sm">Total Users</p>
                   <p className="text-3xl font-bold text-gray-900">{users.length}</p>
@@ -442,6 +444,8 @@ export default function AdminPage() {
               </div>
             </div>
           </div>
+
+
 
           {/* Navigation Tabs */}
           <div className="bg-white rounded-2xl shadow-lg mb-8">

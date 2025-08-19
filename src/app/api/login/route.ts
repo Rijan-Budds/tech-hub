@@ -3,8 +3,8 @@ import { userService } from "@/lib/firebase-db";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
 
-const ADMIN_EMAIL = "admin@admin.com";
-const ADMIN_PASSWORD = "Admin/1234";
+const ADMIN_EMAIL = "bruce@wayne.com";
+const ADMIN_PASSWORD = "Batman/1234";
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   // Admin hard-coded login
   if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
     const token = signToken({ sub: 'admin', email: ADMIN_EMAIL, username: 'admin', role: 'admin' });
-    const res = NextResponse.json({ message: 'Welcome Boss.', user: { id: 'admin', email: ADMIN_EMAIL, username: 'admin', role: 'admin' } });
+    const res = NextResponse.json({ message: 'Welcome Mr. Wayne', user: { id: 'admin', email: ADMIN_EMAIL, username: 'admin', role: 'admin' } });
     res.cookies.set('token', token, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: 7 * 24 * 60 * 60 });
     return res;
   }

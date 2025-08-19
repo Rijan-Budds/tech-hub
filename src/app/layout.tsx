@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tech Store",
-  description: "Online Shopping in Nepal: Tech Store",
+  title: "Wayne Enterprise",
+  description: "Online Shopping in Nepal: Wayne Enterprises",
 };
 
 export default function RootLayout({

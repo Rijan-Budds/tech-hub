@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Footer from "@/components/layout/Footer";
 import WorldMap from "@/components/ui/world-map";
 import Link from "next/link";

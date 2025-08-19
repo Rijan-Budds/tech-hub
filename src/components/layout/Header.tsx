@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaSearch, FaUser, FaShoppingCart, FaSignOutAlt } from "react-icons/fa";
+import { FaSearch, FaUser, FaShoppingCart, FaSignOutAlt, FaHeart } from "react-icons/fa";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import LoginForm from "@/components/forms/LoginForm";
 import SignupForm from "@/components/forms/SignupForm";
@@ -85,7 +85,7 @@ const Header = () => {
         <Link href="/" className="flex items-center">
           <Image
             src="/home/logo.jpg"
-            alt="Tech Store Logo"
+            alt="Wayne Logo"
             width={60}
             height={60}
             className="sm:w-[75px] sm:h-[75px] lg:w-[85px] lg:h-[85px]"
@@ -97,67 +97,99 @@ const Header = () => {
         <div className="flex items-center gap-3 sm:gap-4">
           {/* User Icon with Dropdown */}
           {currentUser ? (
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setDropdownOpen((prev) => !prev)}
-                className="hover:text-gray-200"
-              >
-                <FaUser size={18} className="sm:w-5 sm:h-5" />
-              </button>
-                             {dropdownOpen && (
-                 <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 text-black dark:text-white rounded shadow-lg z-50 border border-gray-200 dark:border-gray-700">
-                   {currentUser.role !== "admin" && (
-                     <Link
-                       href="/profile"
-                       className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                       onClick={() => setDropdownOpen(false)}
-                     >
-                       <FaUser className="text-sm" />
-                       <span>Profile</span>
-                     </Link>
-                   )}
-                   {currentUser.role === "admin" && (
-                     <Link
-                       href="/admin"
-                       className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                       onClick={() => setDropdownOpen(false)}
-                     >
-                       <RiAdminFill className="text-sm" />
-                       <span>Admin</span>
-                     </Link>
-                   )}
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setDropdownOpen((prev) => !prev)}
+        className="flex items-center justify-center hover:text-gray-200 w-8 h-8 sm:w-9 sm:h-9"
+      >
+        <FaUser className="w-5 h-5 sm:w-5 sm:h-5" />
+      </button>
+             {dropdownOpen && (
+         <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg z-50 border border-gray-200 dark:border-gray-700 py-2">
+           <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+             <p className="text-sm font-medium text-gray-900 dark:text-white">{currentUser.username}</p>
+             <p className="text-xs text-gray-500 dark:text-gray-400">{currentUser.email}</p>
+           </div>
+           
+           <div className="py-1">
+             <Link
+               href="/profile"
+               className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+               onClick={() => setDropdownOpen(false)}
+             >
+               <FaUser className="w-4 h-4 mr-3" />
+               Profile
+             </Link>
+             
+             {currentUser.role === 'admin' && (
+               <Link
+                 href="/admin"
+                 className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                 onClick={() => setDropdownOpen(false)}
+               >
+                 <RiAdminFill className="w-4 h-4 mr-3" />
+                 Admin Dashboard
+               </Link>
+             )}
+             
+             <Link
+               href="/orders"
+               className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+               onClick={() => setDropdownOpen(false)}
+             >
+               <FaShoppingCart className="w-4 h-4 mr-3" />
+               My Orders
+             </Link>
+             
+             <Link
+               href="/wishlist"
+               className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+               onClick={() => setDropdownOpen(false)}
+             >
+               <FaHeart className="w-4 h-4 mr-3" />
+               Wishlist
+             </Link>
+           </div>
+           
+           <div className="border-t border-gray-200 dark:border-gray-700 pt-1">
+             <button
+               onClick={handleLogout}
+               className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+             >
+               <FaSignOutAlt className="w-4 h-4 mr-3" />
+               Logout
+             </button>
+           </div>
+         </div>
+       )}
+    </div>
+  ) : (
+    <button
+      onClick={() => setModalType("login")}
+      className="hover:underline text-sm sm:text-base"
+    >
+      LOGIN
+    </button>
+  )}
 
-                   <button
-                     onClick={handleLogout}
-                     className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                   >
-                     <FaSignOutAlt className="text-sm" />
-                     <span>Logout</span>
-                   </button>
-                 </div>
-               )}
-            </div>
-          ) : (
-            <button
-              onClick={() => setModalType("login")}
-              className="hover:underline text-sm sm:text-base"
-            >
-              LOGIN
-            </button>
-          )}
+  {/* Cart Icon */}
+  <Link
+    href="/cart"
+    className="flex items-center justify-center hover:text-gray-200 w-8 h-8 sm:w-9 sm:h-9"
+  >
+    <FaShoppingCart className="w-5 h-5 sm:w-5 sm:h-5" />
+  </Link>
 
-          <Link href="/cart" className="hover:text-gray-200">
-            <FaShoppingCart size={18} className="sm:w-5 sm:h-5" />
-          </Link>
-          <ModeToggle />
-        </div>
+  <ModeToggle />
+</div>
+
       </div>
 
       {/* Bottom row: Search Bar */}
-      <div className="px-4 pb-3">
+      <div className="px-4 pb-3 flex justify-center">
         <form
           action="/search"
-          className="flex w-full"
+          className="flex max-w-md w-full"
           onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
@@ -173,11 +205,11 @@ const Header = () => {
             type="text"
             name="q"
             placeholder="Search for item..."
-            className="w-full px-3 py-2 text-sm sm:px-4 sm:py-2 sm:text-base rounded-l-md focus:outline-none bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border-0 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            className="flex-1 px-3 py-2 text-sm sm:px-4 sm:py-2 sm:text-base rounded-l-md focus:outline-none bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border-0 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           />
           <button
             type="submit"
-            className="bg-accent px-3 py-2 sm:px-4 rounded-r-md text-accent-foreground"
+            className="bg-accent px-3 py-2 sm:px-4 rounded-r-md text-accent-foreground hover:bg-accent/90 transition-colors"
           >
             <FaSearch size={16} className="sm:w-4 sm:h-4" />
           </button>

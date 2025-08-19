@@ -412,10 +412,10 @@ function Page() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link
-                  href="/categories/trending"
+                  href="/all"
                   className="bg-white text-[#0D3B66] px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
                 >
-                  <span>Shop Trending</span>
+                  <span>View All Products</span>
                   <FaArrowRight className="text-xs sm:text-sm" />
                 </Link>
                 <Link
