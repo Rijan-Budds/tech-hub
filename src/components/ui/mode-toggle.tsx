@@ -21,17 +21,17 @@ export function ModeToggle() {
   }
 
   return (
-    <div 
+      <div 
       className={`
-        relative w-12 h-6 sm:w-16 sm:h-8 rounded-full cursor-pointer transition-all duration-700 ease-in-out overflow-hidden
+        relative w-16 h-8 rounded-full cursor-pointer transition-all duration-700 ease-in-out overflow-hidden
         ${isDark 
-          ? 'bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-800' 
+          ? 'bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900' 
           : 'bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500'
         }
       `}
       style={{
         boxShadow: isDark 
-          ? '0 4px 16px rgba(99, 102, 241, 0.3)' 
+          ? '0 4px 16px rgba(37, 99, 235, 0.4)' 
           : '0 4px 16px rgba(59, 130, 246, 0.3)'
       }}
       onClick={toggleTheme}
@@ -96,9 +96,9 @@ export function ModeToggle() {
       {/* Sliding toggle circle */}
       <div
         className={`
-          absolute top-0.5 w-5 h-5 sm:w-7 sm:h-7 bg-white rounded-full shadow-lg
+          absolute top-0.5 w-7 h-7 bg-white rounded-full shadow-lg
           transition-all duration-700 ease-in-out flex items-center justify-center
-          ${isDark ? 'transform translate-x-6 sm:translate-x-8' : 'transform translate-x-0.5'}
+          ${isDark ? 'transform translate-x-8' : 'transform translate-x-0.5'}
         `}
         style={{
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'

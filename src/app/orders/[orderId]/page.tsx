@@ -66,39 +66,62 @@ export default function OrderConfirmationPage() {
     [order]
   );
 
-  if (loading) return <div className="max-w-3xl mx-auto px-4 py-10">Loading...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66] mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-300">Loading order details...</p>
+      </div>
+    </div>
+  );
 
   if (!isAuthed)
     return (
-      <main className="max-w-3xl mx-auto px-4 py-10 space-y-4">
-        <h1 className="text-2xl font-bold">Please log in</h1>
-        <p>You need to log in to view your order.</p>
-      </main>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-3xl mx-auto px-6 py-12">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Please log in</h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">You need to log in to view your order.</p>
+            <button
+              onClick={() => router.push("/")}
+              className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
+            >
+              Go to Home
+            </button>
+          </div>
+        </div>
+      </div>
     );
 
   if (!order)
     return (
-      <main className="max-w-3xl mx-auto px-4 py-10 space-y-4">
-        <h1 className="text-2xl font-bold">Order not found</h1>
-        <button
-          onClick={() => router.push("/profile")}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded"
-        >
-          Go to profile
-        </button>
-      </main>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-3xl mx-auto px-6 py-12">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Order not found</h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">The order you&apos;re looking for doesn&apos;t exist.</p>
+            <button
+              onClick={() => router.push("/profile")}
+              className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
+            >
+              Go to Profile
+            </button>
+          </div>
+        </div>
+      </div>
     );
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-10 space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold">Order confirmed</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Thank you{order.customer?.name ? `, ${order.customer.name}` : ""}! Your order has been placed.
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-3xl mx-auto px-6 py-12 space-y-6">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Order confirmed</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Thank you{order.customer?.name ? `, ${order.customer.name}` : ""}! Your order has been placed.
+          </p>
+        </div>
 
-      <div className="border rounded p-4 bg-white dark:bg-gray-900 dark:text-white space-y-2">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4 border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-600 dark:text-gray-400">Order ID</div>
           <div className="font-mono">{order._id}</div>
@@ -150,8 +173,8 @@ export default function OrderConfirmationPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="border rounded p-4 bg-white dark:bg-gray-900 dark:text-white space-y-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-3 border border-gray-200 dark:border-gray-700">
           <div className="font-semibold">Shipping to</div>
           <div>{order.customer?.name || ""}</div>
           <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -161,7 +184,7 @@ export default function OrderConfirmationPage() {
             {order.customer?.address?.city || ""}
           </div>
         </div>
-        <div className="border rounded p-4 bg-white dark:bg-gray-900 dark:text-white space-y-1">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-3 border border-gray-200 dark:border-gray-700">
           <div className="font-semibold">Summary</div>
           <div className="flex items-center justify-between text-sm">
             <span>Items</span>
@@ -182,15 +205,16 @@ export default function OrderConfirmationPage() {
         </div>
       </div>
 
-      <div>
+      <div className="text-center">
         <button
           onClick={() => router.push("/profile")}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
+          className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg"
         >
           View your orders
         </button>
       </div>
-    </main>
+      </div>
+    </div>
   );
 }
 

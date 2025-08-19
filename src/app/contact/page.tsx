@@ -31,7 +31,7 @@ export default function ContactPage() {
     <>
       <main className="max-w-6xl mx-auto px-4 py-10 space-y-10">
         <header className="space-y-2">
-          <h1 className="text-3xl font-bold">Contact Us</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Contact Us</h1>
           <p className="text-gray-600 dark:text-gray-300">
             Have a question about a product or an order? We&apos;re here to help.
           </p>
@@ -40,7 +40,7 @@ export default function ContactPage() {
         <section className="grid md:grid-cols-2 gap-8">
           <form
             onSubmit={handleSubmit}
-            className="space-y-6 p-6 rounded-xl border bg-white dark:bg-gray-900 dark:text-white shadow-lg"
+            className="space-y-6 p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
           >
             <div>
               <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Get in Touch</h2>
@@ -96,7 +96,7 @@ export default function ContactPage() {
             )}
           </form>
 
-          <div className="p-6 rounded-xl border bg-white dark:bg-gray-900 dark:text-white space-y-4 shadow-lg">
+          <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 space-y-4 shadow-lg">
             <div>
               <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Our Location</h2>
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">

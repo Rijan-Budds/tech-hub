@@ -86,7 +86,7 @@ const CategoryPage = async ({
           <div className="mb-12">
             {/* Breadcrumb */}
             <nav className="mb-6">
-              <ol className="flex items-center space-x-2 text-sm text-gray-600">
+              <ol className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                 <li>
                   <Link
                     href="/"
