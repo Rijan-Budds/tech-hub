@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaSearch, FaUser, FaShoppingCart } from "react-icons/fa";
+import { FaSearch, FaUser, FaShoppingCart, FaSignOutAlt } from "react-icons/fa";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import LoginForm from "@/components/forms/LoginForm";
 import SignupForm from "@/components/forms/SignupForm";
+import { RiAdminFill } from "react-icons/ri";
 
 interface CurrentUser {
   id: string;
@@ -18,6 +19,9 @@ interface CurrentUser {
 const Header = () => {
   const [modalType, setModalType] = useState<null | "login" | "signup">(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const closeModal = () => setModalType(null);
 
   useEffect(() => {
@@ -33,8 +37,21 @@ const Header = () => {
     loadMe();
   }, []);
 
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLoginSubmit = () => {
-    // After LoginForm success, refetch me
     fetch("/api/me", { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setCurrentUser(d.user))
@@ -43,7 +60,6 @@ const Header = () => {
   };
 
   const handleSignupSubmit = () => {
-    // After SignupForm success, refetch me
     fetch("/api/me", { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setCurrentUser(d.user))
@@ -53,107 +69,119 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await fetch("/api/logout", { method: "POST", credentials: "include" });
       setCurrentUser(null);
+      setDropdownOpen(false);
     } catch {
       // ignore
     }
   };
 
   return (
-    <header>
-      {/* Top bar with login/signup or user info */}
-      <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] text-sm text-white px-4 py-2 flex justify-end gap-4">
-        {currentUser ? (
-          <div className="flex items-center gap-3">
-            {currentUser.role === "admin" && (
-              <Link href="/admin" className="hover:underline">
-                Admin
-              </Link>
-            )}
-            <span className="opacity-90">Hi, {currentUser.username}</span>
-            <Link href="/profile" className="hover:underline">
-              Profile
-            </Link>
-            <button onClick={handleLogout} className="hover:underline">
-              Logout
-            </button>
-          </div>
-        ) : (
-          <>
-            <button
-              onClick={() => setModalType("login")}
-              className="hover:underline"
-            >
-              LOGIN
-            </button>
-            <button
-              onClick={() => setModalType("signup")}
-              className="hover:underline"
-            >
-              SIGN UP
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* Main header with logo, search, and icons */}
-      <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] px-4 py-4 flex items-center justify-between text-white">
-        {/* Title - now redirects to home */}
+    <header className="sticky top-0 z-50 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] text-white shadow-lg">
+      {/* Top row: Logo and Icons */}
+      <div className="flex items-center justify-between px-4 py-3">
+        {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
             src="/home/logo.jpg"
             alt="Tech Store Logo"
-            width={85}
-            height={85}
+            width={60}
+            height={60}
+            className="sm:w-[75px] sm:h-[75px] lg:w-[85px] lg:h-[85px]"
             priority
           />
         </Link>
 
-        {/* Search Bar */}
-        <form 
-          action="/search" 
-          className="flex flex-1 max-w-xl mx-6"
+        {/* Right side: Icons + User/Login */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* User Icon with Dropdown */}
+          {currentUser ? (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                className="hover:text-gray-200"
+              >
+                <FaUser size={18} className="sm:w-5 sm:h-5" />
+              </button>
+                             {dropdownOpen && (
+                 <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 text-black dark:text-white rounded shadow-lg z-50 border border-gray-200 dark:border-gray-700">
+                   {currentUser.role !== "admin" && (
+                     <Link
+                       href="/profile"
+                       className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                       onClick={() => setDropdownOpen(false)}
+                     >
+                       <FaUser className="text-sm" />
+                       <span>Profile</span>
+                     </Link>
+                   )}
+                   {currentUser.role === "admin" && (
+                     <Link
+                       href="/admin"
+                       className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                       onClick={() => setDropdownOpen(false)}
+                     >
+                       <RiAdminFill className="text-sm" />
+                       <span>Admin</span>
+                     </Link>
+                   )}
+
+                   <button
+                     onClick={handleLogout}
+                     className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                   >
+                     <FaSignOutAlt className="text-sm" />
+                     <span>Logout</span>
+                   </button>
+                 </div>
+               )}
+            </div>
+          ) : (
+            <button
+              onClick={() => setModalType("login")}
+              className="hover:underline text-sm sm:text-base"
+            >
+              LOGIN
+            </button>
+          )}
+
+          <Link href="/cart" className="hover:text-gray-200">
+            <FaShoppingCart size={18} className="sm:w-5 sm:h-5" />
+          </Link>
+          <ModeToggle />
+        </div>
+      </div>
+
+      {/* Bottom row: Search Bar */}
+      <div className="px-4 pb-3">
+        <form
+          action="/search"
+          className="flex w-full"
           onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
-            const query = formData.get('q') as string;
+            const query = formData.get("q") as string;
             const trimmedQuery = query.trim();
-            
-            if (trimmedQuery) {
-              window.location.href = `/search?q=${encodeURIComponent(trimmedQuery)}`;
-            }
+            if (trimmedQuery)
+              window.location.href = `/search?q=${encodeURIComponent(
+                trimmedQuery
+              )}`;
           }}
         >
           <input
             type="text"
             name="q"
             placeholder="Search for item..."
-            className="w-full px-4 py-2 rounded-l-md focus:outline-none bg-white text-black"
+            className="w-full px-3 py-2 text-sm sm:px-4 sm:py-2 sm:text-base rounded-l-md focus:outline-none bg-white dark:bg-gray-800 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border-0 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
           />
           <button
             type="submit"
-            className="bg-accent px-4 py-2 rounded-r-md text-accent-foreground"
+            className="bg-accent px-3 py-2 sm:px-4 rounded-r-md text-accent-foreground"
           >
-            <FaSearch />
+            <FaSearch size={16} className="sm:w-4 sm:h-4" />
           </button>
         </form>
-
-        {/* Icons */}
-        <div className="flex items-center gap-4">
-          <Link href="/profile" className="hover:text-gray-200">
-            <FaUser />
-          </Link>
-          <Link href="/cart" className="hover:text-gray-200">
-            <FaShoppingCart />
-          </Link>
-          <div className="text-white">
-            <ModeToggle />
-          </div>
-        </div>
       </div>
 
       {/* Login/Signup Modal */}
@@ -163,7 +191,7 @@ const Header = () => {
           onClick={closeModal}
         >
           <div
-            className="bg-white dark:bg-gray-900 text-black dark:text-white p-6 rounded shadow-md w-96 relative transition-transform duration-300 ease-in-out scale-100"
+            className="bg-white dark:bg-gray-900 text-black dark:text-white p-4 sm:p-6 rounded shadow-md w-full max-w-sm sm:max-w-md mx-4 relative transition-transform duration-300 ease-in-out scale-100"
             onClick={(e) => e.stopPropagation()}
           >
             <button

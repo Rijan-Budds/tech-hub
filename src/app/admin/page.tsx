@@ -380,7 +380,7 @@ export default function AdminPage() {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Admin <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Dashboard</span>
+                Adminasdf <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Dashboard</span>
               </h1>
               <p className="text-gray-600">Manage your ecommerce platform</p>
             </div>

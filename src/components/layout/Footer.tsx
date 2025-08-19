@@ -9,16 +9,16 @@ function Footer() {
         {/* Company Info */}
         <div className="text-center md:text-left">
           <h2 className="text-2xl font-bold mb-2">Tech Store</h2>
-          <p className="text-sm max-w-xs">
-           Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, excepturi accusamus repellat expedita provident, hic minus ipsa, maxime corporis a culpa repudiandae labore. Sunt amet eius voluptatibus, harum aliquid quasi?
-          </p>
+                  <p className="text-sm max-w-xs text-gray-200 dark:text-gray-300">
+         Lorem ipsum dolor sit amet consectetur adipisicing elit. Vitae, excepturi accusamus repellat expedita provident, hic minus ipsa, maxime corporis a culpa repudiandae labore. Sunt amet eius voluptatibus, harum aliquid quasi?
+        </p>
           <p className="mt-2 text-xs opacity-80">
             © {new Date().getFullYear()} Tech Store. All rights reserved.
           </p>
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex flex-col space-y-2 text-sm text-white/90">
+        <nav className="flex flex-col space-y-2 text-sm text-white/90 dark:text-gray-300">
           <Link href="/" className="hover:underline">Home</Link>
           <Link href="/about" className="hover:underline">About Us</Link>
           <Link href="/services" className="hover:underline">Services</Link>
