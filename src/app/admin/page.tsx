@@ -360,7 +360,6 @@ export default function AdminPage() {
   if (loading)
     return (
       <>
-        <Header />
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66] mx-auto mb-4"></div>
@@ -373,14 +372,13 @@ export default function AdminPage() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Adminasdf <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Dashboard</span>
+                Admin <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Dashboard</span>
               </h1>
               <p className="text-gray-600">Manage your ecommerce platform</p>
             </div>
