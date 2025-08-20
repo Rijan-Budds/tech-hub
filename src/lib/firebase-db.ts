@@ -124,6 +124,57 @@ export const productService = {
     });
   },
 
+  // Get all products with pagination and sorting
+  async getAllProductsWithPagination(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: string = 'desc'): Promise<{ products: IProduct[], totalCount: number }> {
+    try {
+      // First get total count
+      const allProducts = await this.getAllProducts();
+      const totalCount = allProducts.length;
+      
+      // Sort products
+      const sortedProducts = allProducts.sort((a, b) => {
+        let aValue: unknown = a[sortBy as keyof IProduct];
+        let bValue: unknown = b[sortBy as keyof IProduct];
+        
+        // Handle date sorting
+        if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+          aValue = aValue ? new Date(aValue as string | Date).getTime() : 0;
+          bValue = bValue ? new Date(bValue as string | Date).getTime() : 0;
+        }
+        
+        // Handle string sorting
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = (bValue as string).toLowerCase();
+        }
+        
+        if (sortOrder === 'desc') {
+          return (bValue as number) > (aValue as number) ? 1 : (bValue as number) < (aValue as number) ? -1 : 0;
+        } else {
+          return (aValue as number) > (bValue as number) ? 1 : (aValue as number) < (bValue as number) ? -1 : 0;
+        }
+      });
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
+      
+      return {
+        products: paginatedProducts,
+        totalCount
+      };
+    } catch (error) {
+      console.error('Error in getAllProductsWithPagination:', error);
+      // Fallback to simple getAllProducts
+      const products = await this.getAllProducts();
+      return {
+        products: products.slice((page - 1) * limit, page * limit),
+        totalCount: products.length
+      };
+    }
+  },
+
   // Get product by ID
   async getProductById(productId: string): Promise<IProduct | null> {
     const productDoc = await getDoc(doc(db, COLLECTIONS.PRODUCTS, productId));
@@ -171,6 +222,57 @@ export const productService = {
     });
   },
 
+  // Get products by category with pagination and sorting
+  async getProductsByCategoryWithPagination(category: string, page: number, limit: number, sortBy: string = 'createdAt', sortOrder: string = 'desc'): Promise<{ products: IProduct[], totalCount: number }> {
+    try {
+      // Get all products in category
+      const categoryProducts = await this.getProductsByCategory(category);
+      const totalCount = categoryProducts.length;
+      
+      // Sort products
+      const sortedProducts = categoryProducts.sort((a, b) => {
+        let aValue: unknown = a[sortBy as keyof IProduct];
+        let bValue: unknown = b[sortBy as keyof IProduct];
+        
+        // Handle date sorting
+        if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+          aValue = aValue ? new Date(aValue as string | Date).getTime() : 0;
+          bValue = bValue ? new Date(bValue as string | Date).getTime() : 0;
+        }
+        
+        // Handle string sorting
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = (bValue as string).toLowerCase();
+        }
+        
+        if (sortOrder === 'desc') {
+          return (bValue as number) > (aValue as number) ? 1 : (bValue as number) < (aValue as number) ? -1 : 0;
+        } else {
+          return (aValue as number) > (bValue as number) ? 1 : (aValue as number) < (bValue as number) ? -1 : 0;
+        }
+      });
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
+      
+      return {
+        products: paginatedProducts,
+        totalCount
+      };
+    } catch (error) {
+      console.error('Error in getProductsByCategoryWithPagination:', error);
+      // Fallback to simple getProductsByCategory
+      const products = await this.getProductsByCategory(category);
+      return {
+        products: products.slice((page - 1) * limit, page * limit),
+        totalCount: products.length
+      };
+    }
+  },
+
   // Search products (simplified - basic search without complex queries)
   async searchProducts(searchTerm: string): Promise<IProduct[]> {
     // Simple approach: get all products and filter in memory
@@ -183,6 +285,65 @@ export const productService = {
       product.slug.toLowerCase().includes(lowerSearchTerm) ||
       product.category.toLowerCase().includes(lowerSearchTerm)
     );
+  },
+
+  // Search products with pagination and sorting
+  async searchProductsWithPagination(searchTerm: string, page: number, limit: number, sortBy: string = 'createdAt', sortOrder: string = 'desc'): Promise<{ products: IProduct[], totalCount: number }> {
+    try {
+      // Get all products and filter
+      const allProducts = await this.getAllProducts();
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      
+      const filteredProducts = allProducts.filter(product => 
+        product.name.toLowerCase().includes(lowerSearchTerm) ||
+        product.slug.toLowerCase().includes(lowerSearchTerm) ||
+        product.category.toLowerCase().includes(lowerSearchTerm)
+      );
+      
+      const totalCount = filteredProducts.length;
+      
+      // Sort products
+      const sortedProducts = filteredProducts.sort((a, b) => {
+        let aValue: unknown = a[sortBy as keyof IProduct];
+        let bValue: unknown = b[sortBy as keyof IProduct];
+        
+        // Handle date sorting
+        if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+          aValue = aValue ? new Date(aValue as string | Date).getTime() : 0;
+          bValue = bValue ? new Date(bValue as string | Date).getTime() : 0;
+        }
+        
+        // Handle string sorting
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = (bValue as string).toLowerCase();
+        }
+        
+        if (sortOrder === 'desc') {
+          return (bValue as number) > (aValue as number) ? 1 : (bValue as number) < (aValue as number) ? -1 : 0;
+        } else {
+          return (aValue as number) > (bValue as number) ? 1 : (aValue as number) < (bValue as number) ? -1 : 0;
+        }
+      });
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
+      
+      return {
+        products: paginatedProducts,
+        totalCount
+      };
+    } catch (error) {
+      console.error('Error in searchProductsWithPagination:', error);
+      // Fallback to simple searchProducts
+      const products = await this.searchProducts(searchTerm);
+      return {
+        products: products.slice((page - 1) * limit, page * limit),
+        totalCount: products.length
+      };
+    }
   },
 
   // Update product
@@ -291,6 +452,62 @@ export const orderService = {
         createdAt: timestampToDate(data.createdAt),
       } as IOrder;
     });
+  },
+
+  // Get all orders with pagination and sorting
+  async getAllOrdersWithPagination(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: string = 'desc'): Promise<{ orders: IOrder[], totalCount: number }> {
+    try {
+      // First get total count
+      const allOrders = await this.getAllOrders();
+      const totalCount = allOrders.length;
+      
+      // Sort orders
+      const sortedOrders = allOrders.sort((a, b) => {
+        let aValue: unknown = a[sortBy as keyof IOrder];
+        let bValue: unknown = b[sortBy as keyof IOrder];
+        
+        // Handle date sorting
+        if (sortBy === 'createdAt') {
+          aValue = aValue ? new Date(aValue as string | Date).getTime() : 0;
+          bValue = bValue ? new Date(bValue as string | Date).getTime() : 0;
+        }
+        
+        // Handle string sorting
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = (bValue as string).toLowerCase();
+        }
+        
+        // Handle number sorting
+        if (typeof aValue === 'number') {
+          // Keep as is for number comparison
+        }
+        
+        if (sortOrder === 'desc') {
+          return (bValue as number) > (aValue as number) ? 1 : (bValue as number) < (aValue as number) ? -1 : 0;
+        } else {
+          return (aValue as number) > (bValue as number) ? 1 : (aValue as number) < (bValue as number) ? -1 : 0;
+        }
+      });
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedOrders = sortedOrders.slice(startIndex, endIndex);
+      
+      return {
+        orders: paginatedOrders,
+        totalCount
+      };
+    } catch (error) {
+      console.error('Error in getAllOrdersWithPagination:', error);
+      // Fallback to simple getAllOrders
+      const orders = await this.getAllOrders();
+      return {
+        orders: orders.slice((page - 1) * limit, page * limit),
+        totalCount: orders.length
+      };
+    }
   },
 
   // Update order status

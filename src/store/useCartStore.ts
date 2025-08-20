@@ -27,8 +27,10 @@ interface CartState {
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   fetchCart: async () => {
+    console.log("Fetching cart...");
     const res = await fetch(`/api/cart`, { credentials: "include" });
     const data = await res.json();
+    console.log("Cart data received:", data.items?.length || 0, "items");
     set({ items: data.items ?? [] });
   },
   add: async (productId, quantity = 1) => {

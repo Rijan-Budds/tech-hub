@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useCartStore } from "@/store/useCartStore";
 import { useProfileStore } from "@/store/useProfileStore";
 import { useRouter } from "next/navigation";
@@ -35,6 +35,7 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [cities, setCities] = useState<CityFee[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const loadingRef = useRef(false);
 
   const formik = useFormik({
     initialValues: {
@@ -97,22 +98,31 @@ export default function CartPage() {
   });
 
   const loadData = useCallback(async () => {
+    if (loadingRef.current) return; // Prevent multiple simultaneous calls
+    loadingRef.current = true;
+    console.log("Loading cart data...");
     try {
       await cart.fetchCart();
       const citiesRes = await fetch(`/api/shipping/cities`);
       const citiesData = await citiesRes.json();
       setCities(citiesData.cities || []);
-      if ((citiesData.cities || []).length > 0) {
-        formik.setFieldValue("city", citiesData.cities[0].name);
-      }
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
-  }, [cart, formik]);
+  }, [cart]);
 
   useEffect(() => {
+    console.log("Cart page useEffect triggered");
     loadData();
   }, [loadData]);
+
+  // Set initial city after cities are loaded
+  useEffect(() => {
+    if (cities.length > 0 && !formik.values.city) {
+      formik.setFieldValue("city", cities[0].name);
+    }
+  }, [cities, formik]);
 
   const items = cart.items as CartItem[];
   

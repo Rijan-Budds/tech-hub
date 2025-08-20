@@ -7,21 +7,33 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
     const q = searchParams.get("q");
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const sortBy = searchParams.get("sortBy") || "createdAt";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
     
     let products;
+    let totalCount = 0;
     
     if (category === "trending") {
       // Get trending products based on purchase count
       products = await productService.getTrendingProducts(4);
+      totalCount = products.length;
     } else if (category) {
-      // Get products by category (simplified query)
-      products = await productService.getProductsByCategory(category);
+      // Get products by category with pagination
+      const result = await productService.getProductsByCategoryWithPagination(category, page, limit, sortBy, sortOrder);
+      products = result.products;
+      totalCount = result.totalCount;
     } else if (q) {
-      // Search products (simplified query)
-      products = await productService.searchProducts(q);
+      // Search products with pagination
+      const result = await productService.searchProductsWithPagination(q, page, limit, sortBy, sortOrder);
+      products = result.products;
+      totalCount = result.totalCount;
     } else {
-      // Get all products (simplified query)
-      products = await productService.getAllProducts();
+      // Get all products with pagination
+      const result = await productService.getAllProductsWithPagination(page, limit, sortBy, sortOrder);
+      products = result.products;
+      totalCount = result.totalCount;
     }
     
     // Transform products to match the expected format
@@ -38,7 +50,17 @@ export async function GET(req: Request) {
       purchaseCount: (product as IProduct & { purchaseCount?: number }).purchaseCount, // Include purchase count for trending products
     }));
     
-    return NextResponse.json({ products: transformedProducts });
+    return NextResponse.json({ 
+      products: transformedProducts,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNextPage: page < Math.ceil(totalCount / limit),
+        hasPrevPage: page > 1
+      }
+    });
   } catch (error) {
     console.error('Error fetching products:', error);
     

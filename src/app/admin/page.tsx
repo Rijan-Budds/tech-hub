@@ -29,7 +29,13 @@ interface Order {
     email: string;
     address: { street: string; city: string };
   };
-  items: { productId: string; quantity: number }[];
+  items: { 
+    productId: string; 
+    quantity: number; 
+    name?: string; 
+    image?: string; 
+    price?: number; 
+  }[];
 }
 
 export default function AdminPage() {
@@ -60,6 +66,22 @@ export default function AdminPage() {
   const [reloadingProducts, setReloadingProducts] = useState(false);
   const [reloadingAll, setReloadingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'orders' | 'products'>('overview');
+  
+  // Pagination state for products
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage, setProductsPerPage] = useState(10);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+  
+  // Pagination state for orders
+  const [currentOrdersPage, setCurrentOrdersPage] = useState(1);
+  const [ordersPerPage, setOrdersPerPage] = useState(10);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalOrdersPages, setTotalOrdersPages] = useState(0);
+  const [ordersSortBy, setOrdersSortBy] = useState('createdAt');
+  const [ordersSortOrder, setOrdersSortOrder] = useState('desc');
 
   const router = useRouter();
 
@@ -70,10 +92,10 @@ export default function AdminPage() {
           fetch("/api/admin/users", {
             credentials: "include",
           }),
-          fetch("/api/admin/orders", {
+          fetch(`/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`, {
             credentials: "include",
           }),
-          fetch("/api/products", {
+          fetch(`/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`, {
             credentials: "include",
           }),
         ]);
@@ -90,6 +112,18 @@ export default function AdminPage() {
         setUsers(uData.users || []);
         setOrders(oData.orders || []);
         setProducts(pData.products || []);
+        
+        // Set pagination data for products
+        if (pData.pagination) {
+          setTotalProducts(pData.pagination.totalCount);
+          setTotalPages(pData.pagination.totalPages);
+        }
+        
+        // Set pagination data for orders
+        if (oData.pagination) {
+          setTotalOrders(oData.pagination.totalCount);
+          setTotalOrdersPages(oData.pagination.totalPages);
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Failed to load admin data";
         toast.error(errorMessage);
@@ -98,7 +132,7 @@ export default function AdminPage() {
       }
     };
     load();
-  }, []);
+  }, [currentPage, productsPerPage, sortBy, sortOrder, currentOrdersPage, ordersPerPage, ordersSortBy, ordersSortOrder]);
 
   const reloadUsers = async () => {
     try {
@@ -120,11 +154,18 @@ export default function AdminPage() {
   const reloadOrders = async () => {
     try {
       setReloadingOrders(true);
-      const res = await fetch("/api/admin/orders", {
+      const res = await fetch(`/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`, {
         credentials: "include",
       });
       const data = await res.json();
       setOrders(data.orders || []);
+      
+      // Set pagination data for orders
+      if (data.pagination) {
+        setTotalOrders(data.pagination.totalCount);
+        setTotalOrdersPages(data.pagination.totalPages);
+      }
+      
       toast.success("Orders refreshed successfully");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to reload orders";
@@ -137,11 +178,18 @@ export default function AdminPage() {
   const reloadProducts = async () => {
     try {
       setReloadingProducts(true);
-      const res = await fetch("/api/products", {
+      const res = await fetch(`/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`, {
         credentials: "include",
       });
       const data = await res.json();
       setProducts(data.products || []);
+      
+      // Set pagination data
+      if (data.pagination) {
+        setTotalProducts(data.pagination.totalCount);
+        setTotalPages(data.pagination.totalPages);
+      }
+      
       toast.success("Products refreshed successfully");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to reload products";
@@ -158,10 +206,10 @@ export default function AdminPage() {
         fetch("/api/admin/users", {
           credentials: "include",
         }),
-        fetch("/api/admin/orders", {
+        fetch(`/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`, {
           credentials: "include",
         }),
-        fetch("/api/products", {
+        fetch(`/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`, {
           credentials: "include",
         }),
       ]);
@@ -172,6 +220,19 @@ export default function AdminPage() {
       setUsers(uData.users || []);
       setOrders(oData.orders || []);
       setProducts(pData.products || []);
+      
+      // Set pagination data for products
+      if (pData.pagination) {
+        setTotalProducts(pData.pagination.totalCount);
+        setTotalPages(pData.pagination.totalPages);
+      }
+      
+      // Set pagination data for orders
+      if (oData.pagination) {
+        setTotalOrders(oData.pagination.totalCount);
+        setTotalOrdersPages(oData.pagination.totalPages);
+      }
+      
       toast.success("All data refreshed successfully");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to reload data";
@@ -314,6 +375,17 @@ export default function AdminPage() {
     router.push("/");
   };
 
+  // Reset pagination when switching tabs
+  const handleTabChange = (tab: 'overview' | 'users' | 'orders' | 'products') => {
+    setActiveTab(tab);
+    if (tab === 'products') {
+      setCurrentPage(1);
+    }
+    if (tab === 'orders') {
+      setCurrentOrdersPage(1);
+    }
+  };
+
 
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -353,9 +425,7 @@ export default function AdminPage() {
     }
   };
 
-  const getProductDetails = (productId: string) => {
-    return products.find(product => product.id === productId);
-  };
+
 
   if (loading)
     return (
@@ -458,7 +528,7 @@ export default function AdminPage() {
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
-                  onClick={() => setActiveTab(id as 'overview' | 'users' | 'orders' | 'products')}
+                  onClick={() => handleTabChange(id as 'overview' | 'users' | 'orders' | 'products')}
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
                     activeTab === id
                       ? 'text-[#0D3B66] border-b-2 border-[#0D3B66]'
@@ -582,19 +652,81 @@ export default function AdminPage() {
 
           {activeTab === 'orders' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-2xl shadow-lg p-6 border-b flex justify-between items-center">
-                <h3 className="text-xl font-bold text-gray-900">Order Management</h3>
-                <button
-                  onClick={reloadOrders}
-                  className="text-gray-600 hover:text-[#0D3B66] transition-colors"
-                  disabled={reloadingOrders}
-                >
-                  {reloadingOrders ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
-                  ) : (
-                    <FaSync />
-                  )}
-                </button>
+              <div className="bg-white rounded-2xl shadow-lg p-6 border-b">
+                <div className="flex justify-between items-center mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Order Management</h3>
+                    <p className="text-sm text-gray-600 mt-1">Total Orders: {totalOrders}</p>
+                  </div>
+                  <button
+                    onClick={reloadOrders}
+                    className="text-gray-600 hover:text-[#0D3B66] transition-colors"
+                    disabled={reloadingOrders}
+                  >
+                    {reloadingOrders ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                    ) : (
+                      <FaSync />
+                    )}
+                  </button>
+                </div>
+                
+                {/* Pagination and Sorting Controls for Orders */}
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <label className="text-sm font-medium text-gray-700">Show:</label>
+                      <select
+                        value={ordersPerPage}
+                        onChange={(e) => {
+                          setOrdersPerPage(Number(e.target.value));
+                          setCurrentOrdersPage(1); // Reset to first page
+                        }}
+                        className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                      </select>
+                      <span className="text-sm text-gray-600">per page</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <label className="text-sm font-medium text-gray-700">Sort by:</label>
+                      <select
+                        value={ordersSortBy}
+                        onChange={(e) => {
+                          setOrdersSortBy(e.target.value);
+                          setCurrentOrdersPage(1); // Reset to first page
+                        }}
+                        className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                      >
+                        <option value="createdAt">Date Created</option>
+                        <option value="grandTotal">Total Amount</option>
+                        <option value="status">Status</option>
+                        <option value="customer.name">Customer Name</option>
+                      </select>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <label className="text-sm font-medium text-gray-700">Order:</label>
+                      <select
+                        value={ordersSortOrder}
+                        onChange={(e) => {
+                          setOrdersSortOrder(e.target.value);
+                          setCurrentOrdersPage(1); // Reset to first page
+                        }}
+                        className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                      >
+                        <option value="desc">Latest First</option>
+                        <option value="asc">Oldest First</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
               </div>
               {orders.map((order) => (
                 <div key={order.orderId} className="bg-white rounded-2xl shadow-lg p-6">
@@ -616,25 +748,27 @@ export default function AdminPage() {
                     <p className="text-sm text-gray-600 mb-2">Ordered Items:</p>
                     <div className="space-y-2">
                       {order.items.map((item, index) => {
-                        const product = getProductDetails(item.productId);
-                        return product ? (
+                        // Use product details from the order item itself (stored when order was created)
+                        const hasProductDetails = item.name && item.image && item.price;
+                        
+                        return hasProductDetails ? (
                           <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                             <Image
-                              src={product.image}
-                              alt={product.name}
+                              src={item.image!}
+                              alt={item.name!}
                               width={48}
                               height={48}
                               className="w-12 h-12 object-cover rounded-lg"
                             />
                             <div className="flex-1">
-                              <p className="font-semibold text-sm">{product.name}</p>
+                              <p className="font-semibold text-sm">{item.name}</p>
                               <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                              <p className="text-sm text-gray-600">रु{product.price.toFixed(2)} each</p>
+                              <p className="text-sm text-gray-600">रु{item.price!.toFixed(2)} each</p>
                             </div>
                           </div>
                         ) : (
                           <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-500">Product not found (ID: {item.productId})</p>
+                            <p className="text-sm text-gray-500">Product details not available (ID: {item.productId})</p>
                             <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                           </div>
                         );
@@ -682,6 +816,65 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))}
+              
+              {/* Pagination Controls for Orders */}
+              {totalOrdersPages > 1 && (
+                <div className="bg-white rounded-2xl shadow-lg p-6 border-t">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-700">
+                      Showing {((currentOrdersPage - 1) * ordersPerPage) + 1} to {Math.min(currentOrdersPage * ordersPerPage, totalOrders)} of {totalOrders} orders
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setCurrentOrdersPage(currentOrdersPage - 1)}
+                        disabled={currentOrdersPage === 1}
+                        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Previous
+                      </button>
+                      
+                      {/* Page Numbers */}
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: Math.min(5, totalOrdersPages) }, (_, i) => {
+                          let pageNum;
+                          if (totalOrdersPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentOrdersPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentOrdersPage >= totalOrdersPages - 2) {
+                            pageNum = totalOrdersPages - 4 + i;
+                          } else {
+                            pageNum = currentOrdersPage - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentOrdersPage(pageNum)}
+                              className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                currentOrdersPage === pageNum
+                                  ? 'bg-[#0D3B66] text-white'
+                                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => setCurrentOrdersPage(currentOrdersPage + 1)}
+                        disabled={currentOrdersPage === totalOrdersPages}
+                        className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -689,19 +882,82 @@ export default function AdminPage() {
             <div className="space-y-8">
               {/* Products Table */}
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div className="p-6 border-b flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-gray-900">Product Management</h3>
-                  <button
-                    onClick={reloadProducts}
-                    className="text-gray-600 hover:text-[#0D3B66] transition-colors"
-                    disabled={reloadingProducts}
-                  >
-                    {reloadingProducts ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
-                    ) : (
-                      <FaSync />
-                    )}
-                  </button>
+                <div className="p-6 border-b">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Product Management</h3>
+                      <p className="text-sm text-gray-600 mt-1">Total Products: {totalProducts}</p>
+                    </div>
+                    <button
+                      onClick={reloadProducts}
+                      className="text-gray-600 hover:text-[#0D3B66] transition-colors"
+                      disabled={reloadingProducts}
+                    >
+                      {reloadingProducts ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                      ) : (
+                        <FaSync />
+                      )}
+                    </button>
+                  </div>
+                  
+                  {/* Pagination and Sorting Controls */}
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm font-medium text-gray-700">Show:</label>
+                        <select
+                          value={productsPerPage}
+                          onChange={(e) => {
+                            setProductsPerPage(Number(e.target.value));
+                            setCurrentPage(1); // Reset to first page
+                          }}
+                          className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                        >
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                        </select>
+                        <span className="text-sm text-gray-600">per page</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm font-medium text-gray-700">Sort by:</label>
+                        <select
+                          value={sortBy}
+                          onChange={(e) => {
+                            setSortBy(e.target.value);
+                            setCurrentPage(1); // Reset to first page
+                          }}
+                          className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                        >
+                          <option value="createdAt">Date Created</option>
+                          <option value="name">Name</option>
+                          <option value="price">Price</option>
+                          <option value="category">Category</option>
+                          <option value="stockQuantity">Stock</option>
+                        </select>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm font-medium text-gray-700">Order:</label>
+                        <select
+                          value={sortOrder}
+                          onChange={(e) => {
+                            setSortOrder(e.target.value);
+                            setCurrentPage(1); // Reset to first page
+                          }}
+                          className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                        >
+                          <option value="desc">Latest First</option>
+                          <option value="asc">Oldest First</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -813,6 +1069,65 @@ export default function AdminPage() {
                     </tbody>
                   </table>
                 </div>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="p-6 border-t bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-700">
+                        Showing {((currentPage - 1) * productsPerPage) + 1} to {Math.min(currentPage * productsPerPage, totalProducts)} of {totalProducts} products
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => setCurrentPage(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+                        
+                        {/* Page Numbers */}
+                        <div className="flex items-center space-x-1">
+                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                            let pageNum;
+                            if (totalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (currentPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (currentPage >= totalPages - 2) {
+                              pageNum = totalPages - 4 + i;
+                            } else {
+                              pageNum = currentPage - 2 + i;
+                            }
+                            
+                            return (
+                              <button
+                                key={pageNum}
+                                onClick={() => setCurrentPage(pageNum)}
+                                className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                  currentPage === pageNum
+                                    ? 'bg-[#0D3B66] text-white'
+                                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                                }`}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        
+                        <button
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Add Product Section */}
