@@ -18,7 +18,7 @@ interface Order {
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
-  paymentMethod?: "khalti" | "esewa" | "cod";
+  paymentMethod?: "esewa" | "cod";
   customer?: {
     name?: string;
     email?: string;
@@ -138,18 +138,6 @@ export default function OrderConfirmationPage() {
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600 dark:text-gray-400">Payment Method</div>
             <div className="flex items-center capitalize font-medium">
-              {order.paymentMethod === "khalti" && (
-                <>
-                  <Image
-                    src="/home/khalti.png"
-                    alt="Khalti"
-                    width={20}
-                    height={20}
-                    className="mr-2"
-                  />
-                  Khalti
-                </>
-              )}
               {order.paymentMethod === "esewa" && (
                 <>
                   <Image

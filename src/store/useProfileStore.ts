@@ -12,7 +12,7 @@ type Order = {
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
-  paymentMethod?: "khalti" | "esewa" | "cod";
+  paymentMethod?: "esewa" | "cod";
   customer: {
     name: string;
     email: string;

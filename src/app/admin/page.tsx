@@ -357,6 +357,41 @@ export default function AdminPage() {
     return products.find(product => product.id === productId);
   };
 
+  const getOrderItemDisplay = (item: any, product: any) => {
+    if (product) {
+      return (
+        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+          <Image
+            src={product.image}
+            alt={product.name}
+            width={48}
+            height={48}
+            className="w-12 h-12 object-cover rounded-lg"
+          />
+          <div className="flex-1">
+            <p className="font-semibold text-sm">{product.name}</p>
+            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+            <p className="text-sm text-gray-600">रु{product.price.toFixed(2)} each</p>
+          </div>
+        </div>
+      );
+    } else {
+      // Show order item details even if product not found
+      return (
+        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+          <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+            <FaBox className="text-gray-400" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-sm">{item.name || `Product ID: ${item.productId}`}</p>
+            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+            <p className="text-sm text-gray-600">रु{(item.price || 0).toFixed(2)} each</p>
+          </div>
+        </div>
+      );
+    }
+  };
+
   if (loading)
     return (
       <>
@@ -617,27 +652,7 @@ export default function AdminPage() {
                     <div className="space-y-2">
                       {order.items.map((item, index) => {
                         const product = getProductDetails(item.productId);
-                        return product ? (
-                          <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                            <Image
-                              src={product.image}
-                              alt={product.name}
-                              width={48}
-                              height={48}
-                              className="w-12 h-12 object-cover rounded-lg"
-                            />
-                            <div className="flex-1">
-                              <p className="font-semibold text-sm">{product.name}</p>
-                              <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                              <p className="text-sm text-gray-600">रु{product.price.toFixed(2)} each</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-500">Product not found (ID: {item.productId})</p>
-                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                          </div>
-                        );
+                        return getOrderItemDisplay(item, product);
                       })}
                     </div>
                   </div>

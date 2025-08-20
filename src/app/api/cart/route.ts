@@ -116,13 +116,18 @@ export async function POST(req: Request) {
       updatedCart = updatedCart.filter(ci => ci.productId !== productId);
     }
     
+    if (action === 'clear') {
+      updatedCart = [];
+    }
+    
     // Update user cart in Firebase
     await userService.updateUserCart(auth.sub, updatedCart);
     
     const actionMessages = {
       add: 'Added to cart',
       update: 'Cart updated',
-      remove: 'Item removed'
+      remove: 'Item removed',
+      clear: 'Cart cleared'
     };
     
     return NextResponse.json({ message: actionMessages[action as keyof typeof actionMessages] || 'Cart updated' });

@@ -289,18 +289,6 @@ export default function ProfilePage() {
                           </p>
                           {o.paymentMethod && (
                             <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center mt-1">
-                              {o.paymentMethod === "khalti" && (
-                                <>
-                                  <Image
-                                    src="/home/khalti.png"
-                                    alt="Khalti"
-                                    width={16}
-                                    height={16}
-                                    className="mr-1"
-                                  />
-                                  Khalti
-                                </>
-                              )}
                               {o.paymentMethod === "esewa" && (
                                 <>
                                   <Image

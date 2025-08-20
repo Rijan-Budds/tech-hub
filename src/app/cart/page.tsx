@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useCartStore } from "@/store/useCartStore";
 import { useProfileStore } from "@/store/useProfileStore";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
 import { FaShoppingCart, FaTrash, FaMinus, FaPlus, FaTruck, FaCreditCard, FaUser, FaEnvelope, FaMapMarkerAlt, FaHome, FaMobile, FaMoneyBillWave } from "react-icons/fa";
+// ESewaPayment import removed as it's not being used in this component
 
 interface CartItem {
   productId: string;
@@ -35,6 +36,8 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [cities, setCities] = useState<CityFee[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const dataLoadedRef = useRef(false);
+
 
   const formik = useFormik({
     initialValues: {
@@ -42,19 +45,43 @@ export default function CartPage() {
       email: "",
       city: "Kathmandu",
       street: "",
-      paymentMethod: "cod" as "khalti" | "esewa" | "cod",
+      paymentMethod: "cod" as "esewa" | "cod",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
       email: Yup.string().email("Invalid email").required("Email is required"),
       city: Yup.string().required("City is required"),
       street: Yup.string(),
-      paymentMethod: Yup.string().oneOf(["khalti", "esewa", "cod"]).required("Payment method is required"),
+      paymentMethod: Yup.string().oneOf(["esewa", "cod"]).required("Payment method is required"),
     }),
     onSubmit: async (values) => {
       if (items.length === 0) return;
       setSubmitting(true);
       try {
+        // If eSewa is selected, redirect to test page with order details
+        if (values.paymentMethod === "esewa") {
+          const orderDetails = {
+            amount: grandTotal,
+            productName: items.map(item => item.product?.name).filter(Boolean).join(", "),
+            customerName: values.name,
+            customerEmail: values.email,
+            customerAddress: `${values.street}, ${values.city}`,
+            items: items.map(item => ({
+              name: item.product?.name,
+              quantity: item.quantity,
+              price: item.product?.price
+            }))
+          };
+          
+          // Store order details in sessionStorage for the test page
+          sessionStorage.setItem('pendingOrderDetails', JSON.stringify(orderDetails));
+          
+          // Redirect to test page
+          router.push('/test-esewa');
+          return;
+        }
+        
+        // For COD, proceed with normal order creation
         const res = await fetch(`/api/orders`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -69,7 +96,6 @@ export default function CartPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Checkout failed");
-        toast.success("Order placed successfully! 🎉");
         
         console.log("Order creation response:", data);
         
@@ -79,7 +105,9 @@ export default function CartPage() {
         
         console.log("Created order:", createdOrder);
         
-        await cart.fetchCart();
+        // Handle order completion
+        toast.success("Order placed successfully! 🎉");
+        // Remove the cart.fetchCart() call that was causing infinite loop
         await refreshOrders();
         
         if (createdOrder && createdOrder._id) {
@@ -96,7 +124,16 @@ export default function CartPage() {
     },
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadData = useCallback(async () => {
+    // Prevent multiple loads
+    if (dataLoadedRef.current) {
+      console.log('Data already loaded, skipping...');
+      setLoading(false);
+      return;
+    }
+    
+    console.log('Loading cart data...'); // Debug log
     try {
       await cart.fetchCart();
       const citiesRes = await fetch(`/api/shipping/cities`);
@@ -105,16 +142,19 @@ export default function CartPage() {
       if ((citiesData.cities || []).length > 0) {
         formik.setFieldValue("city", citiesData.cities[0].name);
       }
+      dataLoadedRef.current = true;
     } finally {
       setLoading(false);
     }
-  }, [cart, formik]);
+  }, []); // Keep empty dependency array
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    console.log('Cart page mounted, loading data...'); // Debug log
     loadData();
-  }, [loadData]);
+  }, []); // Only run once on mount
 
-  const items = cart.items as CartItem[];
+  const items = useMemo(() => cart.items as CartItem[], [cart.items]);
   
   const subtotal = useMemo(
     () =>
@@ -406,33 +446,6 @@ export default function CartPage() {
                     <div className="flex items-center">
                       <input
                         type="radio"
-                        id="khalti"
-                        name="paymentMethod"
-                        value="khalti"
-                        checked={formik.values.paymentMethod === "khalti"}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="mr-2"
-                      />
-                      <label htmlFor="khalti" className="flex items-center">
-                        <Image
-                          src="/home/khalti.png"
-                          alt="Khalti"
-                          width={24}
-                          height={24}
-                          className="mr-2"
-                        />
-                        Khalti
-                      </label>
-                      {formik.values.paymentMethod === "khalti" && (
-                        <span className="ml-4 text-sm text-gray-600 dark:text-gray-300">
-                          Account: 9813447225
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
                         id="esewa"
                         name="paymentMethod"
                         value="esewa"
@@ -481,6 +494,28 @@ export default function CartPage() {
                   )}
                 </div>
 
+                {/* eSewa Payment Notice */}
+                {formik.values.paymentMethod === "esewa" && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-green-900 mb-3 flex items-center">
+                      <Image
+                        src="/home/esewa.png"
+                        alt="eSewa"
+                        width={20}
+                        height={20}
+                        className="mr-2"
+                      />
+                      eSewa Payment
+                    </h3>
+                    <p className="text-sm text-green-800 mb-2">
+                      When you click &quot;Complete Order & Pay&quot;, you&apos;ll be redirected to the eSewa payment gateway to complete your payment securely.
+                    </p>
+                    <p className="text-xs text-green-700">
+                      Test Account: 9806800001 | Password: Nepal@123 | MPIN: 1122
+                    </p>
+                  </div>
+                )}
+
                 {/* Checkout Button */}
                 <button
                   type="submit"
@@ -495,7 +530,7 @@ export default function CartPage() {
                   ) : (
                     <div className="flex items-center justify-center">
                       <FaCreditCard className="mr-2" />
-                      Complete Order - रु{grandTotal.toFixed(2)}
+                      {formik.values.paymentMethod === "esewa" ? "Complete Order & Pay" : "Complete Order"} - रु{grandTotal.toFixed(2)}
                     </div>
                   )}
                 </button>

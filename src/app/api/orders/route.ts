@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     }
     
     // Validate payment method
-    if (!['khalti', 'esewa', 'cod'].includes(paymentMethod)) {
+    if (!['esewa', 'cod'].includes(paymentMethod)) {
       return NextResponse.json({ message: 'Invalid payment method' }, { status: 400 });
     }
     
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
       subtotal,
       deliveryFee,
       grandTotal,
-      paymentMethod: paymentMethod as "khalti" | "esewa" | "cod",
+      paymentMethod: paymentMethod as "esewa" | "cod",
       customer: {
         name,
         email,

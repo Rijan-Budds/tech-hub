@@ -18,17 +18,23 @@ export interface IOrder {
   id?: string;
   items: IOrderItem[];
   createdAt: Timestamp | Date;
-  status: "pending" | "canceled" | "delivered";
+  status: "pending" | "paid" | "canceled" | "delivered";
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
-  paymentMethod: "khalti" | "esewa" | "cod";
+  paymentMethod: "esewa" | "cod";
   customer: {
     name: string;
     email: string;
     address: { street: string; city: string };
   };
   userId: string;
+  paymentDetails?: {
+    transactionId: string;
+    paymentMethod: string;
+    paidAt: Date;
+    amount: number;
+  };
 }
 
 export interface IUser {

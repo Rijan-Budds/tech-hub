@@ -18,18 +18,35 @@ interface CartItem {
 
 interface CartState {
   items: CartItem[];
+  loading: boolean;
   fetchCart: () => Promise<void>;
   add: (productId: string, quantity?: number) => Promise<void>;
   update: (productId: string, quantity: number) => Promise<void>;
   remove: (productId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
+  loading: false,
   fetchCart: async () => {
-    const res = await fetch(`/api/cart`, { credentials: "include" });
-    const data = await res.json();
-    set({ items: data.items ?? [] });
+    // Prevent multiple simultaneous calls
+    if (get().loading) {
+      console.log('Cart fetch already in progress, skipping...');
+      return;
+    }
+    
+    set({ loading: true });
+    try {
+      const res = await fetch(`/api/cart`, { credentials: "include" });
+      const data = await res.json();
+      set({ items: data.items ?? [] });
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      // Don't update state on error to prevent infinite loops
+    } finally {
+      set({ loading: false });
+    }
   },
   add: async (productId, quantity = 1) => {
     const res = await fetch(`/api/cart`, {
@@ -83,6 +100,18 @@ export const useCartStore = create<CartState>((set, get) => ({
       // Update local state instead of refetching
       const currentItems = get().items;
       set({ items: currentItems.filter(item => item.productId !== productId) });
+    }
+  },
+  clearCart: async () => {
+    const res = await fetch(`/api/cart`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ action: 'clear' }),
+    });
+    if (res.ok) {
+      // Clear local state
+      set({ items: [] });
     }
   },
 }));
