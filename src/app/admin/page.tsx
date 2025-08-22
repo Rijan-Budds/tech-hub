@@ -7,6 +7,7 @@ import Image from "next/image";
 import { FaUsers, FaShoppingCart, FaBox, FaPlus, FaTrash, FaSignOutAlt, FaEye, FaSync } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import StatusDropdown from "@/components/StatusDropdown";
 
 interface User {
   _id: string;
@@ -788,24 +789,11 @@ export default function AdminPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => updateStatus(order.orderId, "pending")}
-                      className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
-                    >
-                      Pending
-                    </button>
-                    <button
-                      onClick={() => updateStatus(order.orderId, "delivered")}
-                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                    >
-                      Delivered
-                    </button>
-                    <button
-                      onClick={() => updateStatus(order.orderId, "canceled")}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                    >
-                      Canceled
-                    </button>
+                    <StatusDropdown
+                      currentStatus={order.status}
+                      orderId={order.orderId}
+                      onStatusChange={updateStatus}
+                    />
                     <button
                       onClick={() => deleteOrder(order.orderId)}
                       className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center space-x-2"
