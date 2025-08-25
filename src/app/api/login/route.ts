@@ -3,8 +3,8 @@ import { userService } from "@/lib/firebase-db";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
 
-const ADMIN_EMAIL = "bruce@wayne.com";
-const ADMIN_PASSWORD = "Batman/1234";
+const ADMIN_EMAIL = "admin@admin.com";
+const ADMIN_PASSWORD = "admin@admin";
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
