@@ -70,7 +70,7 @@ export default function AdminPage() {
   
   // Pagination state for products
   const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage, setProductsPerPage] = useState(5);
+  const [productsPerPage, setProductsPerPage] = useState(4);
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [sortBy, setSortBy] = useState('createdAt');
@@ -1421,185 +1421,284 @@ export default function AdminPage() {
 
           {activeTab === 'products' && (
             <div className="space-y-8">
-              {/* Products Table */}
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div className="p-6 border-b">
-                  <div className="flex justify-between items-center mb-4">
+              {/* Premium Products Header */}
+              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
+                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
+                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
+                </div>
+                
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Product Management</h3>
-                      <p className="text-sm text-gray-600 mt-1">Total Products: {totalProducts}</p>
-                      
-                      {/* Admin Search Bar */}
-                      <div className="mt-4 flex items-center space-x-2">
-                        <input
-                          type="text"
-                          placeholder="Search products by name, category, or slug..."
-                          value={productSearchTerm}
-                          onChange={(e) => setProductSearchTerm(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && searchProducts()}
-                          className="flex-1 max-w-md border rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
-                        />
-                        <button
-                          onClick={searchProducts}
-                          className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-4 py-2 rounded-lg font-medium hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
-                        >
-                          Search
-                        </button>
-                        {productSearchTerm.trim() && (
-                          <button
-                            onClick={() => {
-                              setProductSearchTerm('');
-                              setSearchedProducts([]);
-                            }}
-                            className="text-gray-600 hover:text-gray-800 px-2 py-2"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                      
-                      {productSearchTerm.trim() && (
-                        <p className="text-sm text-gray-600 mt-2">
-                          Search results for &ldquo;{productSearchTerm}&rdquo;: {searchedProducts.length} products found
-                        </p>
-                      )}
+                      <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
+                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                          <FaBox className="text-2xl" />
+                        </div>
+                        <span>Product Command Center</span>
+                      </h3>
+                      <p className="text-white/80 text-lg">
+                        Manage your product inventory and catalog
+                      </p>
                     </div>
                     <button
                       onClick={reloadProducts}
-                      className="text-gray-600 hover:text-[#0D3B66] transition-colors"
+                      className="group p-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl transition-all duration-300 transform hover:scale-105"
                       disabled={reloadingProducts}
+                      title="Refresh products"
                     >
                       {reloadingProducts ? (
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500"></div>
+                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
                       ) : (
-                        <FaSync />
+                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
                       )}
                     </button>
                   </div>
                   
-                  {/* Pagination and Sorting Controls */}
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <label className="text-sm font-medium text-gray-700">Show:</label>
+                  {/* Stats Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-2xl font-bold">{totalProducts}</div>
+                      <div className="text-white/80 text-sm">Total Products</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-2xl font-bold text-yellow-300">{displayedProducts.filter(p => p.stockQuantity <= 5 && p.stockQuantity > 0).length}</div>
+                      <div className="text-white/80 text-sm">Low Stock</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-2xl font-bold text-red-300">{displayedProducts.filter(p => p.stockQuantity === 0).length}</div>
+                      <div className="text-white/80 text-sm">Out of Stock</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-2xl font-bold text-emerald-300">
+                        {[...new Set(displayedProducts.map(p => p.category))].length}
+                      </div>
+                      <div className="text-white/80 text-sm">Categories</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Advanced Search & Controls Panel */}
+              <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 p-6">
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Search Section */}
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="p-2 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg">
+                        <span className="text-white text-lg">🔍</span>
+                      </div>
+                      <h4 className="text-lg font-bold text-gray-800">Product Search</h4>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="text"
+                        placeholder="Search by name, category, or slug..."
+                        value={productSearchTerm}
+                        onChange={(e) => setProductSearchTerm(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && searchProducts()}
+                        className="flex-1 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 hover:border-indigo-500"
+                      />
+                      <button
+                        onClick={searchProducts}
+                        className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105"
+                      >
+                        <span className="flex items-center space-x-2">
+                          <span>🔍</span>
+                          <span>Search</span>
+                        </span>
+                      </button>
+                      {productSearchTerm.trim() && (
+                        <button
+                          onClick={() => {
+                            setProductSearchTerm('');
+                            setSearchedProducts([]);
+                          }}
+                          className="p-3 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200"
+                          title="Clear search"
+                        >
+                          <span className="text-lg">✕</span>
+                        </button>
+                      )}
+                    </div>
+                    
+                    {productSearchTerm.trim() && (
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                        <p className="text-sm text-blue-800 font-medium">
+                          🎯 Search results for &ldquo;{productSearchTerm}&rdquo;: {searchedProducts.length} products found
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Controls Section */}
+                  <div className="flex-1 lg:max-w-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* Items per page */}
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700 mb-2 block">Show</label>
                         <select
                           value={productsPerPage}
                           onChange={(e) => {
                             setProductsPerPage(Number(e.target.value));
-                            setCurrentPage(1); // Reset to first page
+                            setCurrentPage(1);
                           }}
-                          className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                          className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
                         >
-                          <option value={5}>5</option>
-                          <option value={10}>10</option>
-                          <option value={20}>20</option>
-                          <option value={50}>50</option>
+                          <option value={4}>4 items</option>
+                          <option value={10}>10 items</option>
+                          <option value={20}>20 items</option>
+                          <option value={50}>50 items</option>
                         </select>
-                        <span className="text-sm text-gray-600">per page</span>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <label className="text-sm font-medium text-gray-700">Sort by:</label>
+                      
+                      {/* Sort by */}
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700 mb-2 block">Sort by</label>
                         <select
                           value={sortBy}
                           onChange={(e) => {
                             setSortBy(e.target.value);
-                            setCurrentPage(1); // Reset to first page
+                            setCurrentPage(1);
                           }}
-                          className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                          className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
                         >
-                          <option value="createdAt">Date Created</option>
-                          <option value="name">Name</option>
-                          <option value="price">Price</option>
-                          <option value="category">Category</option>
-                          <option value="stockQuantity">Stock</option>
+                          <option value="createdAt">📅 Date Created</option>
+                          <option value="name">🏷️ Name</option>
+                          <option value="price">💰 Price</option>
+                          <option value="category">📦 Category</option>
+                          <option value="stockQuantity">📊 Stock</option>
                         </select>
                       </div>
                       
-                      <div className="flex items-center space-x-2">
-                        <label className="text-sm font-medium text-gray-700">Order:</label>
+                      {/* Sort order */}
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700 mb-2 block">Order</label>
                         <select
                           value={sortOrder}
                           onChange={(e) => {
                             setSortOrder(e.target.value);
-                            setCurrentPage(1); // Reset to first page
+                            setCurrentPage(1);
                           }}
-                          className="border rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                          className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
                         >
-                          <option value="desc">Latest First</option>
-                          <option value="asc">Oldest First</option>
+                          <option value="desc">📈 Newest First</option>
+                          <option value="asc">📉 Oldest First</option>
                         </select>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="text-left p-4 font-semibold text-gray-900">Image</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Name</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Category</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Description</th>
-                        <th className="text-right p-4 font-semibold text-gray-900">Price</th>
-                        <th className="text-center p-4 font-semibold text-gray-900">Discount %</th>
-                        <th className="text-center p-4 font-semibold text-gray-900">Stock</th>
-                        <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {displayedProducts.map((product) => (
-                        <tr key={product.id} className="border-t hover:bg-gray-50">
-                          <td className="p-4">
-                            <Image 
-                              src={product.image} 
-                              alt={product.name} 
-                              width={64}
-                              height={64}
-                              className="w-16 h-16 object-cover rounded-lg" 
-                            />
-                          </td>
-                          <td className="p-4">
+              </div>
+              
+              {/* Premium Product Cards */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                {displayedProducts.map((product, index) => (
+                  <div 
+                    key={product.id} 
+                    className="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border border-gray-200/50 p-6 hover:shadow-2xl hover:border-purple-300/50 transition-all duration-500 transform hover:-translate-y-1 relative overflow-hidden animate-fade-in-up"
+                    style={{
+                      animationDelay: `${index * 100}ms`,
+                      opacity: 0,
+                      animation: `fadeInUp 0.8s ease-out ${index * 100}ms forwards`
+                    }}
+                  >
+                    {/* Gradient overlay */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-purple-400/10 to-transparent rounded-full transform translate-x-12 -translate-y-12 group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <div className="relative z-10 flex flex-col lg:flex-row gap-6">
+                      {/* Product Image & Basic Info */}
+                      <div className="lg:w-1/3 space-y-4">
+                        <div className="relative">
+                          <Image 
+                            src={product.image} 
+                            alt={product.name} 
+                            width={200}
+                            height={200}
+                            className="w-full h-48 object-cover rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300" 
+                          />
+                          <div className={`absolute top-3 right-3 px-3 py-1 rounded-xl text-xs font-bold shadow-lg ${
+                            product.stockQuantity === 0 
+                              ? 'bg-red-500 text-white' 
+                              : product.stockQuantity <= 5 
+                              ? 'bg-yellow-500 text-white'
+                              : 'bg-green-500 text-white'
+                          }`}>
+                            {product.stockQuantity === 0 ? '❌ Out of Stock' : 
+                             product.stockQuantity <= 5 ? 'Low Stock' : 'In Stock'}
+                          </div>
+                        </div>
+                        
+                        {/* Stock Quantity */}
+                        <div className="text-center">
+                          <label className="text-sm font-semibold text-gray-700 block mb-2">📊 Stock Quantity</label>
+                          <input
+                            type="number"
+                            min="0"
+                            defaultValue={product.stockQuantity}
+                            onBlur={(e) => updateProduct(product.slug, { stockQuantity: Number(e.target.value) })}
+                            className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 text-center font-bold text-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Product Details & Controls */}
+                      <div className="lg:w-2/3 space-y-6">
+                        {/* Name & Category Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">🏷️ Product Name</label>
                             <input
                               defaultValue={product.name}
                               onBlur={(e) => updateProduct(product.slug, { name: e.target.value })}
-                              className="border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                              className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
                             />
-                          </td>
-                          <td className="p-4">
+                          </div>
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">📦 Category</label>
                             <select
                               defaultValue={product.category}
                               onChange={(e) => updateProduct(product.slug, { category: e.target.value })}
-                              className="border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                              className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
                             >
-                              <option value="cpu">CPU</option>
-                              <option value="keyboard">Keyboard</option>
-                              <option value="monitor">Monitor</option>
-                              <option value="speaker">Speaker</option>
-                              <option value="mouse">Mouse</option>
+                              <option value="cpu">🖥️ CPU</option>
+                              <option value="keyboard">⌨️ Keyboard</option>
+                              <option value="monitor">🗺 Monitor</option>
+                              <option value="speaker">🔊 Speaker</option>
+                              <option value="mouse">🔭 Mouse</option>
                             </select>
-                          </td>
-                          <td className="p-4">
-                            <textarea
-                              defaultValue={product.description || ""}
-                              onBlur={(e) => updateProduct(product.slug, { description: e.target.value.trim() || undefined })}
-                              rows={3}
-                              className="border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full resize-none text-sm"
-                              placeholder="No description"
-                            />
-                          </td>
-                          <td className="p-4 text-right">
+                          </div>
+                        </div>
+                        
+                        {/* Description */}
+                        <div>
+                          <label className="text-sm font-semibold text-gray-700 block mb-2">📝 Description</label>
+                          <textarea
+                            defaultValue={product.description || ""}
+                            onBlur={(e) => updateProduct(product.slug, { description: e.target.value.trim() || undefined })}
+                            rows={3}
+                            className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                            placeholder="Enter product description..."
+                          />
+                        </div>
+                        
+                        {/* Price & Discount Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">💰 Price (रु)</label>
                             <input
                               type="number"
                               step="0.01"
                               defaultValue={product.price}
                               onBlur={(e) => updateProduct(product.slug, { price: Number(e.target.value) })}
-                              className="border rounded-lg px-3 py-2 w-32 text-right bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                              className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 font-bold text-lg text-purple-600 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
                             />
-                          </td>
-                          <td className="p-4 text-center">
+                          </div>
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700 block mb-2">🏷️ Discount (%)</label>
                             <input
                               type="number"
                               min="0"
@@ -1607,208 +1706,240 @@ export default function AdminPage() {
                               step="1"
                               defaultValue={product.discountPercentage || 0}
                               onBlur={(e) => updateProduct(product.slug, { discountPercentage: Number(e.target.value) })}
-                              className="border rounded-lg px-3 py-2 w-20 text-center bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                              className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
                             />
-                          </td>
-                          <td className="p-4 text-center">
-                            <div className="flex flex-col items-center">
-                              <input
-                                type="number"
-                                min="0"
-                                defaultValue={product.stockQuantity}
-                                onBlur={(e) => updateProduct(product.slug, { stockQuantity: Number(e.target.value) })}
-                                className="border rounded-lg px-3 py-2 w-20 text-center bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
-                              />
-                              <span className={`text-xs mt-1 px-2 py-1 rounded-full font-medium ${
-                                product.stockQuantity === 0 
-                                  ? 'bg-red-100 text-red-800' 
-                                  : product.stockQuantity <= 5 
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-green-100 text-green-800'
-                              }`}>
-                                {product.stockQuantity === 0 ? 'Out of Stock' : 
-                                 product.stockQuantity <= 5 ? 'Low Stock' : 'In Stock'}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="p-4 text-right">
-                            <button
-                              onClick={() => deleteProduct(product.slug)}
-                              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-2"
-                            >
-                              <FaTrash />
-                              <span>Delete</span>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                  <div className="p-6 border-t bg-gray-50">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-700">
-                        Showing {((currentPage - 1) * productsPerPage) + 1} to {Math.min(currentPage * productsPerPage, totalProducts)} of {totalProducts} products
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => setCurrentPage(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Previous
-                        </button>
-                        
-                        {/* Page Numbers */}
-                        <div className="flex items-center space-x-1">
-                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                            let pageNum;
-                            if (totalPages <= 5) {
-                              pageNum = i + 1;
-                            } else if (currentPage <= 3) {
-                              pageNum = i + 1;
-                            } else if (currentPage >= totalPages - 2) {
-                              pageNum = totalPages - 4 + i;
-                            } else {
-                              pageNum = currentPage - 2 + i;
-                            }
-                            
-                            return (
-                              <button
-                                key={pageNum}
-                                onClick={() => setCurrentPage(pageNum)}
-                                className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                                  currentPage === pageNum
-                                    ? 'bg-[#0D3B66] text-white'
-                                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                                }`}
-                              >
-                                {pageNum}
-                              </button>
-                            );
-                          })}
+                          </div>
                         </div>
                         
-                        <button
-                          onClick={() => setCurrentPage(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Next
-                        </button>
+                        {/* Actions */}
+                        <div className="flex justify-end pt-4 border-t border-gray-200/50">
+                          <button
+                            onClick={() => deleteProduct(product.slug)}
+                            className="group px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-red-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+                          >
+                            <FaTrash className="group-hover:animate-bounce" />
+                            <span>Delete Product</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                )}
+                ))}
               </div>
-
-              {/* Add Product Section */}
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center space-x-2">
-                  <FaPlus className="text-[#0D3B66]" />
-                  <span>Add New Product</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <input
-                    placeholder="Product Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
-                  />
-                  <input
-                    placeholder="Price"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
-                  />
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
-                  >
-                    <option value="cpu">CPU</option>
-                    <option value="keyboard">Keyboard</option>
-                    <option value="monitor">Monitor</option>
-                    <option value="speaker">Speaker</option>
-                    <option value="mouse">Mouse</option>
-                  </select>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Stock Quantity
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={stockQuantity}
-                      onChange={(e) => setStockQuantity(e.target.value)}
-                      className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Description
-                    </label>
-                    <textarea
-                      placeholder="Enter product description..."
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      rows={4}
-                      className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full resize-none"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent w-full"
-                      disabled={uploading}
-                    />
-                  </div>
-
-                  {image && (
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Image Preview
-                      </label>
-                      <Image
-                        src={image}
-                        alt="Uploaded preview"
-                        width={200}
-                        height={200}
-                        className="w-48 h-48 object-cover rounded-lg border"
-                      />
+              
+              {/* Premium Pagination */}
+              {totalPages > 1 && (
+                <div className="bg-gradient-to-r from-white via-purple-50/30 to-white backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-200/50 p-8">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                    {/* Pagination Info */}
+                    <div className="flex items-center space-x-4">
+                      <div className="p-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl shadow-lg">
+                        <span className="text-white text-lg font-bold">#</span>
+                      </div>
+                      <div>
+                        <p className="text-lg font-bold text-gray-900">
+                          Page {currentPage} of {totalPages}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Showing {((currentPage - 1) * productsPerPage) + 1}-{Math.min(currentPage * productsPerPage, totalProducts)} of {totalProducts} products
+                        </p>
+                      </div>
                     </div>
-                  )}
+                    
+                    {/* Pagination Buttons */}
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="group px-6 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-2xl font-bold text-gray-700 hover:border-purple-600 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                      >
+                        <span className="text-lg group-hover:-translate-x-1 transition-transform duration-300">←</span>
+                        <span>Previous</span>
+                      </button>
+                      
+                      {/* Page Numbers */}
+                      <div className="flex items-center space-x-2">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentPage(pageNum)}
+                              className={`w-12 h-12 rounded-2xl font-bold transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl ${
+                                currentPage === pageNum
+                                  ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-2xl scale-110'
+                                  : 'bg-white/80 backdrop-blur-sm border-2 border-gray-200 text-gray-700 hover:border-purple-600 hover:text-purple-600'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="group px-6 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-2xl font-bold text-gray-700 hover:border-purple-600 hover:text-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
+                      >
+                        <span>Next</span>
+                        <span className="text-lg group-hover:translate-x-1 transition-transform duration-300">→</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                  <div className="md:col-span-2">
-                    <button
-                      onClick={addProduct}
-                      disabled={uploading}
-                      className="w-full bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 disabled:opacity-50 flex items-center justify-center space-x-2"
-                    >
-                      {uploading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                          <span>Uploading...</span>
-                        </>
-                      ) : (
-                        <>
-                          <FaPlus />
-                          <span>Add Product</span>
-                        </>
-                      )}
-                    </button>
+              {/* Premium Add Product Section */}
+              <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-3xl shadow-2xl border border-emerald-200/50 p-8 relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-emerald-500 rounded-full"></div>
+                  <div className="absolute top-10 -left-8 w-24 h-24 bg-green-500 rounded-full"></div>
+                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-teal-500 rounded-full"></div>
+                </div>
+                
+                <div className="relative z-10">
+                  <div className="text-center mb-8">
+                    <h3 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center space-x-3">
+                      <div className="p-3 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl shadow-lg">
+                        <FaPlus className="text-white text-2xl" />
+                      </div>
+                      <span>Add New Product</span>
+                    </h3>
+                    <p className="text-gray-600 text-lg">Create and add new products to your inventory</p>
+                  </div>
+                  
+                  <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/50">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Left Column */}
+                      <div className="space-y-6">
+                        <div>
+                          <label className="text-sm font-semibold text-gray-700 block mb-3">🏷️ Product Name</label>
+                          <input
+                            placeholder="Enter product name..."
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 font-medium text-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700 block mb-3">💰 Price (रु)</label>
+                            <input
+                              placeholder="0.00"
+                              type="number"
+                              step="0.01"
+                              value={price}
+                              onChange={(e) => setPrice(e.target.value)}
+                              className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 font-bold text-lg text-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700 block mb-3">📊 Stock Quantity</label>
+                            <input
+                              placeholder="0"
+                              type="number"
+                              min="0"
+                              value={stockQuantity}
+                              onChange={(e) => setStockQuantity(e.target.value)}
+                              className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 font-bold text-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-semibold text-gray-700 block mb-3">📦 Category</label>
+                          <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 font-medium text-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                          >
+                            <option value="cpu">🖥️ CPU</option>
+                            <option value="keyboard">⌨️ Keyboard</option>
+                            <option value="monitor">🗺 Monitor</option>
+                            <option value="speaker">🔊 Speaker</option>
+                            <option value="mouse">🔭 Mouse</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      {/* Right Column */}
+                      <div className="space-y-6">
+                        <div>
+                          <label className="text-sm font-semibold text-gray-700 block mb-3">📝 Description (Optional)</label>
+                          <textarea
+                            placeholder="Enter detailed product description..."
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            rows={4}
+                            className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 resize-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-semibold text-gray-700 block mb-3">🖼️ Product Image</label>
+                          <div className="space-y-4">
+                            <div className="flex items-center space-x-4">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                className="flex-1 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-4 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                                disabled={uploading}
+                              />
+                            </div>
+                            
+                            {uploading && (
+                              <div className="flex items-center justify-center space-x-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                                <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent"></div>
+                                <span className="text-blue-800 font-medium">Uploading image...</span>
+                              </div>
+                            )}
+                            
+                            {image && (
+                              <div className="flex justify-center">
+                                <div className="relative">
+                                  <Image
+                                    src={image}
+                                    alt="Preview"
+                                    width={150}
+                                    height={150}
+                                    className="w-32 h-32 object-cover rounded-2xl shadow-lg border-4 border-white"
+                                  />
+                                  <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                                    ✓
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Add Button */}
+                    <div className="mt-8 flex justify-center">
+                      <button
+                        onClick={addProduct}
+                        className="group px-12 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 flex items-center space-x-3"
+                      >
+                        <FaPlus className="group-hover:rotate-180 transition-transform duration-300" />
+                        <span>Add Product to Inventory</span>
+                        <span className="text-2xl group-hover:animate-bounce">🚀</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
