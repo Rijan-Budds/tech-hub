@@ -8,13 +8,17 @@ import { FaMoneyBillWave } from "react-icons/fa";
 interface OrderItem {
   productId: string;
   quantity: number;
+  name?: string;
+  image?: string;
+  price?: number;
 }
 
 interface Order {
-  _id: string;
+  id: string;
+  _id?: string; // Legacy support
   items: OrderItem[];
   createdAt: string;
-  status: "pending" | "canceled" | "delivered";
+  status: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled";
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
@@ -52,7 +56,9 @@ export default function OrderConfirmationPage() {
           credentials: "include",
         });
         const data = await ordersRes.json();
-        const found = (data.orders || []).find((o: Order) => o._id === orderId) || null;
+        const found = (data.orders || []).find((o: Order) => 
+          (o.id === orderId) || (o._id === orderId)
+        ) || null;
         setOrder(found);
       } finally {
         setLoading(false);
@@ -124,7 +130,7 @@ export default function OrderConfirmationPage() {
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-4 border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-600 dark:text-gray-400">Order ID</div>
-          <div className="font-mono">{order._id}</div>
+          <div className="font-mono">{order.id || order._id}</div>
         </div>
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-600 dark:text-gray-400">Placed</div>

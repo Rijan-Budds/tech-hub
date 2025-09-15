@@ -15,7 +15,7 @@ export async function PATCH(
 
     const { orderId } = await params;
     const { status } = await req.json();
-    if (!["pending", "canceled", "delivered"].includes(status)) {
+    if (!["pending", "processing", "shipped", "out-for-delivery", "delivered", "returned", "canceled"].includes(status)) {
       return NextResponse.json({ message: "Invalid status" }, { status: 400 });
     }
 
@@ -25,6 +25,20 @@ export async function PATCH(
     }
 
     const oldStatus = order.status;
+    
+    // Validate status transitions - prevent canceling delivered, returned orders
+    if ((oldStatus === "delivered" || oldStatus === "returned") && status === "canceled") {
+      return NextResponse.json({ 
+        message: "Cannot cancel a delivered or returned order" 
+      }, { status: 400 });
+    }
+    
+    // Prevent changing from delivered to anything except returned
+    if (oldStatus === "delivered" && !["delivered", "returned"].includes(status)) {
+      return NextResponse.json({ 
+        message: "Delivered orders can only be marked as returned" 
+      }, { status: 400 });
+    }
     
     // If canceling an order, use batch service to restore stock
     if (status === "canceled" && oldStatus !== "canceled") {

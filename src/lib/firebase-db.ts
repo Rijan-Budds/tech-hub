@@ -96,6 +96,57 @@ export const userService = {
   async deleteUser(userId: string): Promise<void> {
     await deleteDoc(doc(db, COLLECTIONS.USERS, userId));
   },
+
+  // Get all users with pagination and sorting
+  async getAllUsersWithPagination(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: string = 'desc'): Promise<{ users: IUser[], totalCount: number }> {
+    try {
+      // First get total count
+      const allUsers = await this.getAllUsers();
+      const totalCount = allUsers.length;
+      
+      // Sort users
+      const sortedUsers = allUsers.sort((a, b) => {
+        let aValue: unknown = a[sortBy as keyof IUser];
+        let bValue: unknown = b[sortBy as keyof IUser];
+        
+        // Handle date sorting
+        if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+          aValue = aValue ? new Date(aValue as string | Date).getTime() : 0;
+          bValue = bValue ? new Date(bValue as string | Date).getTime() : 0;
+        }
+        
+        // Handle string sorting
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = (bValue as string).toLowerCase();
+        }
+        
+        if (sortOrder === 'desc') {
+          return (bValue as number) > (aValue as number) ? 1 : (bValue as number) < (aValue as number) ? -1 : 0;
+        } else {
+          return (aValue as number) > (bValue as number) ? 1 : (aValue as number) < (bValue as number) ? -1 : 0;
+        }
+      });
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedUsers = sortedUsers.slice(startIndex, endIndex);
+      
+      return {
+        users: paginatedUsers,
+        totalCount
+      };
+    } catch (error) {
+      console.error('Error in getAllUsersWithPagination:', error);
+      // Fallback to simple getAllUsers
+      const users = await this.getAllUsers();
+      return {
+        users: users.slice((page - 1) * limit, page * limit),
+        totalCount: users.length
+      };
+    }
+  },
 };
 
 // Product operations

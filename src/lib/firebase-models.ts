@@ -18,7 +18,7 @@ export interface IOrder {
   id?: string;
   items: IOrderItem[];
   createdAt: Timestamp | Date;
-  status: "pending" | "canceled" | "delivered";
+  status: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled";
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
