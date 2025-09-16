@@ -32,7 +32,6 @@ export const authService = {
 
       return user;
     } catch (error) {
-      console.error('Registration error:', error);
       throw error;
     }
   },
@@ -43,7 +42,6 @@ export const authService = {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       return userCredential.user;
     } catch (error) {
-      console.error('Login error:', error);
       throw error;
     }
   },
@@ -53,7 +51,6 @@ export const authService = {
     try {
       await signOut(auth);
     } catch (error) {
-      console.error('Logout error:', error);
       throw error;
     }
   },

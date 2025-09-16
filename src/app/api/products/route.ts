@@ -62,14 +62,11 @@ export async function GET(req: Request) {
       }
     });
   } catch (error) {
-    console.error('Error fetching products:', error);
-    
     // If it's an index error, provide helpful message
     if (error instanceof Error && error.message.includes('index')) {
       return NextResponse.json(
         { 
-          error: 'Database index required. Please create the required index in Firebase Console.',
-          details: error.message
+          error: 'Database index required. Please create the required index in Firebase Console.'
         },
         { status: 500 }
       );

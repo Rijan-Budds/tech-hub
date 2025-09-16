@@ -126,7 +126,6 @@ function Page() {
 
   const handleAddToCart = async (productId: string) => {
     try {
-      console.log("Adding to cart for product:", productId);
       const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -134,11 +133,9 @@ function Page() {
         body: JSON.stringify({ action: "add", productId, quantity: 1 }),
       });
       const data = await res.json();
-      console.log("Cart response status:", res.status);
-      console.log("Cart response data:", data);
+      
       if (!res.ok) {
         if (res.status === 401) {
-          console.log("User not authenticated, showing login message");
           toast.error("Please log in to add items to your cart");
           return;
         }
@@ -146,7 +143,6 @@ function Page() {
       }
       toast.success("Added to cart");
     } catch (error: unknown) {
-      console.log("Cart error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to add to cart";
       toast.error(errorMessage);
@@ -155,7 +151,6 @@ function Page() {
 
   const handleToggleWishlist = async (productId: string) => {
     try {
-      console.log("Toggling wishlist for product:", productId);
       const res = await fetch("/api/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -163,11 +158,9 @@ function Page() {
         body: JSON.stringify({ productId }),
       });
       const data = await res.json();
-      console.log("Wishlist response status:", res.status);
-      console.log("Wishlist response data:", data);
+      
       if (!res.ok) {
         if (res.status === 401) {
-          console.log("User not authenticated, showing login message");
           toast.error("Please log in to add items to your wishlist");
           return;
         }
@@ -175,7 +168,6 @@ function Page() {
       }
       toast.success("Wishlist updated");
     } catch (error: unknown) {
-      console.log("Wishlist error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to update wishlist";
       toast.error(errorMessage);

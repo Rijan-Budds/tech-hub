@@ -60,7 +60,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
       const ordersRes = await fetch(`/api/orders`, { credentials: "include" });
       const or = ordersRes.ok ? await ordersRes.json() : { orders: [] };
       set({ orders: or.orders ?? [] });
-      console.log("Orders refreshed:", or.orders);
     } catch (error) {
       console.error("Failed to refresh orders:", error);
     }

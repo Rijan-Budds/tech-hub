@@ -138,8 +138,7 @@ export const userService = {
         users: paginatedUsers,
         totalCount
       };
-    } catch (error) {
-      console.error('Error in getAllUsersWithPagination:', error);
+    } catch {
       // Fallback to simple getAllUsers
       const users = await this.getAllUsers();
       return {
@@ -216,8 +215,7 @@ export const productService = {
         products: paginatedProducts,
         totalCount
       };
-    } catch (error) {
-      console.error('Error in getAllProductsWithPagination:', error);
+    } catch {
       // Fallback to simple getAllProducts
       const products = await this.getAllProducts();
       return {
@@ -314,8 +312,7 @@ export const productService = {
         products: paginatedProducts,
         totalCount
       };
-    } catch (error) {
-      console.error('Error in getProductsByCategoryWithPagination:', error);
+    } catch {
       // Fallback to simple getProductsByCategory
       const products = await this.getProductsByCategory(category);
       return {
@@ -387,8 +384,7 @@ export const productService = {
         products: paginatedProducts,
         totalCount
       };
-    } catch (error) {
-      console.error('Error in searchProductsWithPagination:', error);
+    } catch {
       // Fallback to simple searchProducts
       const products = await this.searchProducts(searchTerm);
       return {
@@ -445,8 +441,7 @@ export const productService = {
         .slice(0, limit); // Get top N products
       
       return productsWithCounts;
-    } catch (error) {
-      console.error('Error getting trending products:', error);
+    } catch {
       // Fallback to random products if there's an error
       const allProducts = await this.getAllProducts();
       return allProducts.slice(0, limit);
@@ -551,8 +546,7 @@ export const orderService = {
         orders: paginatedOrders,
         totalCount
       };
-    } catch (error) {
-      console.error('Error in getAllOrdersWithPagination:', error);
+    } catch {
       // Fallback to simple getAllOrders
       const orders = await this.getAllOrders();
       return {
@@ -766,8 +760,7 @@ export const returnService = {
         returnRequests: paginatedReturns,
         totalCount
       };
-    } catch (error) {
-      console.error('Error in getAllReturnRequestsWithPagination:', error);
+    } catch {
       const returnRequests = await this.getAllReturnRequests();
       return {
         returnRequests: returnRequests.slice((page - 1) * limit, page * limit),

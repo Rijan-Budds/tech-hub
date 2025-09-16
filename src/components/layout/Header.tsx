@@ -52,19 +52,14 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLoginSubmit = () => {
-    fetch("/api/me", { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => setCurrentUser(d.user))
-      .catch(() => setCurrentUser(null));
-    closeModal();
-  };
-
-  const handleSignupSubmit = () => {
-    fetch("/api/me", { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => setCurrentUser(d.user))
-      .catch(() => setCurrentUser(null));
+  const handleAuthSubmit = async () => {
+    try {
+      const res = await fetch("/api/me", { credentials: "include" });
+      const data = await res.json();
+      setCurrentUser(data.user);
+    } catch {
+      setCurrentUser(null);
+    }
     closeModal();
   };
 
@@ -265,7 +260,7 @@ const Header = () => {
 
             {modalType === "login" ? (
               <>
-                <LoginForm onSubmit={handleLoginSubmit} />
+                <LoginForm onSubmit={handleAuthSubmit} />
                 <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
                   Don&apos;t have an account?{" "}
                   <button
@@ -278,7 +273,7 @@ const Header = () => {
               </>
             ) : (
               <>
-                <SignupForm onSubmit={handleSignupSubmit} />
+                <SignupForm onSubmit={handleAuthSubmit} />
                 <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">
                   Already have an account?{" "}
                   <button

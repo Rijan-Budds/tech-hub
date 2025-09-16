@@ -7,9 +7,6 @@ const GMAIL_USER = process.env.GMAIL_USER;
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 
 if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
-  console.warn(
-    "⚠️ Email configuration missing! Please set GMAIL_USER and GMAIL_APP_PASSWORD in your .env.local file"
-  );
 }
 
 // Create transporter for Gmail
@@ -167,10 +164,8 @@ export const sendOrderConfirmationEmail = async (
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Order confirmation email sent:", info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error("Error sending order confirmation email:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
@@ -302,10 +297,8 @@ export const sendOrderStatusUpdateEmail = async (
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Order status update email sent:", info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error("Error sending order status update email:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
@@ -539,10 +532,8 @@ export const sendReturnRequestEmail = async (
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Return request ${type} email sent:`, info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error(`Error sending return request ${type} email:`, error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",
@@ -554,10 +545,8 @@ export const sendReturnRequestEmail = async (
 export const testEmailConnection = async () => {
   try {
     await transporter.verify();
-    console.log("Email server connection verified successfully");
     return { success: true };
   } catch (error) {
-    console.error("Email server connection failed:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error occurred",

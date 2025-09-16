@@ -53,11 +53,9 @@ export async function GET() {
     
     return NextResponse.json({ items: detailed });
     
-  } catch (error) {
-    console.error("GET /api/cart - Error:", error);
+  } catch {
     return NextResponse.json({ 
-      message: 'Internal server error', 
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: 'Internal server error'
     }, { status: 500 });
   }
 }
@@ -127,11 +125,9 @@ export async function POST(req: Request) {
     
     return NextResponse.json({ message: actionMessages[action as keyof typeof actionMessages] || 'Cart updated' });
     
-  } catch (error) {
-    console.error("POST /api/cart - Error:", error);
+  } catch {
     return NextResponse.json({ 
-      message: 'Internal server error', 
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: 'Internal server error'
     }, { status: 500 });
   }
 }

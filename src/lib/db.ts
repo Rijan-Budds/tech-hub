@@ -27,7 +27,6 @@ if (!cached) {
 
 async function connectToDatabase() {
   if (cached!.conn) {
-    console.log("Using cached database connection");
     return cached!.conn;
   }
 
@@ -40,9 +39,7 @@ async function connectToDatabase() {
       family: 4 // Use IPv4, skip trying IPv6
     };
 
-    console.log("Creating new database connection");
     cached!.promise = mongoose.connect(MONGO_URI!, opts).then((mongoose) => {
-      console.log("Database connected successfully");
       return mongoose;
     });
   }
