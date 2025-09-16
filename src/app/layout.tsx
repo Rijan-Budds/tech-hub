@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import ComparisonProvider from "@/components/ComparisonProvider";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config as faConfig } from "@fortawesome/fontawesome-svg-core";
 faConfig.autoAddCss = false;
@@ -40,6 +41,7 @@ export default function RootLayout({
           {/* Initialize Font Awesome library icons */}
           {/* Optional: import '@/lib/fontawesome' here if you want to pre-add icons */}
           {children}
+          <ComparisonProvider />
           <Toaster />
         </ThemeProvider>
       </body>

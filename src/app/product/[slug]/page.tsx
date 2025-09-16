@@ -31,6 +31,7 @@ async function fetchProduct(slug: string) {
       category: string;
       description?: string;
       discountPercentage?: number;
+      stockQuantity: number;
       inStock?: boolean;
     }
   } catch (error) {
@@ -170,7 +171,17 @@ export default async function ProductDetailPage({
 
               {/* Product Actions */}
               <div className="pt-6 border-t border-gray-200">
-                <ProductActions productId={product.id} />
+                <ProductActions product={{
+                  id: product.id,
+                  name: product.name,
+                  slug: product.slug,
+                  price: product.price,
+                  category: product.category,
+                  image: product.image,
+                  description: product.description,
+                  discountPercentage: product.discountPercentage,
+                  stockQuantity: product.stockQuantity || (product.inStock !== false ? 10 : 0)
+                }} />
               </div>
             </div>
           </div>

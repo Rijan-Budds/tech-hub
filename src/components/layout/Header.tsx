@@ -4,8 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FaSearch, FaUser, FaShoppingCart, FaSignOutAlt, FaHeart } from "react-icons/fa";
+import { FaSearch, FaUser, FaShoppingCart, FaSignOutAlt, FaHeart, FaBalanceScale } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
+import { useCompareStore } from "@/store/useCompareStore";
 
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import LoginForm from "@/components/forms/LoginForm";
@@ -24,6 +25,7 @@ const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { compareProducts } = useCompareStore();
 
   const closeModal = () => setModalType(null);
 
@@ -192,6 +194,20 @@ const Header = () => {
                           <FaHeart className="w-4 h-4 mr-3" />
                           Wishlist
                         </Link>
+
+                        <Link
+                          href="/compare"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <FaBalanceScale className="w-4 h-4 mr-3" />
+                          Compare Products
+                          {compareProducts.length > 0 && (
+                            <span className="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                              {compareProducts.length}
+                            </span>
+                          )}
+                        </Link>
                       </>
                     )}
                   </div>
@@ -213,6 +229,8 @@ const Header = () => {
               LOGIN
             </button>
           )}
+
+
 
           {/* Cart Icon - Hidden for admin users */}
           {(!currentUser || currentUser.role !== "admin") && (

@@ -110,8 +110,6 @@ export default function OrderConfirmationPage() {
     if (order.status !== 'delivered') return false;
     if (order.returnRequestId) return false; // Already has a return request
     
-    // For demo purposes, assume all delivered orders are within return window
-    // In real implementation, you'd check deliveredAt date
     const deliveredDate = new Date(order.deliveredAt || order.createdAt);
     const now = new Date();
     const daysDifference = Math.floor((now.getTime() - deliveredDate.getTime()) / (1000 * 60 * 60 * 24));
