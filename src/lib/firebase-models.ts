@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, FieldValue } from 'firebase/firestore';
 
 // TypeScript interfaces for Firebase
 export interface ICartItem {
@@ -14,11 +14,27 @@ export interface IOrderItem {
   price?: number;
 }
 
+export interface IReturnRequest {
+  id?: string;
+  orderId: string;
+  userId: string;
+  items: IOrderItem[]; // Items being returned
+  reason: "damaged" | "wrong-item" | "size-issue" | "defective" | "not-as-described" | "other";
+  description?: string;
+  images?: string[]; // URLs of uploaded images
+  status: "pending" | "approved" | "rejected" | "completed" | "refunded";
+  adminNote?: string;
+  requestedAt: Timestamp | Date;
+  processedAt?: Timestamp | Date | FieldValue;
+  refundAmount?: number;
+  refundMethod?: "original" | "store-credit";
+}
+
 export interface IOrder {
   id?: string;
   items: IOrderItem[];
   createdAt: Timestamp | Date;
-  status: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled";
+  status: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled" | "return-requested";
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
@@ -29,6 +45,8 @@ export interface IOrder {
     address: { street: string; city: string };
   };
   userId: string;
+  returnRequestId?: string; // Reference to return request if exists
+  deliveredAt?: Timestamp | Date | FieldValue; // Track when order was delivered for return window
 }
 
 export interface IUser {
@@ -61,6 +79,7 @@ export const COLLECTIONS = {
   USERS: 'users',
   PRODUCTS: 'products',
   ORDERS: 'orders',
+  RETURN_REQUESTS: 'return_requests',
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date

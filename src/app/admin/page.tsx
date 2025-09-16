@@ -13,10 +13,12 @@ import {
   FaSignOutAlt,
   FaEye,
   FaSync,
+  FaUndo,
 } from "react-icons/fa";
 import AdminHeader from "@/components/layout/AdminHeader";
 import Footer from "@/components/layout/Footer";
 import StatusDropdown from "@/components/StatusDropdown";
+import AdminReturnsSection from "@/components/admin/AdminReturnsSection";
 
 interface User {
   _id: string;
@@ -71,6 +73,21 @@ export default function AdminPage() {
       stockQuantity: number;
     }[]
   >([]);
+  
+  // Store all products for accurate stats (not just paginated ones)
+  const [allProducts, setAllProducts] = useState<
+    {
+      id: string;
+      slug: string;
+      name: string;
+      price: number;
+      category: string;
+      image: string;
+      description?: string;
+      discountPercentage?: number;
+      stockQuantity: number;
+    }[]
+  >([]);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -85,7 +102,7 @@ export default function AdminPage() {
   const [reloadingProducts, setReloadingProducts] = useState(false);
   const [reloadingAll, setReloadingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "orders" | "products"
+    "overview" | "users" | "orders" | "products" | "returns"
   >("overview");
 
   // Pagination state for products
@@ -135,6 +152,57 @@ export default function AdminPage() {
     setExpandedOrders(newExpandedOrders);
   };
 
+  // Return requests state
+  const [returnRequests, setReturnRequests] = useState<{
+    id: string;
+    orderId: string;
+    userId: string;
+    items: {
+      productId: string;
+      quantity: number;
+      name?: string;
+      image?: string;
+      price?: number;
+    }[];
+    reason: string;
+    description?: string;
+    images?: string[];
+    status: "pending" | "approved" | "rejected" | "completed" | "refunded";
+    adminNote?: string;
+    requestedAt: Date;
+    processedAt?: Date;
+    refundAmount?: number;
+    refundMethod?: "original" | "store-credit";
+    orderDetails?: {
+      orderNumber: string;
+      grandTotal: number;
+      customer: { name: string; email: string };
+    };
+    userDetails?: {
+      username: string;
+    };
+  }[]>([]);
+  const [currentReturnsPage, setCurrentReturnsPage] = useState(1);
+  const [returnsPerPage, setReturnsPerPage] = useState(5);
+  const [totalReturns, setTotalReturns] = useState(0);
+  const [totalReturnsPages, setTotalReturnsPages] = useState(0);
+  const [returnsSortBy, setReturnsSortBy] = useState('requestedAt');
+  const [returnsSortOrder, setReturnsSortOrder] = useState('desc');
+  const [returnsStatusFilter, setReturnsStatusFilter] = useState('all');
+  const [reloadingReturns, setReloadingReturns] = useState(false);
+  const [expandedReturns, setExpandedReturns] = useState<Set<string>>(new Set());
+
+  // Toggle individual return expansion
+  const toggleReturnExpansion = (returnId: string) => {
+    const newExpandedReturns = new Set(expandedReturns);
+    if (newExpandedReturns.has(returnId)) {
+      newExpandedReturns.delete(returnId);
+    } else {
+      newExpandedReturns.add(returnId);
+    }
+    setExpandedReturns(newExpandedReturns);
+  };
+
   const router = useRouter();
 
   // Filter orders based on status filter
@@ -172,10 +240,23 @@ export default function AdminPage() {
     ? searchedProducts
     : products;
 
+  // Function to fetch all products for stats
+  const fetchAllProducts = async () => {
+    try {
+      const res = await fetch('/api/products?limit=1000', { // Fetch a large number to get all products
+        credentials: 'include',
+      });
+      const data = await res.json();
+      setAllProducts(data.products || []);
+    } catch (error) {
+      console.error('Error fetching all products:', error);
+    }
+  };
+
   useEffect(() => {
     const load = async () => {
       try {
-        const [uRes, oRes, pRes] = await Promise.all([
+        const [uRes, oRes, pRes, rRes] = await Promise.all([
           fetch(
             `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
             {
@@ -194,6 +275,12 @@ export default function AdminPage() {
               credentials: "include",
             }
           ),
+          fetch(
+            `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
+            {
+              credentials: "include",
+            }
+          ),
         ]);
 
         if (uRes.status === 403) {
@@ -205,9 +292,11 @@ export default function AdminPage() {
         const uData = await uRes.json();
         const oData = await oRes.json();
         const pData = await pRes.json();
+        const rData = await rRes.json();
         setUsers(uData.users || []);
         setOrders(oData.orders || []);
         setProducts(pData.products || []);
+        setReturnRequests(rData.returnRequests || []);
 
         // Set pagination data for users
         if (uData.pagination) {
@@ -226,6 +315,15 @@ export default function AdminPage() {
           setTotalOrders(oData.pagination.totalCount);
           setTotalOrdersPages(oData.pagination.totalPages);
         }
+
+        // Set pagination data for returns
+        if (rData.pagination) {
+          setTotalReturns(rData.pagination.totalCount);
+          setTotalReturnsPages(rData.pagination.totalPages);
+        }
+        
+        // Fetch all products for accurate stats
+        await fetchAllProducts();
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Failed to load admin data";
@@ -248,6 +346,11 @@ export default function AdminPage() {
     usersPerPage,
     usersSortBy,
     usersSortOrder,
+    currentReturnsPage,
+    returnsPerPage,
+    returnsSortBy,
+    returnsSortOrder,
+    returnsStatusFilter,
   ]);
 
   const reloadUsers = async () => {
@@ -325,6 +428,9 @@ export default function AdminPage() {
       }
 
       toast.success("Products refreshed successfully");
+      
+      // Also refresh all products for stats
+      await fetchAllProducts();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to reload products";
@@ -334,10 +440,38 @@ export default function AdminPage() {
     }
   };
 
+  const reloadReturns = async () => {
+    try {
+      setReloadingReturns(true);
+      const res = await fetch(
+        `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      setReturnRequests(data.returnRequests || []);
+
+      // Set pagination data for returns
+      if (data.pagination) {
+        setTotalReturns(data.pagination.totalCount);
+        setTotalReturnsPages(data.pagination.totalPages);
+      }
+
+      toast.success("Return requests refreshed successfully");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to reload return requests";
+      toast.error(errorMessage);
+    } finally {
+      setReloadingReturns(false);
+    }
+  };
+
   const reloadAll = async () => {
     try {
       setReloadingAll(true);
-      const [uRes, oRes, pRes] = await Promise.all([
+      const [uRes, oRes, pRes, rRes] = await Promise.all([
         fetch(
           `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
           {
@@ -356,14 +490,22 @@ export default function AdminPage() {
             credentials: "include",
           }
         ),
+        fetch(
+          `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
+          {
+            credentials: "include",
+          }
+        ),
       ]);
 
       const uData = await uRes.json();
       const oData = await oRes.json();
       const pData = await pRes.json();
+      const rData = await rRes.json();
       setUsers(uData.users || []);
       setOrders(oData.orders || []);
       setProducts(pData.products || []);
+      setReturnRequests(rData.returnRequests || []);
 
       // Set pagination data for users
       if (uData.pagination) {
@@ -383,7 +525,16 @@ export default function AdminPage() {
         setTotalOrdersPages(oData.pagination.totalPages);
       }
 
+      // Set pagination data for returns
+      if (rData.pagination) {
+        setTotalReturns(rData.pagination.totalCount);
+        setTotalReturnsPages(rData.pagination.totalPages);
+      }
+
       toast.success("All data refreshed successfully");
+      
+      // Also refresh all products for stats
+      await fetchAllProducts();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to reload data";
@@ -488,6 +639,8 @@ export default function AdminPage() {
       setDescription("");
       setStockQuantity("");
       await reloadProducts();
+      // Also refresh all products for stats
+      await fetchAllProducts();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to add product";
@@ -504,6 +657,8 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to delete");
       setProducts((prev) => prev.filter((p) => p.slug !== slug));
+      // Also update allProducts
+      setAllProducts((prev) => prev.filter((p) => p.slug !== slug));
       toast.success("Product deleted");
     } catch (error) {
       const errorMessage =
@@ -536,6 +691,10 @@ export default function AdminPage() {
       setProducts((prev) =>
         prev.map((p) => (p.slug === slug ? data.product : p))
       );
+      // Also update allProducts
+      setAllProducts((prev) =>
+        prev.map((p) => (p.slug === slug ? data.product : p))
+      );
       toast.success("Product updated");
     } catch (error) {
       const errorMessage =
@@ -552,9 +711,54 @@ export default function AdminPage() {
     router.push("/");
   };
 
+  // Return request management functions
+  const updateReturnStatus = async (
+    returnId: string,
+    status: "pending" | "approved" | "rejected" | "completed" | "refunded",
+    adminNote?: string,
+    refundAmount?: number
+  ) => {
+    try {
+      const res = await fetch(`/api/admin/returns/${returnId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status, adminNote, refundAmount }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update");
+
+      setReturnRequests((prev) =>
+        prev.map((r) => (r.id === returnId ? { ...r, status, adminNote } : r))
+      );
+      toast.success("Return request status updated");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update return status";
+      toast.error(errorMessage);
+    }
+  };
+
+  const deleteReturnRequest = async (returnId: string) => {
+    try {
+      const res = await fetch(`/api/admin/returns/${returnId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete return request");
+      setReturnRequests((prev) => prev.filter((r) => r.id !== returnId));
+      toast.success("Return request deleted");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete return request";
+      toast.error(errorMessage);
+    }
+  };
+
   // Reset pagination when switching tabs
   const handleTabChange = (
-    tab: "overview" | "users" | "orders" | "products"
+    tab: "overview" | "users" | "orders" | "products" | "returns"
   ) => {
     setActiveTab(tab);
     if (tab === "products") {
@@ -565,6 +769,9 @@ export default function AdminPage() {
     }
     if (tab === "users") {
       setCurrentUsersPage(1);
+    }
+    if (tab === "returns") {
+      setCurrentReturnsPage(1);
     }
   };
 
@@ -613,6 +820,23 @@ export default function AdminPage() {
         return "bg-orange-100 text-orange-800";
       case "canceled":
         return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getReturnStatusColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "completed":
+        return "bg-blue-100 text-blue-800";
+      case "refunded":
+        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -787,12 +1011,13 @@ export default function AdminPage() {
                 { id: "users", label: "Users", icon: FaUsers },
                 { id: "orders", label: "Orders", icon: FaShoppingCart },
                 { id: "products", label: "Products", icon: FaBox },
+                { id: "returns", label: "Returns", icon: FaUndo },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() =>
                     handleTabChange(
-                      id as "overview" | "users" | "orders" | "products"
+                      id as "overview" | "users" | "orders" | "products" | "returns"
                     )
                   }
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
@@ -1196,7 +1421,7 @@ export default function AdminPage() {
 
                     {/* Status Filter */}
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                      <div className="p-2  bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
                         <div className="w-4 h-4 bg-white rounded-full"></div>
                       </div>
                       <div>
@@ -1225,7 +1450,7 @@ export default function AdminPage() {
                   <div className="flex items-center space-x-6">
                     {/* Sort By */}
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg">
+                      <div className="p-2  bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
                         <div className="w-4 h-4 bg-white rounded-sm transform rotate-45"></div>
                       </div>
                       <div>
@@ -1252,10 +1477,10 @@ export default function AdminPage() {
 
                     {/* Sort Order */}
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg">
+                      <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
                         <div className="w-4 h-4 bg-white transform rotate-12">
-                          <div className="w-full h-0.5 bg-orange-500 mt-1.5"></div>
-                          <div className="w-0 h-0 border-l-2 border-r-2 border-b-2 border-transparent border-b-orange-500 ml-auto mr-1 -mt-1"></div>
+                          <div className="w-full h-0.5 bg-blue-500 mt-1.5"></div>
+                          <div className="w-0 h-0 border-l-2 border-r-2 border-b-2 border-transparent border-b-blue-500 ml-auto mr-1 -mt-1"></div>
                         </div>
                       </div>
                       <div>
@@ -1749,7 +1974,7 @@ export default function AdminPage() {
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                       <div className="text-2xl font-bold text-yellow-300">
                         {
-                          displayedProducts.filter(
+                          allProducts.filter(
                             (p) => p.stockQuantity <= 5 && p.stockQuantity > 0
                           ).length
                         }
@@ -1759,7 +1984,7 @@ export default function AdminPage() {
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                       <div className="text-2xl font-bold text-red-300">
                         {
-                          displayedProducts.filter((p) => p.stockQuantity === 0)
+                          allProducts.filter((p) => p.stockQuantity === 0)
                             .length
                         }
                       </div>
@@ -1768,7 +1993,7 @@ export default function AdminPage() {
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                       <div className="text-2xl font-bold text-emerald-300">
                         {
-                          [...new Set(displayedProducts.map((p) => p.category))]
+                          [...new Set(allProducts.map((p) => p.category))]
                             .length
                         }
                       </div>
@@ -2184,6 +2409,7 @@ export default function AdminPage() {
                     placeholder="Price"
                     type="number"
                     step="0.01"
+                    min="0"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
@@ -2200,7 +2426,7 @@ export default function AdminPage() {
                     <option value="mouse">Mouse</option>
                   </select>
 
-                                    <input
+                  <input
                     placeholder="Stock Quantity"
                     type="number"
                     min="0"
@@ -2210,7 +2436,9 @@ export default function AdminPage() {
                   />
 
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Image
+                    </label>
                     <div className="flex items-center space-x-4">
                       <input
                         type="file"
@@ -2228,14 +2456,20 @@ export default function AdminPage() {
                     </div>
                     {image && (
                       <div className="mt-4">
-                        <Image src={image} alt="Preview" width={128} height={128} className="w-32 h-32 object-cover rounded-lg shadow-md" />
+                        <Image
+                          src={image}
+                          alt="Preview"
+                          width={128}
+                          height={128}
+                          className="w-32 h-32 object-cover rounded-lg shadow-md"
+                        />
                       </div>
                     )}
                   </div>
 
                   <div className="md:col-span-2">
                     <textarea
-                      placeholder="Product Description (optional)"
+                      placeholder="Product Description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={3}
@@ -2265,6 +2499,31 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === "returns" && (
+            <AdminReturnsSection
+              returnRequests={returnRequests}
+              currentReturnsPage={currentReturnsPage}
+              returnsPerPage={returnsPerPage}
+              totalReturns={totalReturns}
+              totalReturnsPages={totalReturnsPages}
+              returnsSortBy={returnsSortBy}
+              returnsSortOrder={returnsSortOrder}
+              returnsStatusFilter={returnsStatusFilter}
+              reloadingReturns={reloadingReturns}
+              expandedReturns={expandedReturns}
+              setCurrentReturnsPage={setCurrentReturnsPage}
+              setReturnsPerPage={setReturnsPerPage}
+              setReturnsSortBy={setReturnsSortBy}
+              setReturnsSortOrder={setReturnsSortOrder}
+              setReturnsStatusFilter={setReturnsStatusFilter}
+              toggleReturnExpansion={toggleReturnExpansion}
+              updateReturnStatus={updateReturnStatus}
+              deleteReturnRequest={deleteReturnRequest}
+              reloadReturns={reloadReturns}
+              getReturnStatusColor={getReturnStatusColor}
+            />
           )}
         </div>
       </div>

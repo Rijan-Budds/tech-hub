@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { orderService, batchService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
 import { sendOrderStatusUpdateEmail } from "@/lib/email";
+import { serverTimestamp, FieldValue } from "firebase/firestore";
 
 export async function PATCH(
   req: Request,
@@ -44,8 +45,20 @@ export async function PATCH(
     if (status === "canceled" && oldStatus !== "canceled") {
       await batchService.cancelOrderAndRestoreStock(orderId);
     } else {
-      // For other status changes, just update the status
-      await orderService.updateOrder(orderId, { status });
+      // For other status changes, update the status
+      const updateData: { 
+        status: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled" | "return-requested";
+        deliveredAt?: FieldValue;
+      } = { 
+        status: status as "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled" | "return-requested"
+      };
+      
+      // Set deliveredAt timestamp when marking as delivered
+      if (status === "delivered" && oldStatus !== "delivered") {
+        updateData.deliveredAt = serverTimestamp();
+      }
+      
+      await orderService.updateOrder(orderId, updateData);
     }
     
     // Send status update email if status actually changed

@@ -1,17 +1,28 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/store/useProfileStore";
-import { FaArrowLeft, FaShoppingBag, FaCalendarAlt, FaBox, FaEye } from "react-icons/fa";
+import { FaArrowLeft, FaShoppingBag, FaCalendarAlt, FaBox, FaEye, FaUndo } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ReturnRequestForm from "@/components/ReturnRequestForm";
+import { toast } from "sonner";
 
 export default function OrdersPage() {
   const router = useRouter();
   const { loading, user, orders, loadProfile, refreshOrders } = useProfileStore();
+  const [selectedOrderForReturn, setSelectedOrderForReturn] = useState<{
+    id: string;
+    items: { productId: string; quantity: number; name?: string; image?: string; price?: number }[];
+    grandTotal: number;
+    status: string;
+    createdAt: string;
+    customer?: { name?: string; email?: string; address?: { street?: string; city?: string } };
+  } | null>(null);
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -20,6 +31,59 @@ export default function OrdersPage() {
   useEffect(() => {
     refreshOrders();
   }, [refreshOrders]);
+
+  // Helper function to check if an order is eligible for return
+  const isOrderEligibleForReturn = (order: { 
+    status: string; 
+    createdAt: string; 
+    returnRequestId?: string;
+  }) => {
+    if (order.status !== 'delivered') return false;
+    
+    // For demo purposes, assume all delivered orders have a deliveredAt date
+    // In a real implementation, you'd track when orders are marked as delivered
+    const deliveredDate = new Date(order.createdAt);
+    const now = new Date();
+    const daysDifference = Math.floor((now.getTime() - deliveredDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return daysDifference <= 7 && !order.returnRequestId;
+  };
+
+  // Handle return request submission
+  const handleReturnRequest = async (returnData: {
+    orderId: string;
+    items: { productId: string; quantity: number }[];
+    reason: string;
+    description?: string;
+    images?: string[];
+  }) => {
+    setIsSubmittingReturn(true);
+    
+    try {
+      const response = await fetch('/api/returns', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(returnData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success('Return request submitted successfully!');
+        refreshOrders(); // Refresh to get updated order status
+        setSelectedOrderForReturn(null);
+      } else {
+        toast.error(result.message || 'Failed to submit return request');
+      }
+    } catch (error) {
+      console.error('Error submitting return request:', error);
+      toast.error('Failed to submit return request. Please try again.');
+    } finally {
+      setIsSubmittingReturn(false);
+    }
+  };
 
   if (loading)
     return (
@@ -70,6 +134,7 @@ export default function OrdersPage() {
       case 'shipped': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
       case 'out-for-delivery': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400';
       case 'delivered': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'return-requested': return 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400';
       case 'returned': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
       case 'canceled': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
@@ -79,6 +144,7 @@ export default function OrdersPage() {
   const getStatusDisplayText = (status: string) => {
     switch (status) {
       case 'out-for-delivery': return 'Out for Delivery';
+      case 'return-requested': return 'Return Requested';
       default: return status.charAt(0).toUpperCase() + status.slice(1);
     }
   };
@@ -223,8 +289,21 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  {/* Action Button */}
-                  <div className="flex justify-end">
+                  {/* Action Buttons */}
+                  <div className="flex justify-end space-x-3">
+                    {/* Return Button */}
+                    {isOrderEligibleForReturn(order) && (
+                      <button
+                        onClick={() => setSelectedOrderForReturn(order)}
+                        disabled={isSubmittingReturn}
+                        className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-200"
+                      >
+                        <FaUndo className="text-sm" />
+                        <span>{isSubmittingReturn ? 'Returning...' : 'Return'}</span>
+                      </button>
+                    )}
+                    
+                    {/* View Details Button */}
                     <Link
                       href={`/orders/${order.id}`}
                       className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
@@ -240,6 +319,15 @@ export default function OrdersPage() {
         </div>
       </div>
       <Footer />
+      
+      {/* Return Request Form Modal */}
+      {selectedOrderForReturn && (
+        <ReturnRequestForm
+          order={selectedOrderForReturn}
+          onClose={() => setSelectedOrderForReturn(null)}
+          onSubmit={handleReturnRequest}
+        />
+      )}
     </>
   );
 }

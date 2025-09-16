@@ -5,19 +5,20 @@ type User = { id: string; email: string; username: string; role?: string } | nul
 type WishlistItem = { id: string; slug: string; name: string; price: number; image: string; category: string };
 type OrderItem = { productId: string; quantity: number; name?: string; image?: string; price?: number };
 type Order = {
-  id?: string;
+  id: string;
   items: OrderItem[];
   createdAt: string;
-  status: "pending" | "canceled" | "delivered";
+  status: "pending" | "canceled" | "delivered" | "return-requested";
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
   paymentMethod?: "khalti" | "esewa" | "cod";
-  customer: {
-    name: string;
-    email: string;
-    address: { street: string; city: string };
+  customer?: {
+    name?: string;
+    email?: string;
+    address?: { street?: string; city?: string };
   };
+  returnRequestId?: string;
 };
 
 interface ProfileState {

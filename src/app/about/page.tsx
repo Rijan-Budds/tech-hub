@@ -1,4 +1,5 @@
 import PixelTransition from "@/components/PixelTransition";
+
 import Footer from "@/components/layout/Footer";
 import Image from "next/image";
 import { FaLightbulb, FaShieldAlt, FaHeart } from "react-icons/fa";

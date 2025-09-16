@@ -11,9 +11,10 @@ import {
   writeBatch,
   serverTimestamp,
   increment,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { COLLECTIONS, IUser, IProduct, IOrder, ICartItem, timestampToDate } from './firebase-models';
+import { COLLECTIONS, IUser, IProduct, IOrder, ICartItem, IReturnRequest, timestampToDate } from './firebase-models';
 
 // User operations
 export const userService = {
@@ -639,5 +640,181 @@ export const batchService = {
     }
     
     await batch.commit();
+  },
+};
+
+// Return Request operations
+export const returnService = {
+  // Create a new return request
+  async createReturnRequest(returnData: Omit<IReturnRequest, 'id' | 'requestedAt'>): Promise<string> {
+    const returnRef = await addDoc(collection(db, COLLECTIONS.RETURN_REQUESTS), {
+      ...returnData,
+      requestedAt: serverTimestamp(),
+    });
+    return returnRef.id;
+  },
+
+  // Get return request by ID
+  async getReturnRequestById(returnId: string): Promise<IReturnRequest | null> {
+    const returnDoc = await getDoc(doc(db, COLLECTIONS.RETURN_REQUESTS, returnId));
+    if (returnDoc.exists()) {
+      const data = returnDoc.data();
+      return {
+        id: returnDoc.id,
+        ...data,
+        requestedAt: timestampToDate(data.requestedAt),
+        processedAt: data.processedAt ? timestampToDate(data.processedAt) : undefined,
+      } as IReturnRequest;
+    }
+    return null;
+  },
+
+  // Get return requests by user ID
+  async getReturnRequestsByUserId(userId: string): Promise<IReturnRequest[]> {
+    const q = query(collection(db, COLLECTIONS.RETURN_REQUESTS), where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        requestedAt: timestampToDate(data.requestedAt),
+        processedAt: data.processedAt ? timestampToDate(data.processedAt) : undefined,
+      } as IReturnRequest;
+    });
+  },
+
+  // Get return request by order ID
+  async getReturnRequestByOrderId(orderId: string): Promise<IReturnRequest | null> {
+    const q = query(collection(db, COLLECTIONS.RETURN_REQUESTS), where('orderId', '==', orderId));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const returnDoc = querySnapshot.docs[0];
+      const data = returnDoc.data();
+      return {
+        id: returnDoc.id,
+        ...data,
+        requestedAt: timestampToDate(data.requestedAt),
+        processedAt: data.processedAt ? timestampToDate(data.processedAt) : undefined,
+      } as IReturnRequest;
+    }
+    return null;
+  },
+
+  // Get all return requests (for admin)
+  async getAllReturnRequests(): Promise<IReturnRequest[]> {
+    const querySnapshot = await getDocs(collection(db, COLLECTIONS.RETURN_REQUESTS));
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        requestedAt: timestampToDate(data.requestedAt),
+        processedAt: data.processedAt ? timestampToDate(data.processedAt) : undefined,
+      } as IReturnRequest;
+    });
+  },
+
+  // Get all return requests with pagination and sorting
+  async getAllReturnRequestsWithPagination(
+    page: number, 
+    limit: number, 
+    sortBy: string = 'requestedAt', 
+    sortOrder: string = 'desc',
+    statusFilter?: string
+  ): Promise<{ returnRequests: IReturnRequest[], totalCount: number }> {
+    try {
+      let allReturns = await this.getAllReturnRequests();
+      
+      // Apply status filter if provided
+      if (statusFilter && statusFilter !== 'all') {
+        allReturns = allReturns.filter(returnRequest => returnRequest.status === statusFilter);
+      }
+      
+      const totalCount = allReturns.length;
+      
+      // Sort return requests
+      const sortedReturns = allReturns.sort((a, b) => {
+        let aValue: unknown = a[sortBy as keyof IReturnRequest];
+        let bValue: unknown = b[sortBy as keyof IReturnRequest];
+        
+        // Handle date sorting
+        if (sortBy === 'requestedAt' || sortBy === 'processedAt') {
+          aValue = aValue ? new Date(aValue as string | Date).getTime() : 0;
+          bValue = bValue ? new Date(bValue as string | Date).getTime() : 0;
+        }
+        
+        // Handle string sorting
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = (bValue as string).toLowerCase();
+        }
+        
+        if (sortOrder === 'desc') {
+          return (bValue as number) > (aValue as number) ? 1 : (bValue as number) < (aValue as number) ? -1 : 0;
+        } else {
+          return (aValue as number) > (bValue as number) ? 1 : (aValue as number) < (bValue as number) ? -1 : 0;
+        }
+      });
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedReturns = sortedReturns.slice(startIndex, endIndex);
+      
+      return {
+        returnRequests: paginatedReturns,
+        totalCount
+      };
+    } catch (error) {
+      console.error('Error in getAllReturnRequestsWithPagination:', error);
+      const returnRequests = await this.getAllReturnRequests();
+      return {
+        returnRequests: returnRequests.slice((page - 1) * limit, page * limit),
+        totalCount: returnRequests.length
+      };
+    }
+  },
+
+  // Update return request
+  async updateReturnRequest(returnId: string, updates: Partial<IReturnRequest>): Promise<void> {
+    const returnRef = doc(db, COLLECTIONS.RETURN_REQUESTS, returnId);
+    const updateData = {
+      ...updates,
+    };
+    
+    // Add processedAt timestamp if status is being changed from pending
+    if (updates.status && updates.status !== 'pending') {
+      updateData.processedAt = serverTimestamp();
+    }
+    
+    await updateDoc(returnRef, updateData);
+  },
+
+  // Delete return request
+  async deleteReturnRequest(returnId: string): Promise<void> {
+    await deleteDoc(doc(db, COLLECTIONS.RETURN_REQUESTS, returnId));
+  },
+
+  // Check if order is eligible for return (within 7 days)
+  isOrderEligibleForReturn(order: IOrder): boolean {
+    if (order.status !== 'delivered') return false;
+    
+    // If no deliveredAt timestamp, fall back to using createdAt + reasonable delivery time
+    // This handles existing delivered orders that don't have deliveredAt set
+    let referenceDate: Date;
+    if (order.deliveredAt && (order.deliveredAt instanceof Timestamp || order.deliveredAt instanceof Date)) {
+      referenceDate = timestampToDate(order.deliveredAt);
+    } else {
+      // For orders without deliveredAt, assume they were delivered 3 days after creation
+      // This is a reasonable fallback for existing data
+      const createdDate = timestampToDate(order.createdAt);
+      referenceDate = new Date(createdDate.getTime() + (3 * 24 * 60 * 60 * 1000)); // Add 3 days
+    }
+    
+    const now = new Date();
+    const daysDifference = Math.floor((now.getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return daysDifference <= 7;
   },
 };
