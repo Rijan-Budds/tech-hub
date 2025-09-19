@@ -17,7 +17,6 @@ import {
   FaTags,
 } from "react-icons/fa";
 import AdminHeader from "@/components/layout/AdminHeader";
-import Footer from "@/components/layout/Footer";
 import StatusDropdown from "@/components/StatusDropdown";
 import AdminReturnsSection from "@/components/admin/AdminReturnsSection";
 
@@ -1057,7 +1056,6 @@ export default function AdminPage() {
             <p className="text-gray-600">Loading admin dashboard...</p>
           </div>
         </div>
-        <Footer />
       </>
     );
 
@@ -1284,35 +1282,6 @@ export default function AdminPage() {
                       >
                         {order.status}
                       </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Recent Products */}
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
-                  Recent Products
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {products.slice(0, 6).map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl"
-                    >
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        width={48}
-                        height={48}
-                        className="w-12 h-12 object-cover rounded-lg"
-                      />
-                      <div>
-                        <p className="font-semibold text-sm">{product.name}</p>
-                        <p className="text-sm text-gray-600">
-                          रु{product.price.toFixed(2)}
-                        </p>
-                      </div>
                     </div>
                   ))}
                 </div>
@@ -2434,11 +2403,12 @@ export default function AdminPage() {
                               }
                               className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 font-medium focus:ring-2 focus:ring-[#0D3B66] focus:border-[#0D3B66] transition-all duration-200"
                             >
-                              <option value="cpu">🖥️ CPU</option>
-                              <option value="keyboard">⌨️ Keyboard</option>
-                              <option value="monitor">🗺 Monitor</option>
-                              <option value="speaker">🔊 Speaker</option>
-                              <option value="mouse">🔭 Mouse</option>
+                              <option value="">Select a category</option>
+                              {availableCategories.map((cat) => (
+                                <option key={cat.id} value={cat.slug}>
+                                  {cat.name}
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </div>
@@ -2757,12 +2727,6 @@ export default function AdminPage() {
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                       <div className="text-2xl font-bold">{totalCategories}</div>
                       <div className="text-white/80 text-sm">Total Categories</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                      <div className="text-2xl font-bold text-emerald-300">
-                        {availableCategories.length}
-                      </div>
-                      <div className="text-white/80 text-sm">Available Categories</div>
                     </div>
                   </div>
                 </div>
@@ -3149,7 +3113,6 @@ export default function AdminPage() {
           )}
         </div>
       </div>
-      <Footer />
     </>
   );
 }

@@ -3,7 +3,8 @@ import Link from "next/link";
 import { FaArrowLeft, FaEye } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { productService } from "@/lib/firebase-db";
+import { productService, categoryService } from "@/lib/firebase-db";
+import { ICategory } from "@/lib/firebase-models";
 
 interface ProductDisplay {
   id: string;
@@ -45,8 +46,19 @@ async function fetchAllProducts(): Promise<ProductDisplay[]> {
   }
 }
 
+async function fetchAllCategories(): Promise<ICategory[]> {
+  try {
+    const allCategories = await categoryService.getAllCategories();
+    return allCategories;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+}
+
 const AllProductsPage = async () => {
   const products = await fetchAllProducts();
+  const categories = await fetchAllCategories();
 
   return (
     <>
@@ -113,13 +125,13 @@ const AllProductsPage = async () => {
                 >
                   All Categories
                 </Link>
-                {['cpu', 'keyboard', 'monitor', 'speaker', 'mouse'].map((category) => (
+                {categories.map((category) => (
                   <Link
-                    key={category}
-                    href={`/categories/${category}`}
-                    className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 border border-gray-200 dark:border-gray-600 capitalize"
+                    key={category.id}
+                    href={`/categories/${category.slug}`}
+                    className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 border border-gray-200 dark:border-gray-600"
                   >
-                    {category}
+                    {category.name}
                   </Link>
                 ))}
               </div>

@@ -7,6 +7,7 @@ interface ProductUpdates {
   price?: number;
   category?: string;
   image?: string;
+  description?: string;
   discountPercentage?: number;
   stockQuantity?: number;
 }
@@ -19,7 +20,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     }
 
     const { slug } = await params;
-    const { name, price, category, image, discountPercentage, stockQuantity } = await req.json();
+    const { name, price, category, image, description, discountPercentage, stockQuantity } = await req.json();
 
     const product = await productService.getProductBySlug(slug);
     if (!product) {
@@ -42,6 +43,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
     if (price != null) updates.price = Number(price);
     if (category != null) updates.category = String(category).toLowerCase().trim();
     if (image != null) updates.image = String(image).trim();
+    if (description != null) updates.description = String(description).trim() || undefined;
     if (discountPercentage != null) updates.discountPercentage = Number(discountPercentage);
     if (stockQuantity != null) updates.stockQuantity = Number(stockQuantity);
 
@@ -63,6 +65,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ slug: 
         price: updatedProduct?.price || product.price,
         category: updatedProduct?.category || product.category,
         image: updatedProduct?.image || product.image,
+        description: updatedProduct?.description || product.description,
         discountPercentage: updatedProduct?.discountPercentage && updatedProduct.discountPercentage > 0 ? updatedProduct.discountPercentage : undefined,
         stockQuantity: updatedProduct?.stockQuantity ?? product.stockQuantity
       }

@@ -80,6 +80,9 @@ export async function POST(req: Request) {
           price: created?.price || Number(price),
           category: created?.category || String(category).toLowerCase().trim(),
           image: created?.image || String(image).trim(),
+          description: created?.description || description?.trim(),
+          stockQuantity: created?.stockQuantity || Number(stockQuantity),
+          discountPercentage: created?.discountPercentage || 0,
         },
       },
       { status: 201 }
