@@ -4,8 +4,8 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
-import { FaShoppingCart, FaHeart, FaArrowRight } from "react-icons/fa";
+import { useEffect, useState, useRef } from "react";
+import { FaShoppingCart, FaHeart, FaArrowRight, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -61,43 +61,15 @@ type Product = {
   purchaseCount?: number;
 };
 
-const featuredCategories = [
-  {
-    id: 1,
-    name: "CPUs",
-    slug: "cpu",
-    image: "/home/category1.jpg",
-    description: "High-performance processors",
-  },
-  {
-    id: 2,
-    name: "Keyboard",
-    slug: "keyboard",
-    image: "/home/category2.jpg",
-    description: "Mechanical & wireless keyboards",
-  },
-  {
-    id: 3,
-    name: "Monitor",
-    slug: "monitor",
-    image: "/home/category3.jpg",
-    description: "4K & gaming monitors",
-  },
-  {
-    id: 4,
-    name: "Speakers",
-    slug: "speaker",
-    image: "/home/category4.jpg",
-    description: "Premium audio systems",
-  },
-  {
-    id: 5,
-    name: "Mouse",
-    slug: "mouse",
-    image: "/home/category5.jpg",
-    description: "Gaming & wireless mouse",
-  },
-];
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  image: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 function Page() {
   const autoplayPlugin = React.useRef(
@@ -105,24 +77,159 @@ function Page() {
   );
 
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
+  const [featuredCategories, setFeaturedCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  
+  // Category carousel state
+  const [currentIndex, setCurrentIndex] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const autoSlideRef = useRef<NodeJS.Timeout | null>(null);
+  const itemWidth = 280;
+  const gap = 24;
+  
+  // Create infinite scroll items (add one copy at beginning and end)
+  const infiniteCategories = React.useMemo(() => {
+    if (featuredCategories.length === 0) return [];
+    return [
+      featuredCategories[featuredCategories.length - 1], // Last item at beginning
+      ...featuredCategories, // Original items
+      featuredCategories[0] // First item at end
+    ];
+  }, [featuredCategories]);
+  
+  const totalSlides = infiniteCategories.length;
 
   useEffect(() => {
-    const load = async () => {
+    const loadData = async () => {
       try {
-        const res = await fetch("/api/products?category=trending", {
+        // Load trending products
+        const productsRes = await fetch("/api/products?category=trending", {
           cache: "no-store",
         });
-        const data = await res.json();
-        const list: Product[] = Array.isArray(data.products)
-          ? data.products
+        const productsData = await productsRes.json();
+        const productsList: Product[] = Array.isArray(productsData.products)
+          ? productsData.products
           : [];
-        setTrendingProducts(list.slice(0, 4));
-      } catch {
+        setTrendingProducts(productsList.slice(0, 4));
+        
+        // Load categories
+        const categoriesRes = await fetch("/api/categories", {
+          cache: "no-store",
+        });
+        const categoriesData = await categoriesRes.json();
+        const categoriesList: Category[] = Array.isArray(categoriesData.categories)
+          ? categoriesData.categories
+          : [];
+        
+        // Take only the first 6 categories for the carousel (or all if less than 6)
+        setFeaturedCategories(categoriesList.slice(0, 6));
+      } catch (error) {
+        console.error("Error loading data:", error);
         setTrendingProducts([]);
+        setFeaturedCategories([]);
+      } finally {
+        setCategoriesLoading(false);
       }
     };
-    load();
+    loadData();
   }, []);
+
+  // Auto-slide functionality
+  const startAutoSlide = () => {
+    if (autoSlideRef.current) clearInterval(autoSlideRef.current);
+    autoSlideRef.current = setInterval(() => {
+      if (!isPaused && !isTransitioning) {
+        setCurrentIndex(prev => prev + 1);
+      }
+    }, 3000); // Slide every 3 seconds
+  };
+
+  const stopAutoSlide = () => {
+    if (autoSlideRef.current) {
+      clearInterval(autoSlideRef.current);
+      autoSlideRef.current = null;
+    }
+  };
+
+  const slideNext = () => {
+    if (isTransitioning) return;
+    setCurrentIndex(prev => prev + 1);
+  };
+
+  const slidePrev = () => {
+    if (isTransitioning) return;
+    setCurrentIndex(prev => prev - 1);
+  };
+
+  const goToSlide = (index: number) => {
+    if (isTransitioning) return;
+    setCurrentIndex(index + 1); // +1 because we have a clone at the beginning
+  };
+
+  // Handle sliding animation and infinite loop
+  useEffect(() => {
+    if (!containerRef.current || featuredCategories.length === 0) return;
+
+    const translateX = -currentIndex * (itemWidth + gap);
+    setIsTransitioning(true);
+    containerRef.current.style.transition = 'transform 0.4s ease-in-out';
+    containerRef.current.style.transform = `translateX(${translateX}px)`;
+    
+    const handleTransitionEnd = () => {
+      setIsTransitioning(false);
+      if (!containerRef.current) return;
+      
+      // Handle infinite loop jumps
+      if (currentIndex === 0) {
+        // Jumped to clone at beginning, move to real last item
+        containerRef.current.style.transition = 'none';
+        const newIndex = featuredCategories.length;
+        setCurrentIndex(newIndex);
+        containerRef.current.style.transform = `translateX(${-newIndex * (itemWidth + gap)}px)`;
+      } else if (currentIndex === totalSlides - 1) {
+        // Jumped to clone at end, move to real first item
+        containerRef.current.style.transition = 'none';
+        setCurrentIndex(1);
+        containerRef.current.style.transform = `translateX(${-(itemWidth + gap)}px)`;
+      }
+    };
+    
+    const currentContainer = containerRef.current;
+    currentContainer.addEventListener('transitionend', handleTransitionEnd);
+    
+    return () => {
+      if (currentContainer) {
+        currentContainer.removeEventListener('transitionend', handleTransitionEnd);
+      }
+    };
+  }, [currentIndex, totalSlides, itemWidth, gap]);
+  
+  // Initialize slider position
+  useEffect(() => {
+    if (containerRef.current && featuredCategories.length > 0) {
+      const translateX = -currentIndex * (itemWidth + gap);
+      containerRef.current.style.transition = 'none';
+      containerRef.current.style.transform = `translateX(${translateX}px)`;
+    }
+  }, [featuredCategories.length]);
+  
+  // Auto-slide effect
+  useEffect(() => {
+    if (featuredCategories.length === 0) {
+      stopAutoSlide();
+      return;
+    }
+    
+    if (!isPaused && !isTransitioning) {
+      startAutoSlide();
+    } else {
+      stopAutoSlide();
+    }
+    return () => stopAutoSlide();
+  }, [isPaused, isTransitioning, featuredCategories.length]);
 
   const handleAddToCart = async (productId: string) => {
     try {
@@ -350,7 +457,7 @@ function Page() {
           </div>
         </section>
 
-        {/* Categories Section */}
+        {/* Categories Carousel Section */}
         <section className="py-8 sm:py-12 lg:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-8 sm:mb-12">
@@ -365,37 +472,112 @@ function Page() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-              {featuredCategories.map((cat) => (
-                <Link key={cat.id} href={`/categories/${cat.slug}`}>
-                  <div className="group">
-                    <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                      <Image
-                        src={cat.image}
-                        alt={cat.name}
-                        width={300}
-                        height={200}
-                        className="w-full h-32 sm:h-40 lg:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
-                        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 lg:p-6">
-                          <h3 className="text-white text-sm sm:text-base lg:text-xl font-bold mb-1 sm:mb-2">
-                            {cat.name}
-                          </h3>
-                          <p className="text-gray-200 text-xs sm:text-sm mb-2 sm:mb-4 hidden sm:block">
-                            {cat.description}
-                          </p>
-                          <div className="flex items-center text-white text-xs sm:text-sm font-semibold">
-                            <span>Explore</span>
-                            <FaArrowRight className="ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform duration-200 text-xs" />
+            {/* Loading State */}
+            {categoriesLoading && (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66]"></div>
+                <span className="ml-3 text-gray-600 dark:text-gray-300">Loading categories...</span>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!categoriesLoading && featuredCategories.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-600 dark:text-gray-300 text-lg">No categories available at the moment.</p>
+              </div>
+            )}
+
+            {/* Category Carousel */}
+            {!categoriesLoading && featuredCategories.length > 0 && (
+              <div 
+                className="relative w-full"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+              {/* Navigation Arrows */}
+              <button
+                onClick={slidePrev}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 sm:p-3 transition-all duration-200 hover:scale-110"
+                aria-label="Previous categories"
+              >
+                <FaChevronLeft className="text-gray-700 text-sm sm:text-base" />
+              </button>
+              
+              <button
+                onClick={slideNext}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 sm:p-3 transition-all duration-200 hover:scale-110"
+                aria-label="Next categories"
+              >
+                <FaChevronRight className="text-gray-700 text-sm sm:text-base" />
+              </button>
+
+              {/* Carousel Container */}
+              <div className="overflow-hidden px-8 sm:px-12">
+                <div
+                  ref={containerRef}
+                  className="flex"
+                  style={{ gap: `${gap}px` }}
+                >
+                  {infiniteCategories.map((cat, index) => (
+                    <Link key={`${cat.id}-${index}`} href={`/categories/${cat.slug}`}>
+                      <div 
+                        className="group flex-shrink-0 select-none"
+                        style={{ width: `${itemWidth}px` }}
+                      >
+                        <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                          <Image
+                            src={cat.image}
+                            alt={cat.name}
+                            width={300}
+                            height={200}
+                            className="w-full h-32 sm:h-40 lg:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                            draggable={false}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
+                            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 lg:p-6">
+                              <h3 className="text-white text-sm sm:text-base lg:text-xl font-bold mb-1 sm:mb-2">
+                                {cat.name}
+                              </h3>
+                              <p className="text-gray-200 text-xs sm:text-sm mb-2 sm:mb-4 hidden sm:block">
+                                {cat.description}
+                              </p>
+                              <div className="flex items-center text-white text-xs sm:text-sm font-semibold">
+                                <span>Explore</span>
+                                <FaArrowRight className="ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform duration-200 text-xs" />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dots Indicator */}
+              <div className="flex justify-center mt-4 sm:mt-6 space-x-2">
+                {featuredCategories.map((_, index) => {
+                  // Calculate which dot should be active
+                  let activeIndex = currentIndex - 1;
+                  if (currentIndex === 0) activeIndex = featuredCategories.length - 1;
+                  if (currentIndex === totalSlides - 1) activeIndex = 0;
+                  
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                        activeIndex === index
+                          ? 'bg-[#0D3B66] w-6' 
+                          : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  );
+                })}
+              </div>
             </div>
+            )}
           </div>
         </section>
 

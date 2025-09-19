@@ -14,6 +14,7 @@ import {
   FaEye,
   FaSync,
   FaUndo,
+  FaTags,
 } from "react-icons/fa";
 import AdminHeader from "@/components/layout/AdminHeader";
 import Footer from "@/components/layout/Footer";
@@ -24,6 +25,16 @@ interface User {
   _id: string;
   username: string;
   email: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Order {
@@ -102,8 +113,30 @@ export default function AdminPage() {
   const [reloadingProducts, setReloadingProducts] = useState(false);
   const [reloadingAll, setReloadingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "orders" | "products" | "returns"
+    "overview" | "users" | "orders" | "products" | "returns" | "categories"
   >("overview");
+
+  // Categories state
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [currentCategoriesPage, setCurrentCategoriesPage] = useState(1);
+  const [categoriesPerPage, setCategoriesPerPage] = useState(5);
+  const [totalCategories, setTotalCategories] = useState(0);
+  const [totalCategoriesPages, setTotalCategoriesPages] = useState(0);
+  const [categoriesSortBy, setCategoriesSortBy] = useState("createdAt");
+  const [categoriesSortOrder, setCategoriesSortOrder] = useState("desc");
+  const [reloadingCategories, setReloadingCategories] = useState(false);
+  
+  // Category form state
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryDescription, setCategoryDescription] = useState("");
+  const [categoryImage, setCategoryImage] = useState("");
+  const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false);
+  
+  // Category editing state
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  
+  // Dynamic categories for product form
+  const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
 
   // Pagination state for products
   const [currentPage, setCurrentPage] = useState(1);
@@ -256,7 +289,7 @@ export default function AdminPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [uRes, oRes, pRes, rRes] = await Promise.all([
+        const [uRes, oRes, pRes, rRes, cRes] = await Promise.all([
           fetch(
             `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
             {
@@ -281,6 +314,12 @@ export default function AdminPage() {
               credentials: "include",
             }
           ),
+          fetch(
+            `/api/admin/categories?page=${currentCategoriesPage}&limit=${categoriesPerPage}&sortBy=${categoriesSortBy}&sortOrder=${categoriesSortOrder}`,
+            {
+              credentials: "include",
+            }
+          ),
         ]);
 
         if (uRes.status === 403) {
@@ -293,10 +332,12 @@ export default function AdminPage() {
         const oData = await oRes.json();
         const pData = await pRes.json();
         const rData = await rRes.json();
+        const cData = await cRes.json();
         setUsers(uData.users || []);
         setOrders(oData.orders || []);
         setProducts(pData.products || []);
         setReturnRequests(rData.returnRequests || []);
+        setCategories(cData.categories || []);
 
         // Set pagination data for users
         if (uData.pagination) {
@@ -321,9 +362,18 @@ export default function AdminPage() {
           setTotalReturns(rData.pagination.totalCount);
           setTotalReturnsPages(rData.pagination.totalPages);
         }
+
+        // Set pagination data for categories
+        if (cData.pagination) {
+          setTotalCategories(cData.pagination.totalCount);
+          setTotalCategoriesPages(cData.pagination.totalPages);
+        }
         
         // Fetch all products for accurate stats
         await fetchAllProducts();
+        
+        // Load available categories for product form
+        await loadAvailableCategories();
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Failed to load admin data";
@@ -351,6 +401,10 @@ export default function AdminPage() {
     returnsSortBy,
     returnsSortOrder,
     returnsStatusFilter,
+    currentCategoriesPage,
+    categoriesPerPage,
+    categoriesSortBy,
+    categoriesSortOrder,
   ]);
 
   const reloadUsers = async () => {
@@ -711,6 +765,154 @@ export default function AdminPage() {
     router.push("/");
   };
 
+  // Category management functions
+  const reloadCategories = async () => {
+    try {
+      setReloadingCategories(true);
+      const res = await fetch(
+        `/api/admin/categories?page=${currentCategoriesPage}&limit=${categoriesPerPage}&sortBy=${categoriesSortBy}&sortOrder=${categoriesSortOrder}`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      setCategories(data.categories || []);
+
+      if (data.pagination) {
+        setTotalCategories(data.pagination.totalCount);
+        setTotalCategoriesPages(data.pagination.totalPages);
+      }
+
+      toast.success("Categories refreshed successfully");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to reload categories";
+      toast.error(errorMessage);
+    } finally {
+      setReloadingCategories(false);
+    }
+  };
+
+  const addCategory = async () => {
+    if (!categoryName.trim()) {
+      toast.error("Category name is required");
+      return;
+    }
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: categoryName,
+          description: categoryDescription,
+          image: categoryImage,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to add category");
+      toast.success("Category added successfully");
+      setCategoryName("");
+      setCategoryDescription("");
+      setCategoryImage("");
+      await reloadCategories();
+      await loadAvailableCategories();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to add category";
+      toast.error(errorMessage);
+    }
+  };
+
+  const updateCategory = async (
+    categoryId: string,
+    updates: Partial<{
+      name: string;
+      description: string;
+      image: string;
+    }>
+  ) => {
+    try {
+      const res = await fetch(`/api/admin/categories/${categoryId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update category");
+      setCategories((prev) =>
+        prev.map((c) => (c.id === categoryId ? data.category : c))
+      );
+      toast.success("Category updated successfully");
+      setEditingCategory(null);
+      await loadAvailableCategories();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update category";
+      toast.error(errorMessage);
+    }
+  };
+
+  const deleteCategory = async (categoryId: string) => {
+    try {
+      const res = await fetch(`/api/admin/categories/${categoryId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete category");
+      setCategories((prev) => prev.filter((c) => c.id !== categoryId));
+      toast.success("Category deleted successfully");
+      await loadAvailableCategories();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete category";
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleCategoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingCategoryImage(true);
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Upload failed");
+
+      setCategoryImage(data.url);
+      toast.success("Category image uploaded successfully");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to upload category image";
+      toast.error(errorMessage);
+    } finally {
+      setUploadingCategoryImage(false);
+    }
+  };
+
+  const loadAvailableCategories = async () => {
+    try {
+      const res = await fetch("/api/categories", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setAvailableCategories(data.categories || []);
+    } catch (error) {
+      console.error("Failed to load categories:", error);
+    }
+  };
+
   // Return request management functions
   const updateReturnStatus = async (
     returnId: string,
@@ -758,7 +960,7 @@ export default function AdminPage() {
 
   // Reset pagination when switching tabs
   const handleTabChange = (
-    tab: "overview" | "users" | "orders" | "products" | "returns"
+    tab: "overview" | "users" | "orders" | "products" | "returns" | "categories"
   ) => {
     setActiveTab(tab);
     if (tab === "products") {
@@ -772,6 +974,9 @@ export default function AdminPage() {
     }
     if (tab === "returns") {
       setCurrentReturnsPage(1);
+    }
+    if (tab === "categories") {
+      setCurrentCategoriesPage(1);
     }
   };
 
@@ -1011,13 +1216,14 @@ export default function AdminPage() {
                 { id: "users", label: "Users", icon: FaUsers },
                 { id: "orders", label: "Orders", icon: FaShoppingCart },
                 { id: "products", label: "Products", icon: FaBox },
+                { id: "categories", label: "Categories", icon: FaTags },
                 { id: "returns", label: "Returns", icon: FaUndo },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() =>
                     handleTabChange(
-                      id as "overview" | "users" | "orders" | "products" | "returns"
+                      id as "overview" | "users" | "orders" | "products" | "returns" | "categories"
                     )
                   }
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
@@ -1752,14 +1958,20 @@ export default function AdminPage() {
                                     </h6>
                                   </div>
                                   <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30">
-                                    <p className="font-medium text-gray-900 flex items-center space-x-2">
+                                    <p className="font-medium text-gray-900 flex items-center space-x-2 mb-2">
                                       <span>📍</span>
                                       <span>
                                         {order.customer?.address?.street}
                                       </span>
                                     </p>
-                                    <p className="text-gray-600 ml-6">
+                                    <p className="text-gray-600 ml-6 mb-2">
                                       {order.customer?.address?.city}
+                                    </p>
+                                    <p className="text-gray-700 flex items-center space-x-2 ml-6">
+                                      <span>📧</span>
+                                      <span className="font-medium">
+                                        {order.customer?.email || order.email}
+                                      </span>
                                     </p>
                                   </div>
                                 </div>
@@ -2419,11 +2631,12 @@ export default function AdminPage() {
                     onChange={(e) => setCategory(e.target.value)}
                     className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
                   >
-                    <option value="cpu">CPU</option>
-                    <option value="keyboard">Keyboard</option>
-                    <option value="monitor">Monitor</option>
-                    <option value="speaker">Speaker</option>
-                    <option value="mouse">Mouse</option>
+                    <option value="">Select a category</option>
+                    {availableCategories.map((cat) => (
+                      <option key={cat.id} value={cat.slug}>
+                        {cat.name}
+                      </option>
+                    ))}
                   </select>
 
                   <input
@@ -2498,6 +2711,415 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === "categories" && (
+            <div className="space-y-8">
+              {/* Categories Header */}
+              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
+                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
+                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
+                </div>
+
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
+                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                          <FaTags className="text-2xl" />
+                        </div>
+                        <span>Category Management</span>
+                      </h3>
+                      <p className="text-white/80 text-lg">
+                        Organize your products with custom categories
+                      </p>
+                    </div>
+                    <button
+                      onClick={reloadCategories}
+                      className="group p-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl transition-all duration-300 transform hover:scale-105"
+                      disabled={reloadingCategories}
+                      title="Refresh categories"
+                    >
+                      {reloadingCategories ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+                      ) : (
+                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Stats Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-2xl font-bold">{totalCategories}</div>
+                      <div className="text-white/80 text-sm">Total Categories</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-2xl font-bold text-emerald-300">
+                        {availableCategories.length}
+                      </div>
+                      <div className="text-white/80 text-sm">Available Categories</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Categories Controls */}
+              <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 p-6">
+                <div className="flex flex-wrap items-center justify-between gap-6">
+                  <div className="flex items-center space-x-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-lg">
+                        <FaEye className="text-white text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700">Show</label>
+                        <select
+                          value={categoriesPerPage}
+                          onChange={(e) => {
+                            setCategoriesPerPage(Number(e.target.value));
+                            setCurrentCategoriesPage(1);
+                          }}
+                          className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-[#0D3B66] focus:border-[#0D3B66] transition-all duration-200"
+                        >
+                          <option value={5}>5</option>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                        </select>
+                        <span className="text-sm text-gray-500 ml-1">categories</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
+                        <div className="w-4 h-4 bg-white rounded-sm transform rotate-45"></div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700">Sort by</label>
+                        <select
+                          value={categoriesSortBy}
+                          onChange={(e) => {
+                            setCategoriesSortBy(e.target.value);
+                            setCurrentCategoriesPage(1);
+                          }}
+                          className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                        >
+                          <option value="createdAt">📅 Date Created</option>
+                          <option value="name">🏷️ Name</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
+                        <div className="w-4 h-4 bg-white transform rotate-12">
+                          <div className="w-full h-0.5 bg-blue-500 mt-1.5"></div>
+                          <div className="w-0 h-0 border-l-2 border-r-2 border-b-2 border-transparent border-b-blue-500 ml-auto mr-1 -mt-1"></div>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700">Order</label>
+                        <select
+                          value={categoriesSortOrder}
+                          onChange={(e) => {
+                            setCategoriesSortOrder(e.target.value);
+                            setCurrentCategoriesPage(1);
+                          }}
+                          className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
+                        >
+                          <option value="desc">📈 Latest First</option>
+                          <option value="asc">📉 Oldest First</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Categories Table */}
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left p-4 font-semibold text-gray-900">Image</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Name</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Slug</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Description</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Created</th>
+                        <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categories.map((category) => (
+                        <tr key={category.id} className="border-t hover:bg-gray-50">
+                          <td className="p-4">
+                            {category.image ? (
+                              <Image
+                                src={category.image}
+                                alt={category.name}
+                                width={48}
+                                height={48}
+                                className="w-12 h-12 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <FaTags className="text-gray-400" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-4 font-semibold">{category.name}</td>
+                          <td className="p-4 text-gray-600">{category.slug}</td>
+                          <td className="p-4 text-gray-600 max-w-xs truncate">
+                            {category.description || "No description"}
+                          </td>
+                          <td className="p-4 text-gray-600">
+                            {new Date(category.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={() => setEditingCategory(category)}
+                                className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-1 text-sm"
+                              >
+                                <FaEye />
+                                <span>Edit</span>
+                              </button>
+                              <button
+                                onClick={() => deleteCategory(category.id)}
+                                className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-1 text-sm"
+                              >
+                                <FaTrash />
+                                <span>Delete</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination Controls for Categories */}
+                {totalCategoriesPages > 1 && (
+                  <div className="p-6 border-t bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-700">
+                        Showing {(currentCategoriesPage - 1) * categoriesPerPage + 1} to{" "}
+                        {Math.min(currentCategoriesPage * categoriesPerPage, totalCategories)} of {totalCategories} categories
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => setCurrentCategoriesPage(currentCategoriesPage - 1)}
+                          disabled={currentCategoriesPage === 1}
+                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+
+                        <div className="flex items-center space-x-1">
+                          {Array.from({ length: Math.min(5, totalCategoriesPages) }, (_, i) => {
+                            let pageNum;
+                            if (totalCategoriesPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (currentCategoriesPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (currentCategoriesPage >= totalCategoriesPages - 2) {
+                              pageNum = totalCategoriesPages - 4 + i;
+                            } else {
+                              pageNum = currentCategoriesPage - 2 + i;
+                            }
+
+                            return (
+                              <button
+                                key={pageNum}
+                                onClick={() => setCurrentCategoriesPage(pageNum)}
+                                className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                  currentCategoriesPage === pageNum
+                                    ? "bg-[#0D3B66] text-white"
+                                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
+                                }`}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <button
+                          onClick={() => setCurrentCategoriesPage(currentCategoriesPage + 1)}
+                          disabled={currentCategoriesPage === totalCategoriesPages}
+                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Add Category Section */}
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center justify-center space-x-2">
+                    <div className="p-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-lg shadow-lg">
+                      <FaPlus className="text-white text-lg" />
+                    </div>
+                    <span>Add New Category</span>
+                  </h3>
+                  <p className="text-gray-600">Create new categories to organize your products</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <input
+                    placeholder="Category Name"
+                    value={categoryName}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                    className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
+                  />
+                  <input
+                    placeholder="Description (optional)"
+                    value={categoryDescription}
+                    onChange={(e) => setCategoryDescription(e.target.value)}
+                    className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
+                  />
+                  
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category Image (optional) max: 10mb
+                    </label>
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleCategoryImageUpload}
+                        className="flex-1 border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
+                        disabled={uploadingCategoryImage}
+                      />
+                      {uploadingCategoryImage && (
+                        <div className="flex items-center space-x-2 text-blue-600">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                          <span className="text-sm">Uploading...</span>
+                        </div>
+                      )}
+                    </div>
+                    {categoryImage && (
+                      <div className="mt-4">
+                        <Image
+                          src={categoryImage}
+                          alt="Category Preview"
+                          width={128}
+                          height={128}
+                          className="w-32 h-32 object-cover rounded-lg shadow-md"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2 flex justify-end">
+                    <button
+                      onClick={addCategory}
+                      disabled={uploadingCategoryImage || !categoryName.trim()}
+                      className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl disabled:opacity-50"
+                    >
+                      {uploadingCategoryImage ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <span>Processing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FaPlus />
+                          <span>Add Category</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Edit Category Modal */}
+              {editingCategory && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-center mb-6">
+                      <h3 className="text-2xl font-bold text-gray-900">Edit Category</h3>
+                      <button
+                        onClick={() => setEditingCategory(null)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      <input
+                        placeholder="Category Name"
+                        value={editingCategory.name}
+                        onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                        className="w-full border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                      />
+                      <input
+                        placeholder="Description (optional)"
+                        value={editingCategory.description || ""}
+                        onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
+                        className="w-full border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                      />
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Category Image URL (optional)
+                        </label>
+                        <input
+                          placeholder="Image URL"
+                          value={editingCategory.image || ""}
+                          onChange={(e) => setEditingCategory({ ...editingCategory, image: e.target.value })}
+                          className="w-full border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
+                        />
+                        {editingCategory.image && (
+                          <div className="mt-4">
+                            <Image
+                              src={editingCategory.image}
+                              alt="Category Preview"
+                              width={128}
+                              height={128}
+                              className="w-32 h-32 object-cover rounded-lg shadow-md"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-4 mt-6">
+                      <button
+                        onClick={() => setEditingCategory(null)}
+                        className="px-6 py-3 text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => updateCategory(editingCategory.id, {
+                          name: editingCategory.name,
+                          description: editingCategory.description,
+                          image: editingCategory.image,
+                        })}
+                        className="px-6 py-3 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white rounded-xl hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-colors"
+                      >
+                        Update Category
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

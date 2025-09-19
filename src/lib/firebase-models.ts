@@ -60,6 +60,16 @@ export interface IUser {
   updatedAt: Timestamp | Date;
 }
 
+export interface ICategory {
+  id?: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  createdAt: Timestamp | Date;
+  updatedAt: Timestamp | Date;
+}
+
 export interface IProduct {
   id?: string;
   name: string;
@@ -80,6 +90,7 @@ export const COLLECTIONS = {
   PRODUCTS: 'products',
   ORDERS: 'orders',
   RETURN_REQUESTS: 'return_requests',
+  CATEGORIES: 'categories',
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date

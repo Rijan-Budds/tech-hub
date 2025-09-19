@@ -14,7 +14,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { COLLECTIONS, IUser, IProduct, IOrder, ICartItem, IReturnRequest, timestampToDate } from './firebase-models';
+import { COLLECTIONS, IUser, IProduct, IOrder, ICartItem, IReturnRequest, ICategory, timestampToDate } from './firebase-models';
 
 // User operations
 export const userService = {
@@ -816,5 +816,129 @@ export const returnService = {
     const daysDifference = Math.floor((now.getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24));
     
     return daysDifference <= 7;
+  },
+};
+
+// Category operations
+export const categoryService = {
+  // Create a new category
+  async createCategory(categoryData: Omit<ICategory, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+    const categoryRef = await addDoc(collection(db, COLLECTIONS.CATEGORIES), {
+      ...categoryData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    return categoryRef.id;
+  },
+
+  // Get all categories
+  async getAllCategories(): Promise<ICategory[]> {
+    const querySnapshot = await getDocs(collection(db, COLLECTIONS.CATEGORIES));
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: timestampToDate(data.createdAt),
+        updatedAt: timestampToDate(data.updatedAt),
+      } as ICategory;
+    });
+  },
+
+  // Get all categories with pagination and sorting
+  async getAllCategoriesWithPagination(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: string = 'desc'): Promise<{ categories: ICategory[], totalCount: number }> {
+    try {
+      // First get total count
+      const allCategories = await this.getAllCategories();
+      const totalCount = allCategories.length;
+      
+      // Sort categories
+      const sortedCategories = allCategories.sort((a, b) => {
+        let aValue: unknown = a[sortBy as keyof ICategory];
+        let bValue: unknown = b[sortBy as keyof ICategory];
+        
+        // Handle date sorting
+        if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+          aValue = aValue ? new Date(aValue as string | Date).getTime() : 0;
+          bValue = bValue ? new Date(bValue as string | Date).getTime() : 0;
+        }
+        
+        // Handle string sorting
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = (bValue as string).toLowerCase();
+        }
+        
+        if (sortOrder === 'desc') {
+          return (bValue as number) > (aValue as number) ? 1 : (bValue as number) < (aValue as number) ? -1 : 0;
+        } else {
+          return (aValue as number) > (bValue as number) ? 1 : (aValue as number) < (bValue as number) ? -1 : 0;
+        }
+      });
+      
+      // Apply pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedCategories = sortedCategories.slice(startIndex, endIndex);
+      
+      return {
+        categories: paginatedCategories,
+        totalCount
+      };
+    } catch (error) {
+      console.error('Error in getAllCategoriesWithPagination:', error);
+      // Fallback to simple getAllCategories
+      const categories = await this.getAllCategories();
+      return {
+        categories: categories.slice((page - 1) * limit, page * limit),
+        totalCount: categories.length
+      };
+    }
+  },
+
+  // Get category by ID
+  async getCategoryById(categoryId: string): Promise<ICategory | null> {
+    const categoryDoc = await getDoc(doc(db, COLLECTIONS.CATEGORIES, categoryId));
+    if (categoryDoc.exists()) {
+      const data = categoryDoc.data();
+      return {
+        id: categoryDoc.id,
+        ...data,
+        createdAt: timestampToDate(data.createdAt),
+        updatedAt: timestampToDate(data.updatedAt),
+      } as ICategory;
+    }
+    return null;
+  },
+
+  // Get category by slug
+  async getCategoryBySlug(slug: string): Promise<ICategory | null> {
+    const q = query(collection(db, COLLECTIONS.CATEGORIES), where('slug', '==', slug));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const categoryDoc = querySnapshot.docs[0];
+      const data = categoryDoc.data();
+      return {
+        id: categoryDoc.id,
+        ...data,
+        createdAt: timestampToDate(data.createdAt),
+        updatedAt: timestampToDate(data.updatedAt),
+      } as ICategory;
+    }
+    return null;
+  },
+
+  // Update category
+  async updateCategory(categoryId: string, updates: Partial<ICategory>): Promise<void> {
+    const categoryRef = doc(db, COLLECTIONS.CATEGORIES, categoryId);
+    await updateDoc(categoryRef, {
+      ...updates,
+      updatedAt: serverTimestamp(),
+    });
+  },
+
+  // Delete category
+  async deleteCategory(categoryId: string): Promise<void> {
+    await deleteDoc(doc(db, COLLECTIONS.CATEGORIES, categoryId));
   },
 };
