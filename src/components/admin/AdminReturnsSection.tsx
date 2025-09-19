@@ -5,7 +5,6 @@ import Image from "next/image";
 import {
   FaUndo,
   FaSync,
-  FaEye,
   FaCheck,
   FaTimes,
   FaTrash,
@@ -190,9 +189,7 @@ export default function AdminReturnsSection({
           <div className="flex items-center space-x-6">
             {/* Items per page */}
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
-                <FaEye className="text-white text-sm" />
-              </div>
+
               <div>
                 <label className="text-sm font-semibold text-gray-700">
                   Show
@@ -210,15 +207,11 @@ export default function AdminReturnsSection({
                   <option value={20}>20</option>
                   <option value={50}>50</option>
                 </select>
-                <span className="text-sm text-gray-500 ml-1">requests</span>
               </div>
             </div>
 
             {/* Status Filter */}
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
-                <div className="w-4 h-4 bg-white rounded-full"></div>
-              </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700">
                   Filter
@@ -226,7 +219,7 @@ export default function AdminReturnsSection({
                 <select
                   value={returnsStatusFilter}
                   onChange={(e) => setReturnsStatusFilter(e.target.value)}
-                  className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                  className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 >
                   <option value="all">All Requests</option>
                   <option value="pending">🟡 Pending</option>
@@ -242,9 +235,6 @@ export default function AdminReturnsSection({
           <div className="flex items-center space-x-6">
             {/* Sort By */}
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
-                <div className="w-4 h-4 bg-white rounded-sm transform rotate-45"></div>
-              </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700">
                   Sort by
@@ -255,7 +245,7 @@ export default function AdminReturnsSection({
                     setReturnsSortBy(e.target.value);
                     setCurrentReturnsPage(1);
                   }}
-                  className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                  className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 >
                   <option value="requestedAt">📅 Request Date</option>
                   <option value="status">⚡ Status</option>
@@ -266,11 +256,6 @@ export default function AdminReturnsSection({
 
             {/* Sort Order */}
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-900 rounded-lg">
-                <div className="w-4 h-4 bg-white transform rotate-12">
-                  <div className="w-full h-0.5 bg-blue-500 mt-1.5"></div>
-                </div>
-              </div>
               <div>
                 <label className="text-sm font-semibold text-gray-700">
                   Order
