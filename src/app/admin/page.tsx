@@ -83,7 +83,7 @@ export default function AdminPage() {
       stockQuantity: number;
     }[]
   >([]);
-  
+
   // Store all products for accurate stats (not just paginated ones)
   const [allProducts, setAllProducts] = useState<
     {
@@ -124,18 +124,20 @@ export default function AdminPage() {
   const [categoriesSortBy, setCategoriesSortBy] = useState("createdAt");
   const [categoriesSortOrder, setCategoriesSortOrder] = useState("desc");
   const [reloadingCategories, setReloadingCategories] = useState(false);
-  
+
   // Category form state
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
   const [categoryImage, setCategoryImage] = useState("");
   const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false);
-  
+
   // Category editing state
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  
+
   // Dynamic categories for product form
-  const [availableCategories, setAvailableCategories] = useState<Category[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<Category[]>(
+    [],
+  );
 
   // Pagination state for products
   const [currentPage, setCurrentPage] = useState(1);
@@ -185,44 +187,48 @@ export default function AdminPage() {
   };
 
   // Return requests state
-  const [returnRequests, setReturnRequests] = useState<{
-    id: string;
-    orderId: string;
-    userId: string;
-    items: {
-      productId: string;
-      quantity: number;
-      name?: string;
-      image?: string;
-      price?: number;
-    }[];
-    reason: string;
-    description?: string;
-    images?: string[];
-    status: "pending" | "approved" | "rejected" | "completed" | "refunded";
-    adminNote?: string;
-    requestedAt: Date;
-    processedAt?: Date;
-    refundAmount?: number;
-    refundMethod?: "original" | "store-credit";
-    orderDetails?: {
-      orderNumber: string;
-      grandTotal: number;
-      customer: { name: string; email: string };
-    };
-    userDetails?: {
-      username: string;
-    };
-  }[]>([]);
+  const [returnRequests, setReturnRequests] = useState<
+    {
+      id: string;
+      orderId: string;
+      userId: string;
+      items: {
+        productId: string;
+        quantity: number;
+        name?: string;
+        image?: string;
+        price?: number;
+      }[];
+      reason: string;
+      description?: string;
+      images?: string[];
+      status: "pending" | "approved" | "rejected" | "completed" | "refunded";
+      adminNote?: string;
+      requestedAt: Date;
+      processedAt?: Date;
+      refundAmount?: number;
+      refundMethod?: "original" | "store-credit";
+      orderDetails?: {
+        orderNumber: string;
+        grandTotal: number;
+        customer: { name: string; email: string };
+      };
+      userDetails?: {
+        username: string;
+      };
+    }[]
+  >([]);
   const [currentReturnsPage, setCurrentReturnsPage] = useState(1);
   const [returnsPerPage, setReturnsPerPage] = useState(5);
   const [totalReturns, setTotalReturns] = useState(0);
   const [totalReturnsPages, setTotalReturnsPages] = useState(0);
-  const [returnsSortBy, setReturnsSortBy] = useState('requestedAt');
-  const [returnsSortOrder, setReturnsSortOrder] = useState('desc');
-  const [returnsStatusFilter, setReturnsStatusFilter] = useState('all');
+  const [returnsSortBy, setReturnsSortBy] = useState("requestedAt");
+  const [returnsSortOrder, setReturnsSortOrder] = useState("desc");
+  const [returnsStatusFilter, setReturnsStatusFilter] = useState("all");
   const [reloadingReturns, setReloadingReturns] = useState(false);
-  const [expandedReturns, setExpandedReturns] = useState<Set<string>>(new Set());
+  const [expandedReturns, setExpandedReturns] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Toggle individual return expansion
   const toggleReturnExpansion = (returnId: string) => {
@@ -257,7 +263,7 @@ export default function AdminPage() {
         `/api/search?q=${encodeURIComponent(productSearchTerm)}`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await res.json();
       setSearchedProducts(data.products || []);
@@ -275,13 +281,14 @@ export default function AdminPage() {
   // Function to fetch all products for stats
   const fetchAllProducts = async () => {
     try {
-      const res = await fetch('/api/products?limit=1000', { // Fetch a large number to get all products
-        credentials: 'include',
+      const res = await fetch("/api/products?limit=1000", {
+        // Fetch a large number to get all products
+        credentials: "include",
       });
       const data = await res.json();
       setAllProducts(data.products || []);
     } catch (error) {
-      console.error('Error fetching all products:', error);
+      console.error("Error fetching all products:", error);
     }
   };
 
@@ -293,31 +300,31 @@ export default function AdminPage() {
             `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
             {
               credentials: "include",
-            }
+            },
           ),
           fetch(
             `/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`,
             {
               credentials: "include",
-            }
+            },
           ),
           fetch(
             `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
             {
               credentials: "include",
-            }
+            },
           ),
           fetch(
             `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
             {
               credentials: "include",
-            }
+            },
           ),
           fetch(
             `/api/admin/categories?page=${currentCategoriesPage}&limit=${categoriesPerPage}&sortBy=${categoriesSortBy}&sortOrder=${categoriesSortOrder}`,
             {
               credentials: "include",
-            }
+            },
           ),
         ]);
 
@@ -367,10 +374,10 @@ export default function AdminPage() {
           setTotalCategories(cData.pagination.totalCount);
           setTotalCategoriesPages(cData.pagination.totalPages);
         }
-        
+
         // Fetch all products for accurate stats
         await fetchAllProducts();
-        
+
         // Load available categories for product form
         await loadAvailableCategories();
       } catch (error) {
@@ -413,7 +420,7 @@ export default function AdminPage() {
         `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await res.json();
       setUsers(data.users || []);
@@ -441,7 +448,7 @@ export default function AdminPage() {
         `/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await res.json();
       setOrders(data.orders || []);
@@ -469,7 +476,7 @@ export default function AdminPage() {
         `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await res.json();
       setProducts(data.products || []);
@@ -481,7 +488,7 @@ export default function AdminPage() {
       }
 
       toast.success("Products refreshed successfully");
-      
+
       // Also refresh all products for stats
       await fetchAllProducts();
     } catch (error) {
@@ -500,7 +507,7 @@ export default function AdminPage() {
         `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await res.json();
       setReturnRequests(data.returnRequests || []);
@@ -514,7 +521,9 @@ export default function AdminPage() {
       toast.success("Return requests refreshed successfully");
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to reload return requests";
+        error instanceof Error
+          ? error.message
+          : "Failed to reload return requests";
       toast.error(errorMessage);
     } finally {
       setReloadingReturns(false);
@@ -529,25 +538,25 @@ export default function AdminPage() {
           `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
           {
             credentials: "include",
-          }
+          },
         ),
         fetch(
           `/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`,
           {
             credentials: "include",
-          }
+          },
         ),
         fetch(
           `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
           {
             credentials: "include",
-          }
+          },
         ),
         fetch(
           `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
           {
             credentials: "include",
-          }
+          },
         ),
       ]);
 
@@ -585,7 +594,7 @@ export default function AdminPage() {
       }
 
       toast.success("All data refreshed successfully");
-      
+
       // Also refresh all products for stats
       await fetchAllProducts();
     } catch (error) {
@@ -606,7 +615,7 @@ export default function AdminPage() {
       | "out-for-delivery"
       | "delivered"
       | "returned"
-      | "canceled"
+      | "canceled",
   ) => {
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -619,7 +628,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to update");
 
       setOrders((prev) =>
-        prev.map((o) => (o.orderId === orderId ? { ...o, status } : o))
+        prev.map((o) => (o.orderId === orderId ? { ...o, status } : o)),
       );
       toast.success("Order status updated");
     } catch (error) {
@@ -730,7 +739,7 @@ export default function AdminPage() {
       description?: string;
       discountPercentage: number;
       stockQuantity: number;
-    }>
+    }>,
   ) => {
     try {
       const res = await fetch(`/api/admin/products/${slug}`, {
@@ -742,11 +751,11 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update");
       setProducts((prev) =>
-        prev.map((p) => (p.slug === slug ? data.product : p))
+        prev.map((p) => (p.slug === slug ? data.product : p)),
       );
       // Also update allProducts
       setAllProducts((prev) =>
-        prev.map((p) => (p.slug === slug ? data.product : p))
+        prev.map((p) => (p.slug === slug ? data.product : p)),
       );
       toast.success("Product updated");
     } catch (error) {
@@ -772,7 +781,7 @@ export default function AdminPage() {
         `/api/admin/categories?page=${currentCategoriesPage}&limit=${categoriesPerPage}&sortBy=${categoriesSortBy}&sortOrder=${categoriesSortOrder}`,
         {
           credentials: "include",
-        }
+        },
       );
       const data = await res.json();
       setCategories(data.categories || []);
@@ -829,7 +838,7 @@ export default function AdminPage() {
       name: string;
       description: string;
       image: string;
-    }>
+    }>,
   ) => {
     try {
       const res = await fetch(`/api/admin/categories/${categoryId}`, {
@@ -841,7 +850,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update category");
       setCategories((prev) =>
-        prev.map((c) => (c.id === categoryId ? data.category : c))
+        prev.map((c) => (c.id === categoryId ? data.category : c)),
       );
       toast.success("Category updated successfully");
       setEditingCategory(null);
@@ -871,7 +880,9 @@ export default function AdminPage() {
     }
   };
 
-  const handleCategoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCategoryImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -893,7 +904,9 @@ export default function AdminPage() {
       toast.success("Category image uploaded successfully");
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to upload category image";
+        error instanceof Error
+          ? error.message
+          : "Failed to upload category image";
       toast.error(errorMessage);
     } finally {
       setUploadingCategoryImage(false);
@@ -917,7 +930,7 @@ export default function AdminPage() {
     returnId: string,
     status: "pending" | "approved" | "rejected" | "completed" | "refunded",
     adminNote?: string,
-    refundAmount?: number
+    refundAmount?: number,
   ) => {
     try {
       const res = await fetch(`/api/admin/returns/${returnId}`, {
@@ -930,12 +943,14 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to update");
 
       setReturnRequests((prev) =>
-        prev.map((r) => (r.id === returnId ? { ...r, status, adminNote } : r))
+        prev.map((r) => (r.id === returnId ? { ...r, status, adminNote } : r)),
       );
       toast.success("Return request status updated");
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to update return status";
+        error instanceof Error
+          ? error.message
+          : "Failed to update return status";
       toast.error(errorMessage);
     }
   };
@@ -947,19 +962,28 @@ export default function AdminPage() {
         credentials: "include",
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to delete return request");
+      if (!res.ok)
+        throw new Error(data.message || "Failed to delete return request");
       setReturnRequests((prev) => prev.filter((r) => r.id !== returnId));
       toast.success("Return request deleted");
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to delete return request";
+        error instanceof Error
+          ? error.message
+          : "Failed to delete return request";
       toast.error(errorMessage);
     }
   };
 
   // Reset pagination when switching tabs
   const handleTabChange = (
-    tab: "overview" | "users" | "orders" | "products" | "returns" | "categories"
+    tab:
+      | "overview"
+      | "users"
+      | "orders"
+      | "products"
+      | "returns"
+      | "categories",
   ) => {
     setActiveTab(tab);
     if (tab === "products") {
@@ -1221,7 +1245,13 @@ export default function AdminPage() {
                   key={id}
                   onClick={() =>
                     handleTabChange(
-                      id as "overview" | "users" | "orders" | "products" | "returns" | "categories"
+                      id as
+                        | "overview"
+                        | "users"
+                        | "orders"
+                        | "products"
+                        | "returns"
+                        | "categories",
                     )
                   }
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
@@ -1277,7 +1307,7 @@ export default function AdminPage() {
                       </div>
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          order.status
+                          order.status,
                         )}`}
                       >
                         {order.status}
@@ -1469,7 +1499,7 @@ export default function AdminPage() {
                                   {pageNum}
                                 </button>
                               );
-                            }
+                            },
                           )}
                         </div>
 
@@ -1552,7 +1582,7 @@ export default function AdminPage() {
                         {orders
                           .reduce(
                             (sum, order) => sum + (order.grandTotal || 0),
-                            0
+                            0,
                           )
                           .toFixed(0)}
                       </div>
@@ -1607,7 +1637,7 @@ export default function AdminPage() {
                           value={orderStatusFilter}
                           onChange={(e) => {
                             setOrderStatusFilter(
-                              e.target.value as "all" | "pending" | "others"
+                              e.target.value as "all" | "pending" | "others",
                             );
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-900 focus:border-blue-500 transition-all duration-200 hover:border-pink-500"
@@ -1699,15 +1729,15 @@ export default function AdminPage() {
                       {orderStatusFilter === "pending"
                         ? "No Pending Orders"
                         : orderStatusFilter === "others"
-                        ? "No Other Orders"
-                        : "No Orders Found"}
+                          ? "No Other Orders"
+                          : "No Orders Found"}
                     </h3>
                     <p className="text-gray-600 text-lg mb-6">
                       {orderStatusFilter === "pending"
                         ? "All caught up! No pending orders to process."
                         : orderStatusFilter === "others"
-                        ? "Only pending orders are available."
-                        : "Orders will appear here once customers start placing them."}
+                          ? "Only pending orders are available."
+                          : "Orders will appear here once customers start placing them."}
                     </p>
 
                     {orderStatusFilter !== "all" && (
@@ -1754,7 +1784,7 @@ export default function AdminPage() {
                                 </h4>
                                 <span
                                   className={`px-3 py-1 rounded-xl text-xs font-bold shadow-md ${getStatusColor(
-                                    order.status
+                                    order.status,
                                   )}`}
                                 >
                                   {order.status === "out-for-delivery"
@@ -1789,7 +1819,7 @@ export default function AdminPage() {
                                     {
                                       month: "short",
                                       day: "numeric",
-                                    }
+                                    },
                                   )}
                                 </span>
                               </div>
@@ -1881,7 +1911,7 @@ export default function AdminPage() {
                                           <p className="font-bold text-gray-900 truncate group-hover:text-indigo-600 transition-colors duration-300">
                                             {item.name ||
                                               `Product #${item.productId.slice(
-                                                -6
+                                                -6,
                                               )}`}
                                           </p>
                                           <div className="flex items-center justify-between mt-1">
@@ -2029,7 +2059,7 @@ export default function AdminPage() {
                           Showing {(currentOrdersPage - 1) * ordersPerPage + 1}-
                           {Math.min(
                             currentOrdersPage * ordersPerPage,
-                            totalOrders
+                            totalOrders,
                           )}{" "}
                           of {totalOrders} orders
                         </p>
@@ -2083,7 +2113,7 @@ export default function AdminPage() {
                                 {pageNum}
                               </button>
                             );
-                          }
+                          },
                         )}
                       </div>
 
@@ -2156,7 +2186,7 @@ export default function AdminPage() {
                       <div className="text-2xl font-bold text-yellow-300">
                         {
                           allProducts.filter(
-                            (p) => p.stockQuantity <= 5 && p.stockQuantity > 0
+                            (p) => p.stockQuantity <= 5 && p.stockQuantity > 0,
                           ).length
                         }
                       </div>
@@ -2341,15 +2371,15 @@ export default function AdminPage() {
                               product.stockQuantity === 0
                                 ? "bg-red-500 text-white"
                                 : product.stockQuantity <= 5
-                                ? "bg-yellow-500 text-white"
-                                : "bg-green-500 text-white"
+                                  ? "bg-yellow-500 text-white"
+                                  : "bg-green-500 text-white"
                             }`}
                           >
                             {product.stockQuantity === 0
                               ? "Out of Stock"
                               : product.stockQuantity <= 5
-                              ? "Low Stock"
-                              : "In Stock"}
+                                ? "Low Stock"
+                                : "In Stock"}
                           </div>
                         </div>
 
@@ -2502,7 +2532,7 @@ export default function AdminPage() {
                           Showing {(currentPage - 1) * productsPerPage + 1}-
                           {Math.min(
                             currentPage * productsPerPage,
-                            totalProducts
+                            totalProducts,
                           )}{" "}
                           of {totalProducts} products
                         </p>
@@ -2549,7 +2579,7 @@ export default function AdminPage() {
                                 {pageNum}
                               </button>
                             );
-                          }
+                          },
                         )}
                       </div>
 
@@ -2725,8 +2755,12 @@ export default function AdminPage() {
                   {/* Stats Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                      <div className="text-2xl font-bold">{totalCategories}</div>
-                      <div className="text-white/80 text-sm">Total Categories</div>
+                      <div className="text-2xl font-bold">
+                        {totalCategories}
+                      </div>
+                      <div className="text-white/80 text-sm">
+                        Total Categories
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2741,7 +2775,9 @@ export default function AdminPage() {
                         <FaEye className="text-white text-sm" />
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-gray-700">Show</label>
+                        <label className="text-sm font-semibold text-gray-700">
+                          Show
+                        </label>
                         <select
                           value={categoriesPerPage}
                           onChange={(e) => {
@@ -2755,7 +2791,9 @@ export default function AdminPage() {
                           <option value={20}>20</option>
                           <option value={50}>50</option>
                         </select>
-                        <span className="text-sm text-gray-500 ml-1">categories</span>
+                        <span className="text-sm text-gray-500 ml-1">
+                          categories
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -2766,7 +2804,9 @@ export default function AdminPage() {
                         <div className="w-4 h-4 bg-white rounded-sm transform rotate-45"></div>
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-gray-700">Sort by</label>
+                        <label className="text-sm font-semibold text-gray-700">
+                          Sort by
+                        </label>
                         <select
                           value={categoriesSortBy}
                           onChange={(e) => {
@@ -2789,7 +2829,9 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="text-sm font-semibold text-gray-700">Order</label>
+                        <label className="text-sm font-semibold text-gray-700">
+                          Order
+                        </label>
                         <select
                           value={categoriesSortOrder}
                           onChange={(e) => {
@@ -2813,17 +2855,32 @@ export default function AdminPage() {
                   <table className="w-full">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="text-left p-4 font-semibold text-gray-900">Image</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Name</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Slug</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Description</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Created</th>
-                        <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Image
+                        </th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Name
+                        </th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Slug
+                        </th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Description
+                        </th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Created
+                        </th>
+                        <th className="text-right p-4 font-semibold text-gray-900">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {categories.map((category) => (
-                        <tr key={category.id} className="border-t hover:bg-gray-50">
+                        <tr
+                          key={category.id}
+                          className="border-t hover:bg-gray-50"
+                        >
                           <td className="p-4">
                             {category.image ? (
                               <Image
@@ -2876,13 +2933,20 @@ export default function AdminPage() {
                   <div className="p-6 border-t bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-700">
-                        Showing {(currentCategoriesPage - 1) * categoriesPerPage + 1} to{" "}
-                        {Math.min(currentCategoriesPage * categoriesPerPage, totalCategories)} of {totalCategories} categories
+                        Showing{" "}
+                        {(currentCategoriesPage - 1) * categoriesPerPage + 1} to{" "}
+                        {Math.min(
+                          currentCategoriesPage * categoriesPerPage,
+                          totalCategories,
+                        )}{" "}
+                        of {totalCategories} categories
                       </div>
 
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => setCurrentCategoriesPage(currentCategoriesPage - 1)}
+                          onClick={() =>
+                            setCurrentCategoriesPage(currentCategoriesPage - 1)
+                          }
                           disabled={currentCategoriesPage === 1}
                           className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -2890,37 +2954,49 @@ export default function AdminPage() {
                         </button>
 
                         <div className="flex items-center space-x-1">
-                          {Array.from({ length: Math.min(5, totalCategoriesPages) }, (_, i) => {
-                            let pageNum;
-                            if (totalCategoriesPages <= 5) {
-                              pageNum = i + 1;
-                            } else if (currentCategoriesPage <= 3) {
-                              pageNum = i + 1;
-                            } else if (currentCategoriesPage >= totalCategoriesPages - 2) {
-                              pageNum = totalCategoriesPages - 4 + i;
-                            } else {
-                              pageNum = currentCategoriesPage - 2 + i;
-                            }
+                          {Array.from(
+                            { length: Math.min(5, totalCategoriesPages) },
+                            (_, i) => {
+                              let pageNum;
+                              if (totalCategoriesPages <= 5) {
+                                pageNum = i + 1;
+                              } else if (currentCategoriesPage <= 3) {
+                                pageNum = i + 1;
+                              } else if (
+                                currentCategoriesPage >=
+                                totalCategoriesPages - 2
+                              ) {
+                                pageNum = totalCategoriesPages - 4 + i;
+                              } else {
+                                pageNum = currentCategoriesPage - 2 + i;
+                              }
 
-                            return (
-                              <button
-                                key={pageNum}
-                                onClick={() => setCurrentCategoriesPage(pageNum)}
-                                className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                                  currentCategoriesPage === pageNum
-                                    ? "bg-[#0D3B66] text-white"
-                                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
-                                }`}
-                              >
-                                {pageNum}
-                              </button>
-                            );
-                          })}
+                              return (
+                                <button
+                                  key={pageNum}
+                                  onClick={() =>
+                                    setCurrentCategoriesPage(pageNum)
+                                  }
+                                  className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                    currentCategoriesPage === pageNum
+                                      ? "bg-[#0D3B66] text-white"
+                                      : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
+                                  }`}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            },
+                          )}
                         </div>
 
                         <button
-                          onClick={() => setCurrentCategoriesPage(currentCategoriesPage + 1)}
-                          disabled={currentCategoriesPage === totalCategoriesPages}
+                          onClick={() =>
+                            setCurrentCategoriesPage(currentCategoriesPage + 1)
+                          }
+                          disabled={
+                            currentCategoriesPage === totalCategoriesPages
+                          }
                           className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Next
@@ -2940,7 +3016,9 @@ export default function AdminPage() {
                     </div>
                     <span>Add New Category</span>
                   </h3>
-                  <p className="text-gray-600">Create new categories to organize your products</p>
+                  <p className="text-gray-600">
+                    Create new categories to organize your products
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2956,7 +3034,7 @@ export default function AdminPage() {
                     onChange={(e) => setCategoryDescription(e.target.value)}
                     className="border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
                   />
-                  
+
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Category Image (optional) max: 10mb
@@ -3016,7 +3094,9 @@ export default function AdminPage() {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                   <div className="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
                     <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-2xl font-bold text-gray-900">Edit Category</h3>
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        Edit Category
+                      </h3>
                       <button
                         onClick={() => setEditingCategory(null)}
                         className="text-gray-500 hover:text-gray-700"
@@ -3029,16 +3109,26 @@ export default function AdminPage() {
                       <input
                         placeholder="Category Name"
                         value={editingCategory.name}
-                        onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                        onChange={(e) =>
+                          setEditingCategory({
+                            ...editingCategory,
+                            name: e.target.value,
+                          })
+                        }
                         className="w-full border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
                       />
                       <input
                         placeholder="Description (optional)"
                         value={editingCategory.description || ""}
-                        onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
+                        onChange={(e) =>
+                          setEditingCategory({
+                            ...editingCategory,
+                            description: e.target.value,
+                          })
+                        }
                         className="w-full border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
                       />
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Category Image URL (optional)
@@ -3046,7 +3136,12 @@ export default function AdminPage() {
                         <input
                           placeholder="Image URL"
                           value={editingCategory.image || ""}
-                          onChange={(e) => setEditingCategory({ ...editingCategory, image: e.target.value })}
+                          onChange={(e) =>
+                            setEditingCategory({
+                              ...editingCategory,
+                              image: e.target.value,
+                            })
+                          }
                           className="w-full border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
                         />
                         {editingCategory.image && (
@@ -3071,11 +3166,13 @@ export default function AdminPage() {
                         Cancel
                       </button>
                       <button
-                        onClick={() => updateCategory(editingCategory.id, {
-                          name: editingCategory.name,
-                          description: editingCategory.description,
-                          image: editingCategory.image,
-                        })}
+                        onClick={() =>
+                          updateCategory(editingCategory.id, {
+                            name: editingCategory.name,
+                            description: editingCategory.description,
+                            image: editingCategory.image,
+                          })
+                        }
                         className="px-6 py-3 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white rounded-xl hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-colors"
                       >
                         Update Category

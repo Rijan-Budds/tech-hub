@@ -33,7 +33,11 @@ export default function ProductActions({ product }: { product: Product }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ action: "add", productId: product.id, quantity: 1 }),
+        body: JSON.stringify({
+          action: "add",
+          productId: product.id,
+          quantity: 1,
+        }),
       });
       const data = await res.json();
       console.log("Cart response status:", res.status);
@@ -94,7 +98,9 @@ export default function ProductActions({ product }: { product: Product }) {
       // First product - add to comparison and open selector
       addToCompare(product);
       openProductSelector(product);
-      toast.success("Product added to comparison! Choose another product to compare.");
+      toast.success(
+        "Product added to comparison! Choose another product to compare.",
+      );
     } else if (compareProducts.length === 1) {
       // Second product - add and open comparison modal
       addToCompare(product);
@@ -135,12 +141,11 @@ export default function ProductActions({ product }: { product: Product }) {
       >
         <FaBalanceScale className="text-xl" />
         <span>
-          {isProductInCompare(product.id) 
-            ? "Already in Comparison" 
-            : compareProducts.length === 0 
-              ? "Start Comparison" 
-              : "Compare with Product"
-          }
+          {isProductInCompare(product.id)
+            ? "Already in Comparison"
+            : compareProducts.length === 0
+              ? "Start Comparison"
+              : "Compare with Product"}
         </span>
       </button>
     </div>

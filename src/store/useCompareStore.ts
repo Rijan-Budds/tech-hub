@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface Product {
   id: string;
@@ -18,7 +18,7 @@ interface CompareStore {
   isCompareModalOpen: boolean;
   isProductSelectorOpen: boolean;
   selectedProductForComparison: Product | null;
-  
+
   // Actions
   addToCompare: (product: Product) => void;
   removeFromCompare: (productId: string) => void;
@@ -41,23 +41,25 @@ export const useCompareStore = create<CompareStore>()(
 
       addToCompare: (product) => {
         const { compareProducts } = get();
-        
+
         // Check if product is already in compare list
-        if (compareProducts.some(p => p.id === product.id)) {
+        if (compareProducts.some((p) => p.id === product.id)) {
           return;
         }
-        
+
         // Maximum 2 products for comparison
         if (compareProducts.length >= 2) {
           return;
         }
-        
+
         set({ compareProducts: [...compareProducts, product] });
       },
 
       removeFromCompare: (productId) => {
         set((state) => ({
-          compareProducts: state.compareProducts.filter(p => p.id !== productId)
+          compareProducts: state.compareProducts.filter(
+            (p) => p.id !== productId,
+          ),
         }));
       },
 
@@ -74,16 +76,16 @@ export const useCompareStore = create<CompareStore>()(
       },
 
       openProductSelector: (product) => {
-        set({ 
+        set({
           isProductSelectorOpen: true,
-          selectedProductForComparison: product
+          selectedProductForComparison: product,
         });
       },
 
       closeProductSelector: () => {
-        set({ 
+        set({
           isProductSelectorOpen: false,
-          selectedProductForComparison: null
+          selectedProductForComparison: null,
         });
       },
 
@@ -92,12 +94,12 @@ export const useCompareStore = create<CompareStore>()(
       },
 
       isProductInCompare: (productId) => {
-        return get().compareProducts.some(p => p.id === productId);
+        return get().compareProducts.some((p) => p.id === productId);
       },
     }),
     {
-      name: 'compare-products', // localStorage key
+      name: "compare-products", // localStorage key
       partialize: (state) => ({ compareProducts: state.compareProducts }), // Only persist compareProducts
-    }
-  )
+    },
+  ),
 );

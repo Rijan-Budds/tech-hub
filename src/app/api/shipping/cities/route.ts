@@ -10,7 +10,10 @@ const cityFees: Record<string, number> = {
 };
 
 export async function GET() {
-  return NextResponse.json({ cities: Object.keys(cityFees).map((name) => ({ name, fee: cityFees[name] })) });
+  return NextResponse.json({
+    cities: Object.keys(cityFees).map((name) => ({
+      name,
+      fee: cityFees[name],
+    })),
+  });
 }
-
-

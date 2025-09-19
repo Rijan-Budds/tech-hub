@@ -17,7 +17,14 @@ export interface IOrderItem {
 export interface IOrder {
   items: IOrderItem[];
   createdAt: Date;
-  status: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled";
+  status:
+    | "pending"
+    | "processing"
+    | "shipped"
+    | "out-for-delivery"
+    | "delivered"
+    | "returned"
+    | "canceled";
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
@@ -60,7 +67,7 @@ const ProductSchema = new Schema(
     discountPercentage: { type: Number, min: 0, max: 100, default: 0 },
     inStock: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Product =
@@ -83,7 +90,11 @@ const OrderItemSchema = new Schema({
 const OrderSchema = new Schema({
   items: [OrderItemSchema],
   createdAt: { type: Date, default: Date.now },
-  status: { type: String, enum: ["pending", "canceled", "delivered"], default: "pending" },
+  status: {
+    type: String,
+    enum: ["pending", "canceled", "delivered"],
+    default: "pending",
+  },
   subtotal: { type: Number, default: 0 },
   deliveryFee: { type: Number, default: 0 },
   grandTotal: { type: Number, default: 0 },
@@ -103,6 +114,5 @@ const UserSchema = new Schema({
   orders: { type: [OrderSchema], default: [] },
 });
 
-export const User = mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
-
-
+export const User =
+  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

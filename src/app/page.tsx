@@ -4,8 +4,12 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useEffect, useState, useRef } from "react";
-import { FaShoppingCart, FaHeart, FaArrowRight, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import {
+  FaShoppingCart,
+  FaHeart,
+  FaArrowRight,
+} from "react-icons/fa";
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -75,7 +79,7 @@ type Category = {
 
 function Page() {
   const autoplayPlugin = React.useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: false })
+    Autoplay({ delay: 4000, stopOnInteraction: false }),
   );
 
   const [trendingProducts, setTrendingProducts] = useState<Product[]>([]);
@@ -94,16 +98,18 @@ function Page() {
           ? productsData.products
           : [];
         setTrendingProducts(productsList.slice(0, 4));
-        
+
         // Load categories
         const categoriesRes = await fetch("/api/categories", {
           cache: "no-store",
         });
         const categoriesData = await categoriesRes.json();
-        const categoriesList: Category[] = Array.isArray(categoriesData.categories)
+        const categoriesList: Category[] = Array.isArray(
+          categoriesData.categories,
+        )
           ? categoriesData.categories
           : [];
-        
+
         // Take only the first 6 categories for the carousel (or all if less than 6)
         setFeaturedCategories(categoriesList.slice(0, 6));
       } catch (error) {
@@ -307,7 +313,9 @@ function Page() {
                               रु{product.price.toFixed(2)}
                             </span>
                           )}
-                          <span className="text-sm text-gray-500 dark:text-gray-400">NPR</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            NPR
+                          </span>
                         </div>
                       </div>
 
@@ -362,14 +370,18 @@ function Page() {
             {categoriesLoading && (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66]"></div>
-                <span className="ml-3 text-gray-600 dark:text-gray-300">Loading categories...</span>
+                <span className="ml-3 text-gray-600 dark:text-gray-300">
+                  Loading categories...
+                </span>
               </div>
             )}
 
             {/* Empty State */}
             {!categoriesLoading && featuredCategories.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-gray-600 dark:text-gray-300 text-lg">No categories available at the moment.</p>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  No categories available at the moment.
+                </p>
               </div>
             )}
 
@@ -384,11 +396,15 @@ function Page() {
               >
                 <CarouselContent className="-ml-4">
                   {featuredCategories.map((cat, index) => (
-                    <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                      <Link key={`${cat.id}-${index}`} href={`/categories/${cat.slug}`}>
-                        <div 
-                          className="group flex-shrink-0 select-none"
-                        >
+                    <CarouselItem
+                      key={index}
+                      className="pl-4 md:basis-1/2 lg:basis-1/3"
+                    >
+                      <Link
+                        key={`${cat.id}-${index}`}
+                        href={`/categories/${cat.slug}`}
+                      >
+                        <div className="group flex-shrink-0 select-none">
                           <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
                             <Image
                               src={cat.image}

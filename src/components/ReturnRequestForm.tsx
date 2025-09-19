@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaTimes, FaUpload, FaBox, FaExclamationTriangle } from "react-icons/fa";
+import {
+  FaTimes,
+  FaUpload,
+  FaBox,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import Image from "next/image";
 
 interface OrderItem {
@@ -45,7 +50,11 @@ const returnReasons = [
   { value: "other", label: "Other reason" },
 ];
 
-export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRequestFormProps) {
+export default function ReturnRequestForm({
+  order,
+  onClose,
+  onSubmit,
+}: ReturnRequestFormProps) {
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
@@ -54,61 +63,69 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   const handleItemToggle = (item: OrderItem, quantity?: number) => {
-    const existingIndex = selectedItems.findIndex(si => si.productId === item.productId);
-    
+    const existingIndex = selectedItems.findIndex(
+      (si) => si.productId === item.productId,
+    );
+
     if (existingIndex >= 0) {
       if (quantity && quantity > 0) {
         // Update quantity
-        setSelectedItems(prev => prev.map((si, index) => 
-          index === existingIndex ? { ...si, quantity: quantity } : si
-        ));
+        setSelectedItems((prev) =>
+          prev.map((si, index) =>
+            index === existingIndex ? { ...si, quantity: quantity } : si,
+          ),
+        );
       } else {
         // Remove item
-        setSelectedItems(prev => prev.filter((_, index) => index !== existingIndex));
+        setSelectedItems((prev) =>
+          prev.filter((_, index) => index !== existingIndex),
+        );
       }
     } else if (quantity && quantity > 0) {
       // Add item
-      setSelectedItems(prev => [...prev, { ...item, quantity: quantity }]);
+      setSelectedItems((prev) => [...prev, { ...item, quantity: quantity }]);
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = event.target.files;
     if (!files) return;
 
     const newFiles = Array.from(files).slice(0, 5 - imageFiles.length); // Max 5 images
-    
+
     try {
       // Upload images to API
       const formData = new FormData();
-      newFiles.forEach(file => {
-        formData.append('images', file);
+      newFiles.forEach((file) => {
+        formData.append("images", file);
       });
-      
-      const response = await fetch('/api/upload-image', {
-        method: 'POST',
+
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
         body: formData,
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to upload images');
+        throw new Error(error.message || "Failed to upload images");
       }
-      
+
       const { imageUrls } = await response.json();
-      
+
       // Update state with uploaded image URLs
-      setImageFiles(prev => [...prev, ...newFiles]);
-      setImages(prev => [...prev, ...imageUrls]);
+      setImageFiles((prev) => [...prev, ...newFiles]);
+      setImages((prev) => [...prev, ...imageUrls]);
     } catch (error) {
-      console.error('Failed to upload images:', error);
-      alert('Failed to upload images. Please try again.');
+      console.error("Failed to upload images:", error);
+      alert("Failed to upload images. Please try again.");
     }
   };
 
   const removeImage = (index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,7 +133,7 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
     if (!reason || selectedItems.length === 0) return;
 
     setIsSubmitting(true);
-    
+
     try {
       await onSubmit({
         orderId: order.id,
@@ -127,14 +144,15 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
       });
       onClose();
     } catch (error) {
-      console.error('Failed to submit return request:', error);
+      console.error("Failed to submit return request:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const isFormValid = reason && selectedItems.length > 0;
-  const selectedItem = (itemId: string) => selectedItems.find(si => si.productId === itemId);
+  const selectedItem = (itemId: string) =>
+    selectedItems.find((si) => si.productId === itemId);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -167,12 +185,15 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
               {order.items.map((item, index) => {
                 const selected = selectedItem(item.productId);
                 return (
-                  <div key={index} className="border dark:border-gray-700 rounded-lg p-4">
+                  <div
+                    key={index}
+                    className="border dark:border-gray-700 rounded-lg p-4"
+                  >
                     <div className="flex items-center space-x-4">
                       {item.image ? (
                         <Image
                           src={item.image}
-                          alt={item.name || 'Product'}
+                          alt={item.name || "Product"}
                           width={64}
                           height={64}
                           className="w-16 h-16 object-cover rounded-lg"
@@ -182,7 +203,7 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
                           <FaBox className="text-gray-500 dark:text-gray-400" />
                         </div>
                       )}
-                      
+
                       <div className="flex-1">
                         <h4 className="font-medium text-gray-900 dark:text-white">
                           {item.name || `Product ID: ${item.productId}`}
@@ -192,7 +213,7 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
                           {item.price && ` • रु${item.price.toFixed(2)} each`}
                         </p>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         <input
                           type="checkbox"
@@ -212,7 +233,9 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
                             min="1"
                             max={item.quantity}
                             value={selected.quantity}
-                            onChange={(e) => handleItemToggle(item, parseInt(e.target.value))}
+                            onChange={(e) =>
+                              handleItemToggle(item, parseInt(e.target.value))
+                            }
                             className="w-16 px-2 py-1 border rounded text-center"
                           />
                         )}
@@ -269,7 +292,8 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <FaUpload className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="font-semibold">Click to upload</span> photos
+                      <span className="font-semibold">Click to upload</span>{" "}
+                      photos
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       PNG, JPG up to 5 images
@@ -323,7 +347,9 @@ export default function ReturnRequestForm({ order, onClose, onSubmit }: ReturnRe
                 <ul className="text-yellow-600 dark:text-yellow-400 mt-1 space-y-1">
                   <li>• Returns are processed within 3-5 business days</li>
                   <li>• Items must be in original condition</li>
-                  <li>• Refunds will be processed to your original payment method</li>
+                  <li>
+                    • Refunds will be processed to your original payment method
+                  </li>
                 </ul>
               </div>
             </div>

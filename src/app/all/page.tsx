@@ -22,7 +22,7 @@ interface ProductDisplay {
 async function fetchAllProducts(): Promise<ProductDisplay[]> {
   try {
     const allProducts = await productService.getAllProducts();
-    
+
     return allProducts
       .filter((product) => product.id) // Ensure id exists
       .map((product) => ({
@@ -38,10 +38,10 @@ async function fetchAllProducts(): Promise<ProductDisplay[]> {
             : undefined,
         stockQuantity: product.stockQuantity || 0,
         inStock: (product.stockQuantity || 0) > 0,
-        purchaseCount: (product as {purchaseCount?: number}).purchaseCount,
+        purchaseCount: (product as { purchaseCount?: number }).purchaseCount,
       }));
   } catch (error) {
-    console.error('Error fetching all products:', error);
+    console.error("Error fetching all products:", error);
     return [];
   }
 }
@@ -51,7 +51,7 @@ async function fetchAllCategories(): Promise<ICategory[]> {
     const allCategories = await categoryService.getAllCategories();
     return allCategories;
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error("Error fetching categories:", error);
     return [];
   }
 }
@@ -71,23 +71,32 @@ const AllProductsPage = async () => {
             <nav className="mb-6">
               <ol className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                 <li>
-                  <Link href="/" className="hover:text-blue-600 transition-colors flex items-center space-x-1">
+                  <Link
+                    href="/"
+                    className="hover:text-blue-600 transition-colors flex items-center space-x-1"
+                  >
                     <FaArrowLeft className="text-xs" />
                     <span>Back to Home</span>
                   </Link>
                 </li>
                 <li>/</li>
-                <li className="text-gray-900 dark:text-white font-medium">All Products</li>
+                <li className="text-gray-900 dark:text-white font-medium">
+                  All Products
+                </li>
               </ol>
             </nav>
 
             {/* Page Header */}
             <div className="text-center">
               <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                All <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Products</span>
+                All{" "}
+                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                  Products
+                </span>
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Discover our complete collection of premium tech products. From CPUs to peripherals, find everything you need for your setup.
+                Discover our complete collection of premium tech products. From
+                CPUs to peripherals, find everything you need for your setup.
               </p>
               <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
                 Showing {products.length} products
@@ -102,12 +111,15 @@ const AllProductsPage = async () => {
                 <div className="w-24 h-24 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full flex items-center justify-center mx-auto mb-6">
                   <FaEye className="text-white text-3xl" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">No Products Found</h2>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                  No Products Found
+                </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-8 text-lg">
-                  We couldn&apos;t find any products at the moment. Please check back later.
+                  We couldn&apos;t find any products at the moment. Please check
+                  back later.
                 </p>
-                <Link 
-                  href="/" 
+                <Link
+                  href="/"
                   className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
                 >
                   <FaArrowLeft className="text-sm" />
@@ -153,13 +165,14 @@ const AllProductsPage = async () => {
                           <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
 
                           {/* Discount Badge */}
-                          {product.discountPercentage && product.discountPercentage > 0 && (
-                            <div className="absolute top-4 left-4">
-                              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                -{product.discountPercentage}%
-                              </span>
-                            </div>
-                          )}
+                          {product.discountPercentage &&
+                            product.discountPercentage > 0 && (
+                              <div className="absolute top-4 left-4">
+                                <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                                  -{product.discountPercentage}%
+                                </span>
+                              </div>
+                            )}
 
                           {/* Stock Status Badge */}
                           {!product.inStock && (
@@ -186,13 +199,18 @@ const AllProductsPage = async () => {
                               {product.name}
                             </h3>
                           </Link>
-                          
+
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center space-x-2">
-                              {product.discountPercentage && product.discountPercentage > 0 ? (
+                              {product.discountPercentage &&
+                              product.discountPercentage > 0 ? (
                                 <>
                                   <span className="text-2xl font-bold text-[#0D3B66]">
-                                    रु{(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
+                                    रु
+                                    {(
+                                      product.price *
+                                      (1 - product.discountPercentage / 100)
+                                    ).toFixed(2)}
                                   </span>
                                   <span className="text-lg text-gray-500 line-through">
                                     रु{product.price.toFixed(2)}
@@ -212,7 +230,9 @@ const AllProductsPage = async () => {
                           <Link
                             href={`/product/${product.slug}`}
                             className="flex-1 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-4 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{ pointerEvents: !product.inStock ? 'none' : 'auto' }}
+                            style={{
+                              pointerEvents: !product.inStock ? "none" : "auto",
+                            }}
                           >
                             <FaEye className="text-sm" />
                             <span>View Details</span>

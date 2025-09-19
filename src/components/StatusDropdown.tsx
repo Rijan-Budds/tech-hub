@@ -10,9 +10,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface StatusDropdownProps {
-  currentStatus: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled";
+  currentStatus:
+    | "pending"
+    | "processing"
+    | "shipped"
+    | "out-for-delivery"
+    | "delivered"
+    | "returned"
+    | "canceled";
   orderId: string;
-  onStatusChange: (orderId: string, status: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled") => void;
+  onStatusChange: (
+    orderId: string,
+    status:
+      | "pending"
+      | "processing"
+      | "shipped"
+      | "out-for-delivery"
+      | "delivered"
+      | "returned"
+      | "canceled",
+  ) => void;
 }
 
 const StatusDropdown: React.FC<StatusDropdownProps> = ({
@@ -65,25 +82,40 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
   // Helper function to check if status change is allowed
   const isStatusChangeAllowed = (fromStatus: string, toStatus: string) => {
     // Cannot cancel a delivered or returned order
-    if ((fromStatus === "delivered" || fromStatus === "returned") && toStatus === "canceled") {
+    if (
+      (fromStatus === "delivered" || fromStatus === "returned") &&
+      toStatus === "canceled"
+    ) {
       return false;
     }
-    
+
     // Delivered orders can only be marked as returned
-    if (fromStatus === "delivered" && !["delivered", "returned"].includes(toStatus)) {
+    if (
+      fromStatus === "delivered" &&
+      !["delivered", "returned"].includes(toStatus)
+    ) {
       return false;
     }
-    
+
     // Returned orders can only stay returned
     if (fromStatus === "returned" && toStatus !== "returned") {
       return false;
     }
-    
+
     // Can't go back to pending once processing
-    if (["processing", "shipped", "out-for-delivery", "delivered", "returned"].includes(fromStatus) && toStatus === "pending") {
+    if (
+      [
+        "processing",
+        "shipped",
+        "out-for-delivery",
+        "delivered",
+        "returned",
+      ].includes(fromStatus) &&
+      toStatus === "pending"
+    ) {
       return false;
     }
-    
+
     return true;
   };
 
@@ -102,13 +134,22 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
           { status: "pending", color: "bg-yellow-500", label: "Pending" },
           { status: "processing", color: "bg-blue-500", label: "Processing" },
           { status: "shipped", color: "bg-purple-500", label: "Shipped" },
-          { status: "out-for-delivery", color: "bg-indigo-500", label: "Out for Delivery" },
+          {
+            status: "out-for-delivery",
+            color: "bg-indigo-500",
+            label: "Out for Delivery",
+          },
           { status: "delivered", color: "bg-green-500", label: "Delivered" },
           { status: "returned", color: "bg-orange-500", label: "Returned" },
           { status: "canceled", color: "bg-red-500", label: "Canceled" },
         ].map(({ status, color, label }) => {
-          const isDisabled = currentStatus === status || !isStatusChangeAllowed(currentStatus, status as typeof currentStatus);
-          
+          const isDisabled =
+            currentStatus === status ||
+            !isStatusChangeAllowed(
+              currentStatus,
+              status as typeof currentStatus,
+            );
+
           return (
             <DropdownMenuItem
               key={status}

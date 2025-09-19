@@ -1,46 +1,56 @@
-'use client';
-import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { toast } from 'sonner';
+"use client";
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { toast } from "sonner";
 
 interface SignupFormProps {
-  onSubmit?: (values: { name: string; email: string; password: string }) => void;
+  onSubmit?: (values: {
+    name: string;
+    email: string;
+    password: string;
+  }) => void;
 }
 
 // Yup schema with trimming for name, email, and password
 const validationSchema = Yup.object({
   name: Yup.string()
-    .transform((value) => (value ? value.trim() : ''))
-    .required('Required'),
+    .transform((value) => (value ? value.trim() : ""))
+    .required("Required"),
   email: Yup.string()
-    .transform((value) => (value ? value.trim() : ''))
-    .email('Invalid email')
-    .required('Required'),
+    .transform((value) => (value ? value.trim() : ""))
+    .email("Invalid email")
+    .required("Required"),
   password: Yup.string()
-    .transform((value) => (value ? value.trim() : ''))
-    .required('Required')
-    .min(8, 'Must be at least 8 characters')
-    .matches(/[A-Z]/, 'Must contain at least one uppercase letter')
-    .matches(/[a-z]/, 'Must contain at least one lowercase letter')
-    .matches(/[0-9]/, 'Must contain at least one number')
-    .matches(/[@$!%*?&]/, 'Must contain at least one special character'),
+    .transform((value) => (value ? value.trim() : ""))
+    .required("Required")
+    .min(8, "Must be at least 8 characters")
+    .matches(/[A-Z]/, "Must contain at least one uppercase letter")
+    .matches(/[a-z]/, "Must contain at least one lowercase letter")
+    .matches(/[0-9]/, "Must contain at least one number")
+    .matches(/[@$!%*?&]/, "Must contain at least one special character"),
   confirmPassword: Yup.string()
-    .transform((value) => (value ? value.trim() : ''))
-    .oneOf([Yup.ref('password')], 'Passwords must match')
-    .required('Required'),
+    .transform((value) => (value ? value.trim() : ""))
+    .oneOf([Yup.ref("password")], "Passwords must match")
+    .required("Required"),
 });
 
 const SignupForm = ({ onSubmit }: SignupFormProps) => {
   const handleSubmit = async (
     values: { name: string; email: string; password: string },
-    { setSubmitting, resetForm }: { setSubmitting: (isSubmitting: boolean) => void; resetForm: () => void }
+    {
+      setSubmitting,
+      resetForm,
+    }: {
+      setSubmitting: (isSubmitting: boolean) => void;
+      resetForm: () => void;
+    },
   ) => {
     try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           username: values.name,
           email: values.email,
@@ -51,15 +61,15 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data.message || 'Registration failed');
+        toast.error(data.message || "Registration failed");
       } else {
-        toast.success('Registration successful!');
+        toast.success("Registration successful!");
         resetForm();
         if (onSubmit) onSubmit(values);
       }
     } catch (error) {
-      console.error('Error during registration:', error);
-      toast.error('Something went wrong. Please try again.');
+      console.error("Error during registration:", error);
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -67,14 +77,16 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
 
   return (
     <>
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">Sign Up</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">
+        Sign Up
+      </h2>
 
       <Formik
         initialValues={{
-          name: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -83,7 +95,10 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
           <Form className="space-y-4">
             {/* Full Name */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Full Name
               </label>
               <Field
@@ -102,7 +117,10 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Email
               </label>
               <Field
@@ -121,7 +139,10 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Password
               </label>
               <Field
@@ -140,7 +161,10 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Confirm Password
               </label>
               <Field
@@ -163,7 +187,7 @@ const SignupForm = ({ onSubmit }: SignupFormProps) => {
               disabled={isSubmitting}
               className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Signing up...' : 'Sign Up'}
+              {isSubmitting ? "Signing up..." : "Sign Up"}
             </button>
           </Form>
         )}

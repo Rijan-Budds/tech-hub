@@ -66,7 +66,7 @@ interface AdminReturnsSectionProps {
     returnId: string,
     status: "pending" | "approved" | "rejected" | "completed" | "refunded",
     adminNote?: string,
-    refundAmount?: number
+    refundAmount?: number,
   ) => void;
   deleteReturnRequest: (returnId: string) => void;
   reloadReturns: () => void;
@@ -97,13 +97,20 @@ export default function AdminReturnsSection({
 }: AdminReturnsSectionProps) {
   const getReasonDisplayText = (reason: string) => {
     switch (reason) {
-      case 'damaged': return 'Item was damaged';
-      case 'wrong-item': return 'Wrong item received';
-      case 'size-issue': return 'Size/fit issue';
-      case 'defective': return 'Item is defective';
-      case 'not-as-described': return 'Not as described';
-      case 'other': return 'Other reason';
-      default: return reason;
+      case "damaged":
+        return "Item was damaged";
+      case "wrong-item":
+        return "Wrong item received";
+      case "size-issue":
+        return "Size/fit issue";
+      case "defective":
+        return "Item is defective";
+      case "not-as-described":
+        return "Not as described";
+      case "other":
+        return "Other reason";
+      default:
+        return reason;
     }
   };
 
@@ -165,7 +172,11 @@ export default function AdminReturnsSection({
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
               <div className="text-2xl font-bold text-blue-300">
-                {returnRequests.filter((r) => r.status === "completed" || r.status === "refunded").length}
+                {
+                  returnRequests.filter(
+                    (r) => r.status === "completed" || r.status === "refunded",
+                  ).length
+                }
               </div>
               <div className="text-white/80 text-sm">Completed</div>
             </div>
@@ -183,7 +194,9 @@ export default function AdminReturnsSection({
                 <FaEye className="text-white text-sm" />
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Show</label>
+                <label className="text-sm font-semibold text-gray-700">
+                  Show
+                </label>
                 <select
                   value={returnsPerPage}
                   onChange={(e) => {
@@ -207,7 +220,9 @@ export default function AdminReturnsSection({
                 <div className="w-4 h-4 bg-white rounded-full"></div>
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Filter</label>
+                <label className="text-sm font-semibold text-gray-700">
+                  Filter
+                </label>
                 <select
                   value={returnsStatusFilter}
                   onChange={(e) => setReturnsStatusFilter(e.target.value)}
@@ -231,7 +246,9 @@ export default function AdminReturnsSection({
                 <div className="w-4 h-4 bg-white rounded-sm transform rotate-45"></div>
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Sort by</label>
+                <label className="text-sm font-semibold text-gray-700">
+                  Sort by
+                </label>
                 <select
                   value={returnsSortBy}
                   onChange={(e) => {
@@ -255,7 +272,9 @@ export default function AdminReturnsSection({
                 </div>
               </div>
               <div>
-                <label className="text-sm font-semibold text-gray-700">Order</label>
+                <label className="text-sm font-semibold text-gray-700">
+                  Order
+                </label>
                 <select
                   value={returnsSortOrder}
                   onChange={(e) => {
@@ -285,10 +304,12 @@ export default function AdminReturnsSection({
               </div>
               <div className="absolute -top-4 -right-4 w-8 h-8 bg-blue-900 rounded-full animate-bounce opacity-100"></div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">No Return Requests</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              No Return Requests
+            </h3>
             <p className="text-gray-600 text-lg">
-              {returnsStatusFilter === 'all' 
-                ? 'No return requests have been submitted yet.'
+              {returnsStatusFilter === "all"
+                ? "No return requests have been submitted yet."
                 : `No ${returnsStatusFilter} return requests found.`}
             </p>
           </div>
@@ -315,26 +336,43 @@ export default function AdminReturnsSection({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-3 mb-2">
                         <h4 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
-                          Return Request #{returnRequest.id.slice(-8).toUpperCase()}
+                          Return Request #
+                          {returnRequest.id.slice(-8).toUpperCase()}
                         </h4>
-                        <span className={`px-3 py-1 rounded-xl text-xs font-bold shadow-md ${getReturnStatusColor(returnRequest.status)}`}>
-                          {returnRequest.status.charAt(0).toUpperCase() + returnRequest.status.slice(1)}
+                        <span
+                          className={`px-3 py-1 rounded-xl text-xs font-bold shadow-md ${getReturnStatusColor(returnRequest.status)}`}
+                        >
+                          {returnRequest.status.charAt(0).toUpperCase() +
+                            returnRequest.status.slice(1)}
                         </span>
                       </div>
                       <div className="flex items-center space-x-4 text-sm text-gray-600">
                         <span className="flex items-center space-x-1">
                           <FaUser className="text-xs" />
-                          <span>{returnRequest.userDetails?.username || 'Unknown User'}</span>
+                          <span>
+                            {returnRequest.userDetails?.username ||
+                              "Unknown User"}
+                          </span>
                         </span>
                         <span>•</span>
                         <span className="flex items-center space-x-1">
                           <FaShoppingCart className="text-xs" />
-                          <span>Order #{returnRequest.orderDetails?.orderNumber || returnRequest.orderId.slice(-6).toUpperCase()}</span>
+                          <span>
+                            Order #
+                            {returnRequest.orderDetails?.orderNumber ||
+                              returnRequest.orderId.slice(-6).toUpperCase()}
+                          </span>
                         </span>
                         <span>•</span>
-                        <span>{getReasonDisplayText(returnRequest.reason)}</span>
+                        <span>
+                          {getReasonDisplayText(returnRequest.reason)}
+                        </span>
                         <span>•</span>
-                        <span>{new Date(returnRequest.requestedAt).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(
+                            returnRequest.requestedAt,
+                          ).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -347,7 +385,9 @@ export default function AdminReturnsSection({
                         : "bg-gradient-to-br from-blue-500 to-blue-900 text-white hover:from-blue-500 hover:to-blue-900"
                     }`}
                   >
-                    <span className="text-sm">{isExpanded ? "Collapse" : "Expand"}</span>
+                    <span className="text-sm">
+                      {isExpanded ? "Collapse" : "Expand"}
+                    </span>
                   </button>
                 </div>
 
@@ -360,10 +400,13 @@ export default function AdminReturnsSection({
                         <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl">
                           <FaBox className="text-white text-lg" />
                         </div>
-                        <h5 className="text-lg font-bold text-gray-800">Items to Return</h5>
+                        <h5 className="text-lg font-bold text-gray-800">
+                          Items to Return
+                        </h5>
                         <div className="h-px bg-gradient-to-r from-gray-300 to-transparent flex-1"></div>
                         <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                          {returnRequest.items.length} item{returnRequest.items.length > 1 ? 's' : ''}
+                          {returnRequest.items.length} item
+                          {returnRequest.items.length > 1 ? "s" : ""}
                         </div>
                       </div>
 
@@ -378,7 +421,7 @@ export default function AdminReturnsSection({
                                 <div className="relative">
                                   <Image
                                     src={item.image}
-                                    alt={item.name || 'Product'}
+                                    alt={item.name || "Product"}
                                     width={60}
                                     height={60}
                                     className="w-15 h-15 object-cover rounded-xl shadow-md"
@@ -400,13 +443,17 @@ export default function AdminReturnsSection({
 
                               <div className="flex-1 min-w-0">
                                 <p className="font-bold text-gray-900 truncate">
-                                  {item.name || `Product #${item.productId.slice(-6)}`}
+                                  {item.name ||
+                                    `Product #${item.productId.slice(-6)}`}
                                 </p>
                                 <div className="flex items-center justify-between mt-1">
-                                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                                  <p className="text-sm text-gray-600">
+                                    Qty: {item.quantity}
+                                  </p>
                                   {item.price && (
                                     <p className="font-bold text-blue-600">
-                                      रु{(item.price * item.quantity).toFixed(2)}
+                                      रु
+                                      {(item.price * item.quantity).toFixed(2)}
                                     </p>
                                   )}
                                 </div>
@@ -427,13 +474,29 @@ export default function AdminReturnsSection({
                             <span>Return Details</span>
                           </h6>
                           <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 space-y-2">
-                            <p><strong>Reason:</strong> {getReasonDisplayText(returnRequest.reason)}</p>
+                            <p>
+                              <strong>Reason:</strong>{" "}
+                              {getReasonDisplayText(returnRequest.reason)}
+                            </p>
                             {returnRequest.description && (
-                              <p><strong>Description:</strong> {returnRequest.description}</p>
+                              <p>
+                                <strong>Description:</strong>{" "}
+                                {returnRequest.description}
+                              </p>
                             )}
-                            <p><strong>Requested:</strong> {new Date(returnRequest.requestedAt).toLocaleString()}</p>
+                            <p>
+                              <strong>Requested:</strong>{" "}
+                              {new Date(
+                                returnRequest.requestedAt,
+                              ).toLocaleString()}
+                            </p>
                             {returnRequest.processedAt && (
-                              <p><strong>Processed:</strong> {new Date(returnRequest.processedAt).toLocaleString()}</p>
+                              <p>
+                                <strong>Processed:</strong>{" "}
+                                {new Date(
+                                  returnRequest.processedAt,
+                                ).toLocaleString()}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -445,56 +508,90 @@ export default function AdminReturnsSection({
                             <span>Order Information</span>
                           </h6>
                           <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 space-y-2">
-                            <p><strong>Order:</strong> #{returnRequest.orderDetails?.orderNumber || returnRequest.orderId.slice(-6).toUpperCase()}</p>
-                            <p><strong>Customer:</strong> {returnRequest.orderDetails?.customer?.name}</p>
-                            <p><strong>Email:</strong> {returnRequest.orderDetails?.customer?.email}</p>
+                            <p>
+                              <strong>Order:</strong> #
+                              {returnRequest.orderDetails?.orderNumber ||
+                                returnRequest.orderId.slice(-6).toUpperCase()}
+                            </p>
+                            <p>
+                              <strong>Customer:</strong>{" "}
+                              {returnRequest.orderDetails?.customer?.name}
+                            </p>
+                            <p>
+                              <strong>Email:</strong>{" "}
+                              {returnRequest.orderDetails?.customer?.email}
+                            </p>
                             {returnRequest.orderDetails?.grandTotal && (
-                              <p><strong>Order Total:</strong> रु{returnRequest.orderDetails.grandTotal.toFixed(2)}</p>
+                              <p>
+                                <strong>Order Total:</strong> रु
+                                {returnRequest.orderDetails.grandTotal.toFixed(
+                                  2,
+                                )}
+                              </p>
                             )}
                           </div>
                         </div>
                       </div>
 
                       {/* Images */}
-                      {returnRequest.images && returnRequest.images.length > 0 && (
-                        <div className="mb-6">
-                          <h6 className="font-bold text-gray-800 mb-3">Uploaded Images</h6>
-                          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                            {returnRequest.images.map((image, imgIndex) => (
-                              <Image
-                                key={imgIndex}
-                                src={image}
-                                alt={`Return image ${imgIndex + 1}`}
-                                width={80}
-                                height={80}
-                                className="w-20 h-20 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                              />
-                            ))}
+                      {returnRequest.images &&
+                        returnRequest.images.length > 0 && (
+                          <div className="mb-6">
+                            <h6 className="font-bold text-gray-800 mb-3">
+                              Uploaded Images
+                            </h6>
+                            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                              {returnRequest.images.map((image, imgIndex) => (
+                                <Image
+                                  key={imgIndex}
+                                  src={image}
+                                  alt={`Return image ${imgIndex + 1}`}
+                                  width={80}
+                                  height={80}
+                                  className="w-20 h-20 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                                />
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
                       {/* Admin Note */}
                       {returnRequest.adminNote && (
                         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-                          <h6 className="font-bold text-blue-800 mb-2">Admin Note</h6>
-                          <p className="text-blue-700">{returnRequest.adminNote}</p>
+                          <h6 className="font-bold text-blue-800 mb-2">
+                            Admin Note
+                          </h6>
+                          <p className="text-blue-700">
+                            {returnRequest.adminNote}
+                          </p>
                         </div>
                       )}
 
                       {/* Action Buttons */}
                       <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200/50">
-                        {returnRequest.status === 'pending' && (
+                        {returnRequest.status === "pending" && (
                           <>
                             <button
-                              onClick={() => updateReturnStatus(returnRequest.id, 'approved', 'Return request approved by admin')}
+                              onClick={() =>
+                                updateReturnStatus(
+                                  returnRequest.id,
+                                  "approved",
+                                  "Return request approved by admin",
+                                )
+                              }
                               className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                             >
                               <FaCheck />
                               <span>Approve</span>
                             </button>
                             <button
-                              onClick={() => updateReturnStatus(returnRequest.id, 'rejected', 'Return request rejected by admin')}
+                              onClick={() =>
+                                updateReturnStatus(
+                                  returnRequest.id,
+                                  "rejected",
+                                  "Return request rejected by admin",
+                                )
+                              }
                               className="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                             >
                               <FaTimes />
@@ -502,21 +599,37 @@ export default function AdminReturnsSection({
                             </button>
                           </>
                         )}
-                        {returnRequest.status === 'approved' && (
+                        {returnRequest.status === "approved" && (
                           <button
-                            onClick={() => updateReturnStatus(returnRequest.id, 'completed', 'Return processed and completed')}
+                            onClick={() =>
+                              updateReturnStatus(
+                                returnRequest.id,
+                                "completed",
+                                "Return processed and completed",
+                              )
+                            }
                             className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                           >
                             <FaCheck />
                             <span>Mark Completed</span>
                           </button>
                         )}
-                        {(returnRequest.status === 'completed' || returnRequest.status === 'approved') && (
+                        {(returnRequest.status === "completed" ||
+                          returnRequest.status === "approved") && (
                           <button
                             onClick={() => {
-                              const refundAmount = prompt('Enter refund amount (leave empty for full refund):');
-                              const amount = refundAmount ? parseFloat(refundAmount) : returnRequest.orderDetails?.grandTotal;
-                              updateReturnStatus(returnRequest.id, 'refunded', 'Refund processed', amount);
+                              const refundAmount = prompt(
+                                "Enter refund amount (leave empty for full refund):",
+                              );
+                              const amount = refundAmount
+                                ? parseFloat(refundAmount)
+                                : returnRequest.orderDetails?.grandTotal;
+                              updateReturnStatus(
+                                returnRequest.id,
+                                "refunded",
+                                "Refund processed",
+                                amount,
+                              );
                             }}
                             className="px-6 py-3 bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                           >
@@ -556,7 +669,8 @@ export default function AdminReturnsSection({
                 </p>
                 <p className="text-sm text-gray-600">
                   Showing {(currentReturnsPage - 1) * returnsPerPage + 1}-
-                  {Math.min(currentReturnsPage * returnsPerPage, totalReturns)} of {totalReturns} requests
+                  {Math.min(currentReturnsPage * returnsPerPage, totalReturns)}{" "}
+                  of {totalReturns} requests
                 </p>
               </div>
             </div>
@@ -568,38 +682,43 @@ export default function AdminReturnsSection({
                 disabled={currentReturnsPage === 1}
                 className="group px-6 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-2xl font-bold text-gray-700 hover:border-blue-500 hover:text-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
               >
-                <span className="text-lg group-hover:-translate-x-1 transition-transform duration-300">←</span>
+                <span className="text-lg group-hover:-translate-x-1 transition-transform duration-300">
+                  ←
+                </span>
                 <span>Previous</span>
               </button>
 
               {/* Page Numbers */}
               <div className="flex items-center space-x-2">
-                {Array.from({ length: Math.min(5, totalReturnsPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalReturnsPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentReturnsPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentReturnsPage >= totalReturnsPages - 2) {
-                    pageNum = totalReturnsPages - 4 + i;
-                  } else {
-                    pageNum = currentReturnsPage - 2 + i;
-                  }
+                {Array.from(
+                  { length: Math.min(5, totalReturnsPages) },
+                  (_, i) => {
+                    let pageNum;
+                    if (totalReturnsPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentReturnsPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentReturnsPage >= totalReturnsPages - 2) {
+                      pageNum = totalReturnsPages - 4 + i;
+                    } else {
+                      pageNum = currentReturnsPage - 2 + i;
+                    }
 
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentReturnsPage(pageNum)}
-                      className={`w-12 h-12 rounded-2xl font-bold transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl ${
-                        currentReturnsPage === pageNum
-                          ? "bg-gradient-to-br from-blue-500 to-red-500 text-white shadow-2xl scale-110"
-                          : "bg-white/80 backdrop-blur-sm border-2 border-gray-200 text-gray-700 hover:border-blue-500 hover:text-blue-500"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentReturnsPage(pageNum)}
+                        className={`w-12 h-12 rounded-2xl font-bold transition-all duration-300 transform hover:scale-110 shadow-lg hover:shadow-xl ${
+                          currentReturnsPage === pageNum
+                            ? "bg-gradient-to-br from-blue-500 to-red-500 text-white shadow-2xl scale-110"
+                            : "bg-white/80 backdrop-blur-sm border-2 border-gray-200 text-gray-700 hover:border-blue-500 hover:text-blue-500"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  },
+                )}
               </div>
 
               <button
@@ -608,7 +727,9 @@ export default function AdminReturnsSection({
                 className="group px-6 py-3 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-2xl font-bold text-gray-700 hover:border-blue-500 hover:text-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-2"
               >
                 <span>Next</span>
-                <span className="text-lg group-hover:translate-x-1 transition-transform duration-300">→</span>
+                <span className="text-lg group-hover:translate-x-1 transition-transform duration-300">
+                  →
+                </span>
               </button>
             </div>
           </div>

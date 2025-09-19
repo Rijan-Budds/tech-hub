@@ -25,5 +25,3 @@ export async function getAuth() {
 export function signToken(payload: JWTPayload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 }
-
-

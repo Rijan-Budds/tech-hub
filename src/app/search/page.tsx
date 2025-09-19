@@ -25,13 +25,17 @@ async function searchProducts(query: string): Promise<SearchProduct[]> {
   const proto = hdrs.get("x-forwarded-proto") || "http";
   const base = `${proto}://${host}`;
   const res = await fetch(`${base}/api/search?q=${encodeURIComponent(query)}`, {
-    cache: 'no-store'
+    cache: "no-store",
   });
   const data = await res.json();
   return data.products || [];
 }
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   const { q = "" } = await searchParams;
   const products = await searchProducts(q || "");
 
@@ -46,13 +50,18 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             <nav className="mb-6">
               <ol className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                 <li>
-                  <Link href="/" className="hover:text-blue-600 transition-colors flex items-center space-x-1">
+                  <Link
+                    href="/"
+                    className="hover:text-blue-600 transition-colors flex items-center space-x-1"
+                  >
                     <FaArrowLeft className="text-xs" />
                     <span>Back to Home</span>
                   </Link>
                 </li>
                 <li>/</li>
-                <li className="text-gray-900 dark:text-white font-medium">Search Results</li>
+                <li className="text-gray-900 dark:text-white font-medium">
+                  Search Results
+                </li>
               </ol>
             </nav>
 
@@ -62,7 +71,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                 <FaSearch className="text-2xl" />
               </div>
               <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                Search <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">Results</span>
+                Search{" "}
+                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                  Results
+                </span>
               </h1>
               {q && (
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
@@ -79,14 +91,16 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                 <div className="w-24 h-24 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full flex items-center justify-center mx-auto mb-6">
                   <FaSearch className="text-white text-3xl" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">No Results Found</h2>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                  No Results Found
+                </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-8 text-lg">
-                  We couldn&apos;t find any products matching &quot;{q}&quot;. 
+                  We couldn&apos;t find any products matching &quot;{q}&quot;.
                   Try different keywords or browse our categories.
                 </p>
                 <div className="space-y-4">
-                  <Link 
-                    href="/" 
+                  <Link
+                    href="/"
                     className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
                   >
                     <FaArrowLeft className="text-sm" />
@@ -100,16 +114,19 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             </div>
           ) : (
             <div className="space-y-8">
-                             {/* Search Stats */}
-               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-                 <div className="flex items-center justify-between">
+              {/* Search Stats */}
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
                       <FaSearch className="text-[#0D3B66]" />
-                      <span className="font-semibold text-gray-900 dark:text-white">Search Results</span>
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        Search Results
+                      </span>
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Found {products.length} product{products.length !== 1 ? 's' : ''} for &quot;{q}&quot;
+                      Found {products.length} product
+                      {products.length !== 1 ? "s" : ""} for &quot;{q}&quot;
                     </div>
                   </div>
                 </div>
@@ -140,10 +157,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                           {/* Category Badge */}
                           <div className="absolute top-4 left-4">
                             <span className="bg-gradient-to-r from-[#0D3B66] to-[#154A8A] text-white px-3 py-1 rounded-full text-xs font-medium capitalize">
-                              {p.category.replace('-', ' ')}
+                              {p.category.replace("-", " ")}
                             </span>
                           </div>
-                          
+
                           {/* Discount Badge */}
                           {p.discountPercentage && p.discountPercentage > 0 && (
                             <div className="absolute top-4 right-4">
@@ -152,7 +169,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                               </span>
                             </div>
                           )}
-                          
+
                           {/* Stock Status Badge */}
                           {p.inStock === false && (
                             <div className="absolute bottom-4 right-4">
@@ -171,13 +188,18 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                             {p.name}
                           </h3>
                           <div className="flex items-baseline space-x-2">
-                            {p.discountPercentage && p.discountPercentage > 0 ? (
+                            {p.discountPercentage &&
+                            p.discountPercentage > 0 ? (
                               <>
                                 <span className="text-lg font-bold text-gray-400 line-through">
                                   रु{p.price.toFixed(2)}
                                 </span>
                                 <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                                  रु{(p.price * (1 - p.discountPercentage / 100)).toFixed(2)}
+                                  रु
+                                  {(
+                                    p.price *
+                                    (1 - p.discountPercentage / 100)
+                                  ).toFixed(2)}
                                 </span>
                               </>
                             ) : (
@@ -191,7 +213,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
                         {/* Product Actions */}
                         <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-                          <ProductCardActions productId={p.id} inStock={p.inStock !== false} />
+                          <ProductCardActions
+                            productId={p.id}
+                            inStock={p.inStock !== false}
+                          />
                         </div>
                       </div>
                     </div>
@@ -201,12 +226,23 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
               {/* Search Suggestions */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Try These Searches</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Try These Searches
+                </h3>
                 <div className="flex flex-wrap gap-3">
-                  {['CPU', 'Keyboard', 'Monitor', 'Speaker', 'Mouse', 'Trending'].map((suggestion) => (
+                  {[
+                    "CPU",
+                    "Keyboard",
+                    "Monitor",
+                    "Speaker",
+                    "Mouse",
+                    "Trending",
+                  ].map((suggestion) => (
                     <Link
                       key={suggestion}
-                      href={`/search?q=${encodeURIComponent(suggestion.toLowerCase())}`}
+                      href={`/search?q=${encodeURIComponent(
+                        suggestion.toLowerCase(),
+                      )}`}
                       className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium hover:bg-gradient-to-r hover:from-[#0D3B66] hover:to-[#1E5CAF] hover:text-white transition-all duration-200"
                     >
                       {suggestion}
@@ -222,5 +258,3 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     </>
   );
 }
-
-

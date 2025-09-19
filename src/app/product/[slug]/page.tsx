@@ -9,34 +9,36 @@ import Footer from "@/components/layout/Footer";
 async function fetchProduct(slug: string) {
   try {
     // Validate slug format
-    if (!slug || typeof slug !== 'string' || slug.length > 100) {
-      return null
+    if (!slug || typeof slug !== "string" || slug.length > 100) {
+      return null;
     }
-    
+
     // Get the host from headers
     const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    
-    const res = await fetch(`${protocol}://${host}/api/products/${slug}`, { cache: 'no-store' })
-    
-    if (!res.ok) return null
-    const data = await res.json()
-    return data.product as { 
-      id: string; 
-      name: string; 
-      price: number; 
-      slug: string; 
-      image: string; 
+    const host = headersList.get("host") || "localhost:3000";
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+
+    const res = await fetch(`${protocol}://${host}/api/products/${slug}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.product as {
+      id: string;
+      name: string;
+      price: number;
+      slug: string;
+      image: string;
       category: string;
       description?: string;
       discountPercentage?: number;
       stockQuantity: number;
       inStock?: boolean;
-    }
+    };
   } catch (error) {
-    console.error('Error fetching product:', error)
-    return null
+    console.error("Error fetching product:", error);
+    return null;
   }
 }
 
@@ -57,9 +59,23 @@ export default async function ProductDetailPage({
           {/* Breadcrumb */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-2 text-sm text-gray-600">
-              <li><Link href="/" className="hover:text-blue-600 transition-colors">Home</Link></li>
+              <li>
+                <Link
+                  href="/"
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  Home
+                </Link>
+              </li>
               <li>/</li>
-                              <li><Link href={`/categories/${product.category}`} className="hover:text-blue-600 transition-colors capitalize">{product.category.replace('-', ' ')}</Link></li>
+              <li>
+                <Link
+                  href={`/categories/${product.category}`}
+                  className="hover:text-blue-600 transition-colors capitalize"
+                >
+                  {product.category.replace("-", " ")}
+                </Link>
+              </li>
               <li>/</li>
               <li className="text-gray-900 font-medium">{product.name}</li>
             </ol>
@@ -78,16 +94,17 @@ export default async function ProductDetailPage({
                   height={600}
                   className="w-full h-[500px] object-cover rounded-2xl shadow-2xl group-hover:scale-[1.02] transition-transform duration-300"
                 />
-                
+
                 {/* Discount Badge */}
-                {product.discountPercentage && product.discountPercentage > 0 && (
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-red-500 text-white px-4 py-2 rounded-full text-lg font-bold">
-                      -{product.discountPercentage}% OFF
-                    </span>
-                  </div>
-                )}
-                
+                {product.discountPercentage &&
+                  product.discountPercentage > 0 && (
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-red-500 text-white px-4 py-2 rounded-full text-lg font-bold">
+                        -{product.discountPercentage}% OFF
+                      </span>
+                    </div>
+                  )}
+
                 {/* Stock Status Badge */}
                 {product.inStock === false && (
                   <div className="absolute top-4 right-4">
@@ -104,7 +121,7 @@ export default async function ProductDetailPage({
               {/* Category Badge */}
               <div className="inline-block">
                 <span className="bg-gradient-to-r from-[#0D3B66] to-[#154A8A] text-white px-4 py-2 rounded-full text-sm font-medium capitalize">
-                  {product.category.replace('-', ' ')}
+                  {product.category.replace("-", " ")}
                 </span>
               </div>
 
@@ -115,13 +132,18 @@ export default async function ProductDetailPage({
 
               {/* Price */}
               <div className="flex items-baseline space-x-2">
-                {product.discountPercentage && product.discountPercentage > 0 ? (
+                {product.discountPercentage &&
+                product.discountPercentage > 0 ? (
                   <>
                     <span className="text-2xl font-bold text-gray-400 line-through">
                       रु{product.price.toFixed(2)}
                     </span>
                     <span className="text-4xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                      रु{(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
+                      रु
+                      {(
+                        product.price *
+                        (1 - product.discountPercentage / 100)
+                      ).toFixed(2)}
                     </span>
                   </>
                 ) : (
@@ -134,7 +156,9 @@ export default async function ProductDetailPage({
 
               {/* Description */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Product Description</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Product Description
+                </h3>
                 {product.description ? (
                   <p className="text-gray-700 leading-relaxed text-lg">
                     {product.description}
@@ -148,15 +172,21 @@ export default async function ProductDetailPage({
 
               {/* Features */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Key Features</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Key Features
+                </h3>
                 <ul className="space-y-2">
                   <li className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full"></div>
-                    <span className="text-gray-700">Premium quality construction</span>
+                    <span className="text-gray-700">
+                      Premium quality construction
+                    </span>
                   </li>
                   <li className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full"></div>
-                    <span className="text-gray-700">Advanced technology integration</span>
+                    <span className="text-gray-700">
+                      Advanced technology integration
+                    </span>
                   </li>
                   <li className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full"></div>
@@ -164,24 +194,30 @@ export default async function ProductDetailPage({
                   </li>
                   <li className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full"></div>
-                    <span className="text-gray-700">1-year warranty included</span>
+                    <span className="text-gray-700">
+                      1-year warranty included
+                    </span>
                   </li>
                 </ul>
               </div>
 
               {/* Product Actions */}
               <div className="pt-6 border-t border-gray-200">
-                <ProductActions product={{
-                  id: product.id,
-                  name: product.name,
-                  slug: product.slug,
-                  price: product.price,
-                  category: product.category,
-                  image: product.image,
-                  description: product.description,
-                  discountPercentage: product.discountPercentage,
-                  stockQuantity: product.stockQuantity || (product.inStock !== false ? 10 : 0)
-                }} />
+                <ProductActions
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    price: product.price,
+                    category: product.category,
+                    image: product.image,
+                    description: product.description,
+                    discountPercentage: product.discountPercentage,
+                    stockQuantity:
+                      product.stockQuantity ||
+                      (product.inStock !== false ? 10 : 0),
+                  }}
+                />
               </div>
             </div>
           </div>

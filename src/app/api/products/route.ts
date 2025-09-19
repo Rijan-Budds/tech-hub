@@ -11,31 +11,48 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
-    
+
     let products;
     let totalCount = 0;
-    
+
     if (category === "trending") {
       // Get trending products based on purchase count
       products = await productService.getTrendingProducts(4);
       totalCount = products.length;
     } else if (category) {
       // Get products by category with pagination
-      const result = await productService.getProductsByCategoryWithPagination(category, page, limit, sortBy, sortOrder);
+      const result = await productService.getProductsByCategoryWithPagination(
+        category,
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+      );
       products = result.products;
       totalCount = result.totalCount;
     } else if (q) {
       // Search products with pagination
-      const result = await productService.searchProductsWithPagination(q, page, limit, sortBy, sortOrder);
+      const result = await productService.searchProductsWithPagination(
+        q,
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+      );
       products = result.products;
       totalCount = result.totalCount;
     } else {
       // Get all products with pagination
-      const result = await productService.getAllProductsWithPagination(page, limit, sortBy, sortOrder);
+      const result = await productService.getAllProductsWithPagination(
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+      );
       products = result.products;
       totalCount = result.totalCount;
     }
-    
+
     // Transform products to match the expected format
     const transformedProducts = products.map((product) => ({
       id: product.id,
@@ -44,13 +61,17 @@ export async function GET(req: Request) {
       price: product.price,
       category: product.category,
       image: product.image,
-      discountPercentage: product.discountPercentage && product.discountPercentage > 0 ? product.discountPercentage : undefined,
+      discountPercentage:
+        product.discountPercentage && product.discountPercentage > 0
+          ? product.discountPercentage
+          : undefined,
       stockQuantity: product.stockQuantity || 0,
       inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity
-      purchaseCount: (product as IProduct & { purchaseCount?: number }).purchaseCount, // Include purchase count for trending products
+      purchaseCount: (product as IProduct & { purchaseCount?: number })
+        .purchaseCount, // Include purchase count for trending products
     }));
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       products: transformedProducts,
       pagination: {
         page,
@@ -58,26 +79,27 @@ export async function GET(req: Request) {
         totalCount,
         totalPages: Math.ceil(totalCount / limit),
         hasNextPage: page < Math.ceil(totalCount / limit),
-        hasPrevPage: page > 1
-      }
+        hasPrevPage: page > 1,
+      },
     });
   } catch (error) {
-    console.error('Error fetching products:', error);
-    
+    console.error("Error fetching products:", error);
+
     // If it's an index error, provide helpful message
-    if (error instanceof Error && error.message.includes('index')) {
+    if (error instanceof Error && error.message.includes("index")) {
       return NextResponse.json(
-        { 
-          error: 'Database index required. Please create the required index in Firebase Console.',
-          details: error.message
+        {
+          error:
+            "Database index required. Please create the required index in Firebase Console.",
+          details: error.message,
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
-    
+
     return NextResponse.json(
-      { error: 'Failed to fetch products' },
-      { status: 500 }
+      { error: "Failed to fetch products" },
+      { status: 500 },
     );
   }
 }

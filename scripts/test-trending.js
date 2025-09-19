@@ -1,7 +1,13 @@
 // Test script for trending products functionality
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, getDocs, query, where } = require('firebase/firestore');
-require('dotenv').config();
+const { initializeApp } = require("firebase/app");
+const {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+} = require("firebase/firestore");
+require("dotenv").config();
 
 // Firebase config from environment variables
 const firebaseConfig = {
@@ -20,61 +26,63 @@ const db = getFirestore(app);
 
 async function testTrendingProducts() {
   try {
-    console.log('Testing trending products functionality...\n');
-    
+    console.log("Testing trending products functionality...\n");
+
     // Get all orders
-    console.log('1. Fetching all orders...');
-    const ordersSnapshot = await getDocs(collection(db, 'orders'));
-    const orders = ordersSnapshot.docs.map(doc => ({
+    console.log("1. Fetching all orders...");
+    const ordersSnapshot = await getDocs(collection(db, "orders"));
+    const orders = ordersSnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
     console.log(`   Found ${orders.length} orders`);
-    
+
     // Count purchases for each product
-    console.log('\n2. Counting purchases for each product...');
+    console.log("\n2. Counting purchases for each product...");
     const purchaseCounts = {};
-    
-    orders.forEach(order => {
-      if (order.status === 'delivered') {
-        order.items.forEach(item => {
+
+    orders.forEach((order) => {
+      if (order.status === "delivered") {
+        order.items.forEach((item) => {
           const productId = item.productId;
-          purchaseCounts[productId] = (purchaseCounts[productId] || 0) + item.quantity;
+          purchaseCounts[productId] =
+            (purchaseCounts[productId] || 0) + item.quantity;
         });
       }
     });
-    
-    console.log('   Purchase counts:', purchaseCounts);
-    
+
+    console.log("   Purchase counts:", purchaseCounts);
+
     // Get all products
-    console.log('\n3. Fetching all products...');
-    const productsSnapshot = await getDocs(collection(db, 'products'));
-    const products = productsSnapshot.docs.map(doc => ({
+    console.log("\n3. Fetching all products...");
+    const productsSnapshot = await getDocs(collection(db, "products"));
+    const products = productsSnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
     console.log(`   Found ${products.length} products`);
-    
+
     // Add purchase count to each product and sort
-    console.log('\n4. Calculating trending products...');
-         const productsWithCounts = products
-       .map(product => ({
-         ...product,
-         purchaseCount: purchaseCounts[product.id] || 0
-       }))
-       .filter(product => product.purchaseCount >= 15) // Only products with 15+ sales
-       .sort((a, b) => b.purchaseCount - a.purchaseCount)
-       .slice(0, 4);
-    
-    console.log('   Top trending products:');
+    console.log("\n4. Calculating trending products...");
+    const productsWithCounts = products
+      .map((product) => ({
+        ...product,
+        purchaseCount: purchaseCounts[product.id] || 0,
+      }))
+      .filter((product) => product.purchaseCount >= 15) // Only products with 15+ sales
+      .sort((a, b) => b.purchaseCount - a.purchaseCount)
+      .slice(0, 4);
+
+    console.log("   Top trending products:");
     productsWithCounts.forEach((product, index) => {
-      console.log(`   ${index + 1}. ${product.name} - ${product.purchaseCount} sold`);
+      console.log(
+        `   ${index + 1}. ${product.name} - ${product.purchaseCount} sold`,
+      );
     });
-    
-    console.log('\n✅ Trending products test completed successfully!');
-    
+
+    console.log("\n✅ Trending products test completed successfully!");
   } catch (error) {
-    console.error('❌ Error testing trending products:', error);
+    console.error("❌ Error testing trending products:", error);
   }
 }
 

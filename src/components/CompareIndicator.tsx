@@ -7,12 +7,8 @@ import Image from "next/image";
 import { useCompareStore } from "@/store/useCompareStore";
 
 export default function CompareIndicator() {
-  const {
-    compareProducts,
-    removeFromCompare,
-    openCompareModal,
-    clearCompare,
-  } = useCompareStore();
+  const { compareProducts, removeFromCompare, openCompareModal, clearCompare } =
+    useCompareStore();
 
   if (compareProducts.length === 0) return null;
 
@@ -30,14 +26,13 @@ export default function CompareIndicator() {
                 Comparison ({compareProducts.length}/2)
               </h4>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {compareProducts.length === 1 
+                {compareProducts.length === 1
                   ? "Add another product to compare"
-                  : "Ready to compare products"
-                }
+                  : "Ready to compare products"}
               </p>
             </div>
           </div>
-          
+
           <button
             onClick={clearCompare}
             className="text-gray-400 hover:text-red-500 transition-colors"
@@ -50,7 +45,10 @@ export default function CompareIndicator() {
         {/* Product List */}
         <div className="space-y-2 mb-4">
           {compareProducts.map((product) => (
-            <div key={product.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-2">
+            <div
+              key={product.id}
+              className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-2"
+            >
               <div className="flex items-center space-x-2 flex-1">
                 <Image
                   src={product.image}

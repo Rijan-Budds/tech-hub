@@ -41,7 +41,7 @@ export const Tabs = ({
       <div
         className={cn(
           "flex flex-row items-center justify-start [perspective:1000px] relative overflow-auto sm:overflow-visible no-visible-scrollbar max-w-full w-full",
-          containerClassName
+          containerClassName,
         )}
       >
         {propTabs.map((tab, idx) => (
@@ -63,17 +63,19 @@ export const Tabs = ({
                 transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
                 className={cn(
                   "absolute inset-0 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full ",
-                  activeTabClassName
+                  activeTabClassName,
                 )}
               />
             )}
 
-            <span className={cn(
-              "relative block",
-              active.value === tab.value 
-                ? "text-white font-semibold" 
-                : "text-black dark:text-white"
-            )}>
+            <span
+              className={cn(
+                "relative block",
+                active.value === tab.value
+                  ? "text-white font-semibold"
+                  : "text-black dark:text-white",
+              )}
+            >
               {tab.title}
             </span>
           </button>

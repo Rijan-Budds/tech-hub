@@ -20,10 +20,13 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
   const handleSubmit = async (
     values: { email: string; password: string },
-    { setSubmitting, resetForm }: { 
-      setSubmitting: (isSubmitting: boolean) => void; 
+    {
+      setSubmitting,
+      resetForm,
+    }: {
+      setSubmitting: (isSubmitting: boolean) => void;
       resetForm: () => void;
-    }
+    },
   ) => {
     try {
       const response = await fetch("/api/login", {

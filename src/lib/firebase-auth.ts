@@ -5,18 +5,26 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
   updateProfile,
-} from 'firebase/auth';
-import { auth } from './firebase';
-import { userService } from './firebase-db';
-import { IUser } from './firebase-models';
+} from "firebase/auth";
+import { auth } from "./firebase";
+import { userService } from "./firebase-db";
+import { IUser } from "./firebase-models";
 
 // Authentication service
 export const authService = {
   // Register new user
-  async register(email: string, password: string, username: string): Promise<FirebaseUser> {
+  async register(
+    email: string,
+    password: string,
+    username: string,
+  ): Promise<FirebaseUser> {
     try {
       // Create Firebase Auth user
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       const user = userCredential.user;
 
       // Update display name
@@ -32,7 +40,7 @@ export const authService = {
 
       return user;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       throw error;
     }
   },
@@ -40,10 +48,14 @@ export const authService = {
   // Login user
   async login(email: string, password: string): Promise<FirebaseUser> {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       return userCredential.user;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       throw error;
     }
   },
@@ -53,7 +65,7 @@ export const authService = {
     try {
       await signOut(auth);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       throw error;
     }
   },

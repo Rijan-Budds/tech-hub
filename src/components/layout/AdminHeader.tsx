@@ -42,7 +42,10 @@ const AdminHeader = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     };
@@ -118,9 +121,13 @@ const AdminHeader = () => {
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {currentUser.username}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{currentUser.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {currentUser.email}
+                    </p>
                     {currentUser.role === "admin" && (
-                      <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Administrator</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                        Administrator
+                      </p>
                     )}
                   </div>
 
@@ -159,7 +166,10 @@ const AdminHeader = () => {
               )}
             </div>
           ) : (
-            <button onClick={() => setModalType("login")} className="hover:underline text-sm sm:text-base">
+            <button
+              onClick={() => setModalType("login")}
+              className="hover:underline text-sm sm:text-base"
+            >
               LOGIN
             </button>
           )}

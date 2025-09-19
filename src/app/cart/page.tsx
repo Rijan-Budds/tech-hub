@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import { useCartStore } from "@/store/useCartStore";
 import { useProfileStore } from "@/store/useProfileStore";
 import { useRouter } from "next/navigation";
@@ -8,15 +14,28 @@ import Image from "next/image";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "sonner";
-import { FaShoppingCart, FaTrash, FaMinus, FaPlus, FaTruck, FaCreditCard, FaUser, FaEnvelope, FaMapMarkerAlt, FaHome, FaMobile, FaMoneyBillWave } from "react-icons/fa";
+import {
+  FaShoppingCart,
+  FaTrash,
+  FaMinus,
+  FaPlus,
+  FaTruck,
+  FaCreditCard,
+  FaUser,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaHome,
+  FaMobile,
+  FaMoneyBillWave,
+} from "react-icons/fa";
 
 interface CartItem {
   productId: string;
   quantity: number;
-  product?: { 
-    id: string; 
-    name: string; 
-    price: number; 
+  product?: {
+    id: string;
+    name: string;
+    price: number;
     image: string;
     slug: string;
     category: string;
@@ -50,7 +69,9 @@ export default function CartPage() {
       email: Yup.string().email("Invalid email").required("Email is required"),
       city: Yup.string().required("City is required"),
       street: Yup.string(),
-      paymentMethod: Yup.string().oneOf(["khalti", "esewa", "cod"]).required("Payment method is required"),
+      paymentMethod: Yup.string()
+        .oneOf(["khalti", "esewa", "cod"])
+        .required("Payment method is required"),
     }),
     onSubmit: async (values) => {
       if (items.length === 0) return;
@@ -71,25 +92,26 @@ export default function CartPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Checkout failed");
         toast.success("Order placed successfully! 🎉");
-        
+
         console.log("Order creation response:", data);
-        
+
         const createdOrder = Array.isArray(data.orders)
           ? data.orders[data.orders.length - 1]
           : null;
-        
+
         console.log("Created order:", createdOrder);
-        
+
         await cart.fetchCart();
         await refreshOrders();
-        
+
         if (createdOrder && createdOrder._id) {
           router.push(`/orders/${createdOrder._id}`);
         } else {
           router.push("/profile");
         }
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Checkout failed";
+        const message =
+          error instanceof Error ? error.message : "Checkout failed";
         toast.error(message);
       } finally {
         setSubmitting(false);
@@ -125,14 +147,18 @@ export default function CartPage() {
   }, [cities, formik]);
 
   const items = cart.items as CartItem[];
-  
+
   const subtotal = useMemo(
     () =>
       items.reduce(
-        (sum, it) => sum + (it.product && typeof it.product.price === 'number' ? it.product.price * it.quantity : 0),
-        0
+        (sum, it) =>
+          sum +
+          (it.product && typeof it.product.price === "number"
+            ? it.product.price * it.quantity
+            : 0),
+        0,
       ),
-    [items]
+    [items],
   );
 
   const deliveryFee = useMemo(() => {
@@ -165,7 +191,9 @@ export default function CartPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#0D3B66] mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300 text-lg">Loading your cart...</p>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
+            Loading your cart...
+          </p>
         </div>
       </div>
     );
@@ -183,7 +211,7 @@ export default function CartPage() {
             Your Shopping Cart
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            {items.length} {items.length === 1 ? 'item' : 'items'} in your cart
+            {items.length} {items.length === 1 ? "item" : "items"} in your cart
           </p>
         </div>
 
@@ -231,7 +259,7 @@ export default function CartPage() {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Product Details */}
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
@@ -240,7 +268,7 @@ export default function CartPage() {
                         <p className="text-gray-600 dark:text-gray-400 mb-4">
                           Category: {it.product?.category}
                         </p>
-                        
+
                         {/* Quantity Controls */}
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
@@ -262,7 +290,7 @@ export default function CartPage() {
                               <FaPlus className="text-sm" />
                             </button>
                           </div>
-                          
+
                           {/* Price */}
                           <div className="text-right">
                             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -274,7 +302,7 @@ export default function CartPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Remove Button */}
                       <button
                         onClick={() => removeItem(it.productId)}
@@ -484,11 +512,12 @@ export default function CartPage() {
                       </label>
                     </div>
                   </div>
-                  {formik.touched.paymentMethod && formik.errors.paymentMethod && (
-                    <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.paymentMethod}
-                    </div>
-                  )}
+                  {formik.touched.paymentMethod &&
+                    formik.errors.paymentMethod && (
+                      <div className="text-red-500 text-sm mt-1">
+                        {formik.errors.paymentMethod}
+                      </div>
+                    )}
                 </div>
 
                 {/* Checkout Button */}

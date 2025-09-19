@@ -4,7 +4,14 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FaSearch, FaUser, FaShoppingCart, FaSignOutAlt, FaHeart, FaBalanceScale } from "react-icons/fa";
+import {
+  FaSearch,
+  FaUser,
+  FaShoppingCart,
+  FaSignOutAlt,
+  FaHeart,
+  FaBalanceScale,
+} from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
 import { useCompareStore } from "@/store/useCompareStore";
 
@@ -44,7 +51,10 @@ const Header = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     };
@@ -124,7 +134,7 @@ const Header = () => {
             </button>
           </form>
         )}
-        
+
         {/* Admin identifier when search is hidden */}
         {currentUser && currentUser.role === "admin" && (
           <div className="flex-1 text-center">
@@ -152,7 +162,9 @@ const Header = () => {
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {currentUser.username}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{currentUser.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {currentUser.email}
+                    </p>
                   </div>
 
                   <div className="py-1">
@@ -225,12 +237,13 @@ const Header = () => {
               )}
             </div>
           ) : (
-            <button onClick={() => setModalType("login")} className="hover:underline text-sm sm:text-base">
+            <button
+              onClick={() => setModalType("login")}
+              className="hover:underline text-sm sm:text-base"
+            >
               LOGIN
             </button>
           )}
-
-
 
           {/* Cart Icon - Hidden for admin users */}
           {(!currentUser || currentUser.role !== "admin") && (

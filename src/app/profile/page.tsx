@@ -5,13 +5,30 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useProfileStore } from "@/store/useProfileStore";
-import { FaUser, FaHeart, FaShoppingBag, FaSignOutAlt, FaCalendarAlt, FaBox, FaDollarSign, FaMoneyBillWave } from "react-icons/fa";
+import {
+  FaUser,
+  FaHeart,
+  FaShoppingBag,
+  FaSignOutAlt,
+  FaCalendarAlt,
+  FaBox,
+  FaDollarSign,
+  FaMoneyBillWave,
+} from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { loading, user, wishlist, orders, loadProfile, refreshOrders, removeFromWishlistLocal } = useProfileStore();
+  const {
+    loading,
+    user,
+    wishlist,
+    orders,
+    loadProfile,
+    refreshOrders,
+    removeFromWishlistLocal,
+  } = useProfileStore();
 
   useEffect(() => {
     loadProfile();
@@ -43,7 +60,8 @@ export default function ProfilePage() {
       removeFromWishlistLocal(productId);
       toast.success("Removed from wishlist");
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update wishlist";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update wishlist";
       toast.error(errorMessage);
     }
   };
@@ -55,7 +73,9 @@ export default function ProfilePage() {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66] mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-300">Loading your profile...</p>
+            <p className="text-gray-600 dark:text-gray-300">
+              Loading your profile...
+            </p>
           </div>
         </div>
         <Footer />
@@ -72,7 +92,9 @@ export default function ProfilePage() {
               <div className="w-16 h-16 bg-gradient-to-br from-[#0D3B66] to-[#1E5CAF] rounded-full flex items-center justify-center mx-auto mb-6">
                 <FaUser className="text-white text-2xl" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Not Logged In</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Not Logged In
+              </h1>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Please log in to view your profile and manage your account.
               </p>
@@ -136,33 +158,46 @@ export default function ProfilePage() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-l-4 border-[#0D3B66]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Wishlist Items</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{wishlist.length}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                    Wishlist Items
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {wishlist.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
                   <FaHeart className="text-red-600 dark:text-red-400 text-xl" />
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-l-4 border-[#1E5CAF]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Orders</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{orders.length}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                    Total Orders
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {orders.length}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                   <FaShoppingBag className="text-blue-600 dark:text-blue-400 text-xl" />
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-l-4 border-green-500">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Spent</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                    Total Spent
+                  </p>
                   <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                    रु{orders.reduce((sum, order) => sum + (order.grandTotal || 0), 0).toFixed(2)}
+                    रु
+                    {orders
+                      .reduce((sum, order) => sum + (order.grandTotal || 0), 0)
+                      .toFixed(2)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
@@ -178,15 +213,19 @@ export default function ProfilePage() {
               <div className="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
                 <FaHeart className="text-red-600 dark:text-red-400" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Wishlist</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                My Wishlist
+              </h2>
             </div>
-            
+
             {wishlist.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FaHeart className="text-gray-400 text-2xl" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Your wishlist is empty</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Your wishlist is empty
+                </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
                   Start adding products you love to your wishlist!
                 </p>
@@ -199,39 +238,46 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {wishlist.map((p: { id: string; name: string; image: string; price: number }) => (
-                  <div
-                    key={p.id}
-                    className="group bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-700"
-                  >
-                    <div className="relative">
-                      <Image
-                        src={p.image}
-                        alt={p.name}
-                        width={300}
-                        height={200}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#0D3B66] transition-colors">
-                        {p.name}
-                      </h3>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                          रु{p.price.toFixed(2)}
-                        </span>
+                {wishlist.map(
+                  (p: {
+                    id: string;
+                    name: string;
+                    image: string;
+                    price: number;
+                  }) => (
+                    <div
+                      key={p.id}
+                      className="group bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="relative">
+                        <Image
+                          src={p.image}
+                          alt={p.name}
+                          width={300}
+                          height={200}
+                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
-                      <button
-                        onClick={() => handleRemoveFromWishlist(p.id)}
-                        className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium"
-                      >
-                        Remove from Wishlist
-                      </button>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-[#0D3B66] transition-colors">
+                          {p.name}
+                        </h3>
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                            रु{p.price.toFixed(2)}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveFromWishlist(p.id)}
+                          className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium"
+                        >
+                          Remove from Wishlist
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -242,15 +288,19 @@ export default function ProfilePage() {
               <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                 <FaShoppingBag className="text-blue-600 dark:text-blue-400" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Order History</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Order History
+              </h2>
             </div>
-            
+
             {orders.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FaShoppingBag className="text-gray-400 text-2xl" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No orders yet</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  No orders yet
+                </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
                   Start shopping to see your order history here!
                 </p>
@@ -275,16 +325,16 @@ export default function ProfilePage() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-gray-900 dark:text-white">
-                            Order #{o.id?.slice(-8).toUpperCase() || 'N/A'}
+                            Order #{o.id?.slice(-8).toUpperCase() || "N/A"}
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
                             <FaCalendarAlt className="mr-1" />
-                            {new Date(o.createdAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
+                            {new Date(o.createdAt).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
                             })}
                           </p>
                           {o.paymentMethod && (
@@ -324,11 +374,15 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          o.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                          o.status === 'delivered' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            o.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                              : o.status === "delivered"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          }`}
+                        >
                           {o.status.charAt(0).toUpperCase() + o.status.slice(1)}
                         </span>
                         <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
@@ -336,18 +390,21 @@ export default function ProfilePage() {
                         </span>
                       </div>
                     </div>
-                    
+
                     {o.items && o.items.length > 0 && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {o.items.map((it, idx) => (
-                          <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center space-x-3">
+                          <div
+                            key={idx}
+                            className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center space-x-3"
+                          >
                             {it.image && (
-                              <Image 
-                                src={it.image} 
-                                alt={it.name || "Item"} 
+                              <Image
+                                src={it.image}
+                                alt={it.name || "Item"}
                                 width={64}
                                 height={64}
-                                className="w-16 h-16 object-cover rounded-lg" 
+                                className="w-16 h-16 object-cover rounded-lg"
                               />
                             )}
                             <div className="flex-1">
@@ -357,7 +414,7 @@ export default function ProfilePage() {
                               <p className="text-sm text-gray-600 dark:text-gray-400">
                                 Qty: {it.quantity}
                               </p>
-                              {typeof it.price === 'number' && (
+                              {typeof it.price === "number" && (
                                 <p className="text-sm font-semibold text-[#0D3B66]">
                                   रु{(it.price * it.quantity).toFixed(2)}
                                 </p>

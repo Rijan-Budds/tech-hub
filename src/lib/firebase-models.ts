@@ -1,4 +1,4 @@
-import { Timestamp, FieldValue } from 'firebase/firestore';
+import { Timestamp, FieldValue } from "firebase/firestore";
 
 // TypeScript interfaces for Firebase
 export interface ICartItem {
@@ -19,7 +19,13 @@ export interface IReturnRequest {
   orderId: string;
   userId: string;
   items: IOrderItem[]; // Items being returned
-  reason: "damaged" | "wrong-item" | "size-issue" | "defective" | "not-as-described" | "other";
+  reason:
+    | "damaged"
+    | "wrong-item"
+    | "size-issue"
+    | "defective"
+    | "not-as-described"
+    | "other";
   description?: string;
   images?: string[]; // URLs of uploaded images
   status: "pending" | "approved" | "rejected" | "completed" | "refunded";
@@ -34,7 +40,15 @@ export interface IOrder {
   id?: string;
   items: IOrderItem[];
   createdAt: Timestamp | Date;
-  status: "pending" | "processing" | "shipped" | "out-for-delivery" | "delivered" | "returned" | "canceled" | "return-requested";
+  status:
+    | "pending"
+    | "processing"
+    | "shipped"
+    | "out-for-delivery"
+    | "delivered"
+    | "returned"
+    | "canceled"
+    | "return-requested";
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
@@ -86,11 +100,11 @@ export interface IProduct {
 
 // Firebase collection names
 export const COLLECTIONS = {
-  USERS: 'users',
-  PRODUCTS: 'products',
-  ORDERS: 'orders',
-  RETURN_REQUESTS: 'return_requests',
-  CATEGORIES: 'categories',
+  USERS: "users",
+  PRODUCTS: "products",
+  ORDERS: "orders",
+  RETURN_REQUESTS: "return_requests",
+  CATEGORIES: "categories",
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date

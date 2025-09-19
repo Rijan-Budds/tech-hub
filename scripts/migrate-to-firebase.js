@@ -1,6 +1,11 @@
-const { MongoClient } = require('mongodb');
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, addDoc, serverTimestamp } = require('firebase/firestore');
+const { MongoClient } = require("mongodb");
+const { initializeApp } = require("firebase/app");
+const {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+} = require("firebase/firestore");
 
 // Firebase configuration
 const firebaseConfig = {
@@ -10,7 +15,7 @@ const firebaseConfig = {
   storageBucket: "ecommerce-app-da180.firebasestorage.app",
   messagingSenderId: "720943276086",
   appId: "1:720943276086:web:df8451e08a59923ca3b897",
-  measurementId: "G-1V37XLN5JV"
+  measurementId: "G-1V37XLN5JV",
 };
 
 // Initialize Firebase
@@ -22,17 +27,17 @@ const MONGO_URI = process.env.MONGODB_URI;
 
 async function migrateData() {
   const mongoClient = new MongoClient(MONGO_URI);
-  
+
   try {
-    console.log('Connecting to MongoDB...');
+    console.log("Connecting to MongoDB...");
     await mongoClient.connect();
     const mongoDb = mongoClient.db();
-    
-    console.log('Starting migration...');
-    
+
+    console.log("Starting migration...");
+
     // Migrate Products
-    console.log('Migrating products...');
-    const products = await mongoDb.collection('products').find({}).toArray();
+    console.log("Migrating products...");
+    const products = await mongoDb.collection("products").find({}).toArray();
     for (const product of products) {
       const productData = {
         name: product.name,
@@ -45,14 +50,14 @@ async function migrateData() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
-      
-      await addDoc(collection(db, 'products'), productData);
+
+      await addDoc(collection(db, "products"), productData);
       console.log(`Migrated product: ${product.name}`);
     }
-    
+
     // Migrate Users
-    console.log('Migrating users...');
-    const users = await mongoDb.collection('users').find({}).toArray();
+    console.log("Migrating users...");
+    const users = await mongoDb.collection("users").find({}).toArray();
     for (const user of users) {
       const userData = {
         username: user.username,
@@ -62,34 +67,33 @@ async function migrateData() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
-      
-      await addDoc(collection(db, 'users'), userData);
+
+      await addDoc(collection(db, "users"), userData);
       console.log(`Migrated user: ${user.username}`);
     }
-    
+
     // Migrate Orders (if they exist as separate collection)
-    console.log('Migrating orders...');
-    const orders = await mongoDb.collection('orders').find({}).toArray();
+    console.log("Migrating orders...");
+    const orders = await mongoDb.collection("orders").find({}).toArray();
     for (const order of orders) {
       const orderData = {
         items: order.items || [],
-        status: order.status || 'pending',
+        status: order.status || "pending",
         subtotal: order.subtotal || 0,
         deliveryFee: order.deliveryFee || 0,
         grandTotal: order.grandTotal || 0,
         customer: order.customer || {},
-        userId: order.userId || '',
+        userId: order.userId || "",
         createdAt: serverTimestamp(),
       };
-      
-      await addDoc(collection(db, 'orders'), orderData);
+
+      await addDoc(collection(db, "orders"), orderData);
       console.log(`Migrated order: ${order._id}`);
     }
-    
-    console.log('Migration completed successfully!');
-    
+
+    console.log("Migration completed successfully!");
   } catch (error) {
-    console.error('Migration failed:', error);
+    console.error("Migration failed:", error);
   } finally {
     await mongoClient.close();
   }

@@ -8,7 +8,7 @@ const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
 
 if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
   console.warn(
-    "⚠️ Email configuration missing! Please set GMAIL_USER and GMAIL_APP_PASSWORD in your .env.local file"
+    "⚠️ Email configuration missing! Please set GMAIL_USER and GMAIL_APP_PASSWORD in your .env.local file",
   );
 }
 
@@ -44,7 +44,7 @@ const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
       <td style="padding: 10px; border-bottom: 1px solid #eee;">रु${(
         (item.price || 0) * item.quantity
       ).toFixed(2)}</td>
-    </tr>`
+    </tr>`,
     )
     .join("");
 
@@ -88,7 +88,7 @@ const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
             <h3>Order Information</h3>
             <p><strong>Order ID:</strong> ${orderId}</p>
             <p><strong>Order Date:</strong> ${timestampToDate(
-              order.createdAt
+              order.createdAt,
             ).toLocaleDateString()}</p>
             <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">${order.status.toUpperCase()}</span></p>
             ${
@@ -156,7 +156,7 @@ const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
 // Function to send order confirmation email
 export const sendOrderConfirmationEmail = async (
   order: IOrder,
-  orderId: string
+  orderId: string,
 ) => {
   try {
     const mailOptions = {
@@ -182,7 +182,7 @@ export const sendOrderConfirmationEmail = async (
 const createStatusUpdateEmailTemplate = (
   order: IOrder,
   orderId: string,
-  newStatus: string
+  newStatus: string,
 ) => {
   const statusColors = {
     pending: "#ffc107",
@@ -228,7 +228,7 @@ const createStatusUpdateEmailTemplate = (
             <h3>Order Information</h3>
             <p><strong>Order ID:</strong> ${orderId}</p>
             <p><strong>Order Date:</strong> ${timestampToDate(
-              order.createdAt
+              order.createdAt,
             ).toLocaleDateString()}</p>
             <p><strong>New Status:</strong> 
               <span class="status-badge" style="background-color: ${
@@ -249,10 +249,10 @@ const createStatusUpdateEmailTemplate = (
             <p>🎉 Your order has been successfully delivered! Please check your delivery address and let us know if you have any questions.</p>
             `
                 : newStatus === "canceled"
-                ? `
+                  ? `
             <p>We're sorry to inform you that your order has been canceled. If you have any questions about this cancellation, please contact our customer support team.</p>
             `
-                : `
+                  : `
             <p>We're currently processing your order and will keep you updated on any further status changes.</p>
             `
             }
@@ -262,7 +262,7 @@ const createStatusUpdateEmailTemplate = (
              <h3>Order Summary</h3>
              <p><strong>Total Items:</strong> ${order.items.length}</p>
              <p><strong>Grand Total:</strong> रु${order.grandTotal.toFixed(
-               2
+               2,
              )}</p>
              <p><strong>Shipping Address:</strong> ${
                order.customer.address.street
@@ -291,7 +291,7 @@ const createStatusUpdateEmailTemplate = (
 export const sendOrderStatusUpdateEmail = async (
   order: IOrder,
   orderId: string,
-  newStatus: string
+  newStatus: string,
 ) => {
   try {
     const mailOptions = {
@@ -317,7 +317,7 @@ export const sendOrderStatusUpdateEmail = async (
 const createReturnRequestEmailTemplate = (
   returnRequest: IReturnRequest,
   order: IOrder,
-  type: "submitted" | "approved" | "rejected" | "completed" | "refunded"
+  type: "submitted" | "approved" | "rejected" | "completed" | "refunded",
 ) => {
   const getReasonText = (reason: string) => {
     switch (reason) {
@@ -387,8 +387,8 @@ const createReturnRequestEmailTemplate = (
       <div class="container">
         <div class="header">
           <h1>${icons[type]} Return Request ${
-    type.charAt(0).toUpperCase() + type.slice(1)
-  }</h1>
+            type.charAt(0).toUpperCase() + type.slice(1)
+          }</h1>
           <p>Return Request #${returnRequest.id?.slice(-8).toUpperCase()}</p>
         </div>
         
@@ -406,7 +406,7 @@ const createReturnRequestEmailTemplate = (
               ?.slice(-8)
               .toUpperCase()}</p>
             <p><strong>Request Date:</strong> ${timestampToDate(
-              returnRequest.requestedAt
+              returnRequest.requestedAt,
             ).toLocaleDateString()}</p>
             <p><strong>Status:</strong> 
               <span class="status-badge" style="background-color: ${
@@ -416,7 +416,7 @@ const createReturnRequestEmailTemplate = (
               </span>
             </p>
             <p><strong>Reason:</strong> ${getReasonText(
-              returnRequest.reason
+              returnRequest.reason,
             )}</p>
             ${
               returnRequest.description
@@ -434,11 +434,11 @@ const createReturnRequestEmailTemplate = (
                     item.name || `Product #${item.productId.slice(-6)}`
                   }</strong><br>
                   Quantity: ${item.quantity}${
-                      item.price
-                        ? ` • রু${(item.price * item.quantity).toFixed(2)}`
-                        : ""
-                    }
-                </div>`
+                    item.price
+                      ? ` • রু${(item.price * item.quantity).toFixed(2)}`
+                      : ""
+                  }
+                </div>`,
                 )
                 .join("")}
             </div>
@@ -460,7 +460,7 @@ const createReturnRequestEmailTemplate = (
             <div style="background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #4caf50;">
               <h5 style="margin: 0 0 5px 0; color: #388e3c;">Refund Information:</h5>
               <p style="margin: 0;"><strong>Refund Amount:</strong> <span class="highlight">রু${returnRequest.refundAmount.toFixed(
-                2
+                2,
               )}</span></p>
               <p style="margin: 5px 0 0 0;">The refund will be processed to your original payment method within 3-5 business days.</p>
             </div>
@@ -475,7 +475,7 @@ const createReturnRequestEmailTemplate = (
           <p>We'll review your return request and get back to you within 1-2 business days. You'll receive another email once we've made a decision.</p>
           `
               : type === "approved"
-              ? `
+                ? `
           <p>Please follow these next steps:</p>
           <ol>
             <li>Package the items securely in their original packaging (if possible)</li>
@@ -483,15 +483,15 @@ const createReturnRequestEmailTemplate = (
             <li>We'll contact you with return shipping instructions</li>
           </ol>
           `
-              : type === "rejected"
-              ? `
+                : type === "rejected"
+                  ? `
           <p>If you have any questions about this decision or would like to discuss your return, please contact our customer support team.</p>
           `
-              : type === "completed"
-              ? `
+                  : type === "completed"
+                    ? `
           <p>We've received and processed your returned items. If you selected a refund, it will be processed to your original payment method.</p>
           `
-              : `
+                    : `
           <p>Thank you for choosing us. We appreciate your business and hope to serve you again soon.</p>
           `
           }
@@ -518,7 +518,7 @@ const createReturnRequestEmailTemplate = (
 export const sendReturnRequestEmail = async (
   returnRequest: IReturnRequest,
   order: IOrder,
-  type: "submitted" | "approved" | "rejected" | "completed" | "refunded"
+  type: "submitted" | "approved" | "rejected" | "completed" | "refunded",
 ) => {
   try {
     const subjects = {

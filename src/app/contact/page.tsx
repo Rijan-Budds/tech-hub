@@ -14,8 +14,6 @@ const MapComponent = dynamic(() => import("@/app/contact/MapComponent"), {
   ),
 });
 
-
-
 export default function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -31,9 +29,12 @@ export default function ContactPage() {
     <>
       <main className="max-w-6xl mx-auto px-4 py-10 space-y-10">
         <header className="space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Contact Us</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Contact Us
+          </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Have a question about a product or an order? We&apos;re here to help.
+            Have a question about a product or an order? We&apos;re here to
+            help.
           </p>
         </header>
 
@@ -43,13 +44,18 @@ export default function ContactPage() {
             className="space-y-6 p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
           >
             <div>
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Get in Touch</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+                Get in Touch
+              </h2>
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                Have a question or need support? Send us a message and we&apos;ll respond as soon as possible.
+                Have a question or need support? Send us a message and
+                we&apos;ll respond as soon as possible.
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Name
+              </label>
               <input
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
                 value={name}
@@ -59,7 +65,9 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email
+              </label>
               <input
                 type="email"
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
@@ -70,7 +78,9 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Message
+              </label>
               <textarea
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 h-32 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200 resize-none"
                 value={message}
@@ -79,7 +89,7 @@ export default function ContactPage() {
                 required
               />
             </div>
-            
+
             <div className="mt-6">
               <AnimatedSupportCard />
             </div>
@@ -98,7 +108,9 @@ export default function ContactPage() {
 
           <div className="p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 space-y-4 shadow-lg">
             <div>
-              <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Our Location</h2>
+              <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+                Our Location
+              </h2>
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
                 Visit us at Suryamadhi, Bhaktapur, Nepal
               </p>

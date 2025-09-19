@@ -1,9 +1,27 @@
 "use client";
 import { create } from "zustand";
 
-type User = { id: string; email: string; username: string; role?: string } | null;
-type WishlistItem = { id: string; slug: string; name: string; price: number; image: string; category: string };
-type OrderItem = { productId: string; quantity: number; name?: string; image?: string; price?: number };
+type User = {
+  id: string;
+  email: string;
+  username: string;
+  role?: string;
+} | null;
+type WishlistItem = {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+};
+type OrderItem = {
+  productId: string;
+  quantity: number;
+  name?: string;
+  image?: string;
+  price?: number;
+};
 type Order = {
   id: string;
   items: OrderItem[];
@@ -68,5 +86,3 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   removeFromWishlistLocal: (productId) =>
     set({ wishlist: get().wishlist.filter((p) => p.id !== productId) }),
 }));
-
-

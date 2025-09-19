@@ -1,5 +1,12 @@
-const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, addDoc, getDocs, query, where } = require('firebase/firestore');
+const { initializeApp } = require("firebase/app");
+const {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+} = require("firebase/firestore");
 
 // Firebase configuration (same as in your app)
 const firebaseConfig = {
@@ -8,7 +15,7 @@ const firebaseConfig = {
   projectId: "tech-hub-28c48",
   storageBucket: "tech-hub-28c48.firebasestorage.app",
   messagingSenderId: "1038924127094",
-  appId: "1:1038924127094:web:cf0e2e96b1e69e8b0b7e4b"
+  appId: "1:1038924127094:web:cf0e2e96b1e69e8b0b7e4b",
 };
 
 // Initialize Firebase
@@ -20,11 +27,12 @@ const initialCategories = [
     name: "CPUs",
     slug: "cpus",
     image: "/home/category1.jpg",
-    description: "High-performance processors for gaming and professional workloads",
+    description:
+      "High-performance processors for gaming and professional workloads",
   },
   {
     name: "Keyboards",
-    slug: "keyboards", 
+    slug: "keyboards",
     image: "/home/category2.jpg",
     description: "Mechanical & wireless keyboards for productivity and gaming",
   },
@@ -56,30 +64,35 @@ const initialCategories = [
 
 async function seedCategories() {
   try {
-    console.log('Starting category seeding...');
-    
+    console.log("Starting category seeding...");
+
     for (const categoryData of initialCategories) {
       // Check if category with this slug already exists
-      const q = query(collection(db, 'categories'), where('slug', '==', categoryData.slug));
+      const q = query(
+        collection(db, "categories"),
+        where("slug", "==", categoryData.slug),
+      );
       const existingCategories = await getDocs(q);
-      
+
       if (existingCategories.empty) {
         // Add new category
-        const docRef = await addDoc(collection(db, 'categories'), {
+        const docRef = await addDoc(collection(db, "categories"), {
           ...categoryData,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
-        console.log(`✓ Added category: ${categoryData.name} (ID: ${docRef.id})`);
+        console.log(
+          `✓ Added category: ${categoryData.name} (ID: ${docRef.id})`,
+        );
       } else {
         console.log(`⚠ Category already exists: ${categoryData.name}`);
       }
     }
-    
-    console.log('Category seeding completed!');
+
+    console.log("Category seeding completed!");
     process.exit(0);
   } catch (error) {
-    console.error('Error seeding categories:', error);
+    console.error("Error seeding categories:", error);
     process.exit(1);
   }
 }

@@ -4,20 +4,26 @@ import React from "react";
 import { toast } from "sonner";
 import { FaShoppingCart, FaHeart } from "react-icons/fa";
 
-export function ProductCardActions({ productId, inStock = true }: { productId: string; inStock?: boolean }) {
+export function ProductCardActions({
+  productId,
+  inStock = true,
+}: {
+  productId: string;
+  inStock?: boolean;
+}) {
   const handleAddToCart = async () => {
     if (!inStock) {
       toast.error("This product is out of stock");
       return;
     }
-    
+
     try {
       console.log("Adding to cart for product:", productId);
       const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ action: 'add', productId, quantity: 1 }),
+        body: JSON.stringify({ action: "add", productId, quantity: 1 }),
       });
       const data = await res.json();
       console.log("Cart response status:", res.status);
@@ -33,7 +39,8 @@ export function ProductCardActions({ productId, inStock = true }: { productId: s
       toast.success("Added to cart");
     } catch (error: unknown) {
       console.log("Cart error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to add to cart";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to add to cart";
       toast.error(errorMessage);
     }
   };
@@ -61,7 +68,8 @@ export function ProductCardActions({ productId, inStock = true }: { productId: s
       toast.success("Wishlist updated");
     } catch (error: unknown) {
       console.log("Wishlist error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to update wishlist";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to update wishlist";
       toast.error(errorMessage);
     }
   };
@@ -69,8 +77,7 @@ export function ProductCardActions({ productId, inStock = true }: { productId: s
   return (
     <div className="mt-3 space-y-2">
       {/* Debug buttons */}
-   
-      
+
       {/* Main action buttons */}
       <div className="grid grid-cols-2 gap-2">
         <button
@@ -78,12 +85,12 @@ export function ProductCardActions({ productId, inStock = true }: { productId: s
           disabled={!inStock}
           className={`w-full py-2 px-3 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 text-sm font-medium ${
             inStock
-              ? 'bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? "bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
         >
           <FaShoppingCart className="text-sm" />
-          <span>{inStock ? 'Add to Cart' : 'Out of Stock'}</span>
+          <span>{inStock ? "Add to Cart" : "Out of Stock"}</span>
         </button>
         <button
           onClick={handleToggleWishlist}
@@ -96,5 +103,3 @@ export function ProductCardActions({ productId, inStock = true }: { productId: s
     </div>
   );
 }
-
-

@@ -2,17 +2,17 @@
 import { create } from "zustand";
 
 interface Product {
-  id: string; 
-  slug: string; 
-  name: string; 
-  price: number; 
-  image: string; 
-  category: string  
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
 }
 
-interface CartItem { 
-  productId: string; 
-  quantity: number; 
+interface CartItem {
+  productId: string;
+  quantity: number;
   product?: Product | null;
 }
 
@@ -38,18 +38,22 @@ export const useCartStore = create<CartState>((set, get) => ({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ action: 'add', productId, quantity }),
+      body: JSON.stringify({ action: "add", productId, quantity }),
     });
     if (res.ok) {
       // Update local state instead of refetching
       const currentItems = get().items;
-      const existingItem = currentItems.find(item => item.productId === productId);
+      const existingItem = currentItems.find(
+        (item) => item.productId === productId,
+      );
       if (existingItem) {
         existingItem.quantity += quantity;
         set({ items: [...currentItems] });
       } else {
         // Add placeholder item - will be filled with product details on next fetchCart
-        set({ items: [...currentItems, { productId, quantity, product: null }] });
+        set({
+          items: [...currentItems, { productId, quantity, product: null }],
+        });
       }
     }
   },
@@ -58,15 +62,19 @@ export const useCartStore = create<CartState>((set, get) => ({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ action: 'update', productId, quantity }),
+      body: JSON.stringify({ action: "update", productId, quantity }),
     });
     if (res.ok) {
       // Update local state instead of refetching
       const currentItems = get().items;
       if (quantity <= 0) {
-        set({ items: currentItems.filter(item => item.productId !== productId) });
+        set({
+          items: currentItems.filter((item) => item.productId !== productId),
+        });
       } else {
-        const existingItem = currentItems.find(item => item.productId === productId);
+        const existingItem = currentItems.find(
+          (item) => item.productId === productId,
+        );
         if (existingItem) {
           existingItem.quantity = quantity;
           set({ items: [...currentItems] });
@@ -79,12 +87,14 @@ export const useCartStore = create<CartState>((set, get) => ({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ action: 'remove', productId }),
+      body: JSON.stringify({ action: "remove", productId }),
     });
     if (res.ok) {
       // Update local state instead of refetching
       const currentItems = get().items;
-      set({ items: currentItems.filter(item => item.productId !== productId) });
+      set({
+        items: currentItems.filter((item) => item.productId !== productId),
+      });
     }
   },
 }));

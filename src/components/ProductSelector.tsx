@@ -42,7 +42,7 @@ export default function ProductSelector() {
         const filteredProducts = data.products.filter(
           (p: Product) =>
             p.id !== selectedProductForComparison?.id &&
-            !compareProducts.some(cp => cp.id === p.id)
+            !compareProducts.some((cp) => cp.id === p.id),
         );
         setProducts(filteredProducts);
       }
@@ -71,13 +71,15 @@ export default function ProductSelector() {
   };
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const categories = Array.from(new Set(products.map(p => p.category)));
+  const categories = Array.from(new Set(products.map((p) => p.category)));
 
   if (!isProductSelectorOpen) return null;
 
@@ -95,11 +97,13 @@ export default function ProductSelector() {
               <FaTimes className="w-6 h-6" />
             </button>
           </div>
-          
+
           {selectedProductForComparison && (
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
               <p className="text-sm text-blue-100 mb-1">Comparing with:</p>
-              <p className="font-semibold">{selectedProductForComparison.name}</p>
+              <p className="font-semibold">
+                {selectedProductForComparison.name}
+              </p>
             </div>
           )}
         </div>
@@ -137,12 +141,16 @@ export default function ProductSelector() {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-3 text-gray-600 dark:text-gray-400">Loading products...</span>
+              <span className="ml-3 text-gray-600 dark:text-gray-400">
+                Loading products...
+              </span>
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <FaBox className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">No products found</p>
+              <p className="text-gray-500 dark:text-gray-400">
+                No products found
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -160,23 +168,29 @@ export default function ProductSelector() {
                       height={150}
                       className="w-full h-32 object-cover rounded-lg"
                     />
-                    {product.discountPercentage && product.discountPercentage > 0 && (
-                      <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-                        -{product.discountPercentage}%
-                      </div>
-                    )}
+                    {product.discountPercentage &&
+                      product.discountPercentage > 0 && (
+                        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
+                          -{product.discountPercentage}%
+                        </div>
+                      )}
                   </div>
-                  
+
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
                     {product.name}
                   </h3>
-                  
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      {product.discountPercentage && product.discountPercentage > 0 ? (
+                      {product.discountPercentage &&
+                      product.discountPercentage > 0 ? (
                         <>
                           <span className="text-lg font-bold text-red-600">
-                            रु{(product.price * (1 - product.discountPercentage / 100)).toFixed(2)}
+                            रु
+                            {(
+                              product.price *
+                              (1 - product.discountPercentage / 100)
+                            ).toFixed(2)}
                           </span>
                           <span className="text-sm text-gray-500 line-through">
                             रु{product.price.toFixed(2)}
@@ -192,7 +206,7 @@ export default function ProductSelector() {
                       {product.category}
                     </span>
                   </div>
-                  
+
                   <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                     Stock: {product.stockQuantity}
                   </div>
@@ -205,7 +219,8 @@ export default function ProductSelector() {
         {/* Footer */}
         <div className="p-6 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
           <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-            Click on a product to add it to the comparison with <strong>{selectedProductForComparison?.name}</strong>
+            Click on a product to add it to the comparison with{" "}
+            <strong>{selectedProductForComparison?.name}</strong>
           </p>
         </div>
       </div>

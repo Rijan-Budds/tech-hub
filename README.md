@@ -61,7 +61,7 @@ JWT_SECRET=your_jwt_secret_here
 
 ### How to Get These Values:
 
-1. **Firebase Configuration**: 
+1. **Firebase Configuration**:
    - Go to [Firebase Console](https://console.firebase.google.com/)
    - Select your project
    - Go to Project Settings → General
@@ -79,6 +79,7 @@ JWT_SECRET=your_jwt_secret_here
    - Example: `openssl rand -base64 32`
 
 ### Security Notes:
+
 - Never commit `.env.local` to version control
 - Use different values for development and production
 - Keep your Gmail app password secure
@@ -89,6 +90,7 @@ JWT_SECRET=your_jwt_secret_here
 This application uses **Firebase Firestore** as the primary database with the following features:
 
 ### Firebase Features:
+
 - **NoSQL Database**: Flexible document-based storage
 - **Real-time Updates**: Automatic data synchronization
 - **Scalable**: Handles high traffic and large datasets
@@ -100,24 +102,29 @@ This application uses **Firebase Firestore** as the primary database with the fo
 This e-commerce application includes automated email notifications for order confirmations. The email system uses Nodemailer with Gmail SMTP.
 
 ### Features:
+
 - **Order Confirmation Emails**: Automatically sent when customers complete checkout
 - **Order Status Update Emails**: Sent when admin changes order status (pending → delivered/canceled)
 - **Beautiful HTML Templates**: Professional-looking emails with order details
 - **Gmail Integration**: Uses Gmail SMTP for reliable email delivery
 
 ### Testing:
+
 You can test the email functionality from the admin dashboard:
+
 1. Navigate to `/admin`
 2. Click the "Test Email" button
 3. Check your inbox for the test email
 
 ### Files:
+
 - `src/lib/email.ts` - Email utility functions and templates
 - `src/app/api/test-email/route.ts` - Test email API endpoint
 - `src/app/api/orders/route.ts` - Updated to send emails on order creation
 - `src/app/api/admin/orders/[orderId]/route.ts` - Updated to send status update emails
 
 ### Email Template Features:
+
 - **Order Confirmation Emails**:
   - Responsive HTML design
   - Order details with product images

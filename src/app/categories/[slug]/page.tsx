@@ -22,7 +22,7 @@ interface ProductDisplay {
 }
 
 async function fetchProductsByCategory(
-  slug: string
+  slug: string,
 ): Promise<ProductDisplay[]> {
   if (slug === "trending") {
     // Get trending products based on purchase count
@@ -227,7 +227,9 @@ const CategoryPage = async ({
                                 रु{p.price.toFixed(2)}
                               </span>
                             )}
-                            <span className="text-sm text-gray-500 dark:text-gray-400">NPR</span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              NPR
+                            </span>
                           </div>
                         </div>
 
