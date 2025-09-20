@@ -11,11 +11,16 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
+    const all = searchParams.get("all") === "true";
 
     let products;
     let totalCount = 0;
 
-    if (category === "trending") {
+    if (all) {
+      // Get all products without pagination
+      products = await productService.getAllProducts();
+      totalCount = products.length;
+    } else if (category === "trending") {
       // Get trending products based on purchase count
       products = await productService.getTrendingProducts(4);
       totalCount = products.length;

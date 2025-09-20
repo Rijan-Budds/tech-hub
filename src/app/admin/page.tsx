@@ -84,8 +84,7 @@ export default function AdminPage() {
     }[]
   >([]);
   
-  // Store all products for accurate stats (not just paginated ones)
-  const [allProducts] = useState<
+  const [allProducts, setAllProducts] = useState<
     {
       id: string;
       slug: string;
@@ -283,7 +282,7 @@ export default function AdminPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [uRes, oRes, pRes, rRes, cRes] = await Promise.all([
+        const [uRes, oRes, pRes, rRes, cRes, pAllRes] = await Promise.all([
           fetch(
             `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
             {
@@ -314,6 +313,9 @@ export default function AdminPage() {
               credentials: "include",
             },
           ),
+          fetch(`/api/products?all=true`, {
+            credentials: "include",
+          }),
         ]);
 
         if (uRes.status === 403) {
@@ -327,9 +329,11 @@ export default function AdminPage() {
         const pData = await pRes.json();
         const rData = await rRes.json();
         const cData = await cRes.json();
+        const pAllData = await pAllRes.json();
         setUsers(uData.users || []);
         setOrders(oData.orders || []);
         setProducts(pData.products || []);
+        setAllProducts(pAllData.products || []);
         setReturnRequests(rData.returnRequests || []);
         setCategories(cData.categories || []);
 
@@ -459,19 +463,26 @@ export default function AdminPage() {
   const reloadProducts = async () => {
     try {
       setReloadingProducts(true);
-      const res = await fetch(
-        `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
-        {
+      const [pRes, pAllRes] = await Promise.all([
+        fetch(
+          `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
+          {
+            credentials: "include",
+          },
+        ),
+        fetch(`/api/products?all=true`, {
           credentials: "include",
-        },
-      );
-      const data = await res.json();
-      setProducts(data.products || []);
+        }),
+      ]);
+      const pData = await pRes.json();
+      const pAllData = await pAllRes.json();
+      setProducts(pData.products || []);
+      setAllProducts(pAllData.products || []);
 
       // Set pagination data
-      if (data.pagination) {
-        setTotalProducts(data.pagination.totalCount);
-        setTotalPages(data.pagination.totalPages);
+      if (pData.pagination) {
+        setTotalProducts(pData.pagination.totalCount);
+        setTotalPages(pData.pagination.totalPages);
       }
 
       toast.success("Products refreshed successfully");
@@ -517,7 +528,7 @@ export default function AdminPage() {
   const reloadAll = async () => {
     try {
       setReloadingAll(true);
-      const [uRes, oRes, pRes, rRes] = await Promise.all([
+      const [uRes, oRes, pRes, rRes, pAllRes] = await Promise.all([
         fetch(
           `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
           {
@@ -542,15 +553,20 @@ export default function AdminPage() {
             credentials: "include",
           },
         ),
+        fetch(`/api/products?all=true`, {
+          credentials: "include",
+        }),
       ]);
 
       const uData = await uRes.json();
       const oData = await oRes.json();
       const pData = await pRes.json();
       const rData = await rRes.json();
+      const pAllData = await pAllRes.json();
       setUsers(uData.users || []);
       setOrders(oData.orders || []);
       setProducts(pData.products || []);
+      setAllProducts(pAllData.products || []);
       setReturnRequests(rData.returnRequests || []);
 
       // Set pagination data for users
