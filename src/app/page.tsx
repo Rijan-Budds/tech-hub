@@ -282,8 +282,6 @@ function Page() {
                         {product.purchaseCount && product.purchaseCount > 0 && (
                           <div className="absolute bottom-4 left-4">
                             <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
-                              {" "}
-                              <span>🔥</span>
                               <span>{product.purchaseCount} sold</span>
                             </span>
                           </div>

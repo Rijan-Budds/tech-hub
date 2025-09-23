@@ -116,7 +116,7 @@ export default function AdminReturnsSection({
   return (
     <div className="space-y-8">
       {/* Header Section with Gradient */}
-      <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
@@ -184,7 +184,7 @@ export default function AdminReturnsSection({
       </div>
 
       {/* Advanced Controls Panel */}
-      <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 p-6">
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 p-6">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center space-x-6">
             {/* Items per page */}
@@ -222,11 +222,11 @@ export default function AdminReturnsSection({
                   className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 >
                   <option value="all">All Requests</option>
-                  <option value="pending">🟡 Pending</option>
-                  <option value="approved">🟢 Approved</option>
-                  <option value="rejected">🔴 Rejected</option>
-                  <option value="completed">🔵 Completed</option>
-                  <option value="refunded">🟣 Refunded</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="completed">Completed</option>
+                  <option value="refunded">Refunded</option>
                 </select>
               </div>
             </div>
@@ -247,9 +247,9 @@ export default function AdminReturnsSection({
                   }}
                   className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 >
-                  <option value="requestedAt">📅 Request Date</option>
-                  <option value="status">⚡ Status</option>
-                  <option value="reason">🔍 Reason</option>
+                  <option value="requestedAt">Request Date</option>
+                  <option value="status">Status</option>
+                  <option value="reason">Reason</option>
                 </select>
               </div>
             </div>
@@ -268,8 +268,8 @@ export default function AdminReturnsSection({
                   }}
                   className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 >
-                  <option value="desc">📈 Latest First</option>
-                  <option value="asc">📉 Oldest First</option>
+                  <option value="desc">Latest First</option>
+                  <option value="asc">Oldest First</option>
                 </select>
               </div>
             </div>
@@ -618,7 +618,6 @@ export default function AdminReturnsSection({
                             }}
                             className="px-6 py-3 bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                           >
-                            <span>💰</span>
                             <span>Process Refund</span>
                           </button>
                         )}

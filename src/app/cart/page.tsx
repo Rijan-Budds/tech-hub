@@ -91,7 +91,7 @@ export default function CartPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Checkout failed");
-        toast.success("Order placed successfully! 🎉");
+        toast.success("Order placed successfully!");
 
         console.log("Order creation response:", data);
 

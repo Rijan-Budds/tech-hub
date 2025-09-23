@@ -66,6 +66,7 @@ export async function GET(req: Request) {
       price: product.price,
       category: product.category,
       image: product.image,
+      description: product.description,
       discountPercentage:
         product.discountPercentage && product.discountPercentage > 0
           ? product.discountPercentage

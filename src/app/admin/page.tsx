@@ -60,6 +60,89 @@ interface Category {
   updatedAt: string;
 }
 
+// Collapsible cell for long descriptions in categories table
+function CategoryDescriptionCell({
+  description,
+}: {
+  description?: string;
+}) {
+  const [expanded, setExpanded] = React.useState(false);
+  if (!description || description.trim().length === 0) {
+    return <span className="text-gray-400">No description</span>;
+  }
+  const isLong = description.length > 120;
+  const shown = expanded || !isLong ? description : description.slice(0, 120) + "…";
+  return (
+    <div className="space-y-1">
+      <div className={expanded ? "" : "line-clamp-3"}>{shown}</div>
+      {isLong && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Collapsible editor for product descriptions
+function ProductDescriptionSection({
+  productId,
+  productSlug,
+  description,
+  onSave,
+}: {
+  productId: string;
+  productSlug: string;
+  description?: string;
+  onSave: (content: string) => void;
+}) {
+  const [expanded, setExpanded] = React.useState(false);
+
+  const getPlainText = (html: string) =>
+    html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+
+  const plain = description ? getPlainText(description) : "";
+  const isLong = plain.length > 160;
+  const preview = isLong ? plain.slice(0, 160) + "…" : plain;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <label className="text-sm font-semibold text-gray-700 block">
+          Description
+        </label>
+        {isLong && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            {expanded ? "Minimize" : "Show more"}
+          </button>
+        )}
+      </div>
+
+      {expanded ? (
+        <InlineQuillEditor
+          key={`desc-${productId}-${productSlug}`}
+          initialValue={description || ""}
+          onSave={(content) => onSave(content)}
+          placeholder="Click to add product description..."
+          className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl p-2"
+        />
+      ) : (
+        <div className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl p-3 text-sm text-gray-700">
+          {preview || "No description"}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface Order {
   orderId: string;
   userId: string;
@@ -962,6 +1045,33 @@ export default function AdminPage() {
           ? error.message
           : "Failed to upload category image";
       toast.error(errorMessage);
+    } finally {
+      setUploadingCategoryImage(false);
+    }
+  };
+
+  // Upload helper for drag-and-drop component
+  const uploadImageAndGetUrl = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingCategoryImage(true);
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Upload failed");
+      toast.success("Image uploaded successfully");
+      return data.url as string;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to upload image";
+      toast.error(errorMessage);
+      return null;
     } finally {
       setUploadingCategoryImage(false);
     }
@@ -2424,8 +2534,8 @@ export default function AdminPage() {
                           }}
                           className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#0D3B66] focus:border-[#0D3B66] transition-all duration-200"
                         >
-                          <option value="createdAt">📅 Date Created</option>
-                          <option value="name">🏷️ Name</option>
+                          <option value="createdAt">Date Created</option>
+                          <option value="name">Name</option>
                           <option value="price">💰 Price</option>
                           <option value="category">📦 Category</option>
                           <option value="stockQuantity">📊 Stock</option>
@@ -2559,23 +2669,17 @@ export default function AdminPage() {
                           </div>
                         </div>
 
-                        {/* Description */}
-                        <div>
-                          <label className="text-sm font-semibold text-gray-700 block mb-2">
-                            📝 Description
-                          </label>
-                          <InlineQuillEditor
-                            key={`desc-${product.id}-${product.slug}`}
-                            initialValue={product.description || ""}
-                            onSave={(content) =>
-                              updateProduct(product.slug, {
-                                description: content.trim() || undefined,
-                              })
-                            }
-                            placeholder="Click to add product description..."
-                            className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl p-2"
-                          />
-                        </div>
+                        {/* Description (collapsible) */}
+                        <ProductDescriptionSection
+                          productId={product.id}
+                          productSlug={product.slug}
+                          description={product.description}
+                          onSave={(content) =>
+                            updateProduct(product.slug, {
+                              description: content.trim() || undefined,
+                            })
+                          }
+                        />
 
                         {/* Price & Discount Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2925,8 +3029,8 @@ export default function AdminPage() {
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                         >
-                          <option value="desc">📈 Latest First</option>
-                          <option value="asc">📉 Oldest First</option>
+                          <option value="desc">Latest First</option>
+                          <option value="asc">Oldest First</option>
                         </select>
                       </div>
                     </div>
@@ -2983,8 +3087,8 @@ export default function AdminPage() {
                           </td>
                           <td className="p-4 font-semibold">{category.name}</td>
                           <td className="p-4 text-gray-600">{category.slug}</td>
-                          <td className="p-4 text-gray-600 max-w-xs truncate">
-                            {category.description || "No description"}
+                          <td className="p-4 text-gray-600 max-w-xs">
+                            <CategoryDescriptionCell description={category.description} />
                           </td>
                           <td className="p-4 text-gray-600">
                             {new Date(category.createdAt).toLocaleDateString()}
@@ -2993,7 +3097,7 @@ export default function AdminPage() {
                             <div className="flex justify-end space-x-2">
                               <button
                                 onClick={() => setEditingCategory(category)}
-                                className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center space-x-1 text-sm"
+                                className="px-3 py-2 bg-[#0D3B66] text-white rounded-lg hover:brightness-110 transition-colors flex items-center space-x-1 text-sm"
                               >
                                 <FaEye />
                                 <span>Edit</span>
@@ -3124,32 +3228,16 @@ export default function AdminPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Category Image (optional) max: 10mb
                     </label>
-                    <div className="flex items-center space-x-4">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleCategoryImageUpload}
-                        className="flex-1 border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
-                        disabled={uploadingCategoryImage}
-                      />
-                      {uploadingCategoryImage && (
-                        <div className="flex items-center space-x-2 text-blue-600">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                          <span className="text-sm">Uploading...</span>
-                        </div>
-                      )}
-                    </div>
-                    {categoryImage && (
-                      <div className="mt-4">
-                        <Image
-                          src={categoryImage}
-                          alt="Category Preview"
-                          width={128}
-                          height={128}
-                          className="w-32 h-32 object-cover rounded-lg shadow-md"
-                        />
-                      </div>
-                    )}
+                    <DragDropUpload
+                      className=""
+                      currentImage={categoryImage}
+                      uploading={uploadingCategoryImage}
+                      onFileUpload={async (file) => {
+                        const url = await uploadImageAndGetUrl(file);
+                        if (url) setCategoryImage(url);
+                      }}
+                      onImageUrl={(url) => setCategoryImage(url)}
+                    />
                   </div>
 
                   <div className="md:col-span-2 flex justify-end">
@@ -3216,30 +3304,27 @@ export default function AdminPage() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Category Image URL (optional)
+                          Category Image (optional)
                         </label>
-                        <input
-                          placeholder="Image URL"
-                          value={editingCategory.image || ""}
-                          onChange={(e) =>
+                        <DragDropUpload
+                          className=""
+                          currentImage={editingCategory.image || ""}
+                          uploading={uploadingCategoryImage}
+                          onFileUpload={async (file) => {
+                            const url = await uploadImageAndGetUrl(file);
+                            if (url)
+                              setEditingCategory({
+                                ...editingCategory,
+                                image: url,
+                              });
+                          }}
+                          onImageUrl={(url) =>
                             setEditingCategory({
                               ...editingCategory,
-                              image: e.target.value,
+                              image: url,
                             })
                           }
-                          className="w-full border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent"
                         />
-                        {editingCategory.image && (
-                          <div className="mt-4">
-                            <Image
-                              src={editingCategory.image}
-                              alt="Category Preview"
-                              width={128}
-                              height={128}
-                              className="w-32 h-32 object-cover rounded-lg shadow-md"
-                            />
-                          </div>
-                        )}
                       </div>
                     </div>
 
@@ -3371,9 +3456,30 @@ export default function AdminPage() {
                             </div>
                           </td>
                           <td className="p-4">
-                            <div className="text-sm text-gray-500">
-                              Product ID: {review.productId}
-                            </div>
+                            {(() => {
+                              const prod = allProducts.find((p) => p.id === review.productId);
+                              return prod ? (
+                                <div className="flex items-center space-x-3">
+                                  {prod.image ? (
+                                    <Image
+                                      src={prod.image}
+                                      alt={prod.name}
+                                      width={40}
+                                      height={40}
+                                      className="w-10 h-10 object-cover rounded-md"
+                                    />
+                                  ) : (
+                                    <div className="w-10 h-10 bg-gray-200 rounded-md" />
+                                  )}
+                                  <div>
+                                    <div className="font-medium text-gray-900">{prod.name}</div>
+                                    <div className="text-xs text-gray-500">{prod.slug}</div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="text-sm text-gray-500">Product ID: {review.productId}</div>
+                              );
+                            })()}
                           </td>
                           <td className="p-4">
                             <div className="flex items-center">

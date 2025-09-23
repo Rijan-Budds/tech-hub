@@ -128,8 +128,7 @@ export default function ProfilePage() {
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     Welcome back, {user.username}!
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-300 flex items-center">
-                    <span className="mr-2">📧</span>
+                  <p className="text-gray-600 dark:text-gray-300">
                     {user.email}
                   </p>
                 </div>
