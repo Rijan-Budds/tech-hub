@@ -33,12 +33,6 @@ const InlineQuillEditor: React.FC<InlineQuillEditorProps> = ({
     setCurrentContent(initialValue);
   }, [initialValue]);
 
-  // Force re-sync when component mounts or initialValue changes
-  useEffect(() => {
-    if (!isEditing && initialValue !== currentContent) {
-      setCurrentContent(initialValue);
-    }
-  }, [initialValue, isEditing]);
 
   useEffect(() => {
     if (!isClient || !editorRef.current || !isEditing) {
