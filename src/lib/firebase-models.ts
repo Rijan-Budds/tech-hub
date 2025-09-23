@@ -6,19 +6,17 @@ export interface ICartItem {
   quantity: number;
 }
 
-export interface IOrderItem {
-  productId: string;
-  quantity: number;
-  name?: string;
-  image?: string;
-  price?: number;
-}
-
 export interface IReturnRequest {
   id?: string;
   orderId: string;
   userId: string;
-  items: IOrderItem[]; // Items being returned
+  items: {
+    productId: string;
+    quantity: number;
+    name?: string;
+    image?: string;
+    price?: number;
+  }[]; // Items being returned
   reason:
     | "damaged"
     | "wrong-item"
@@ -38,7 +36,13 @@ export interface IReturnRequest {
 
 export interface IOrder {
   id?: string;
-  items: IOrderItem[];
+  items: {
+    productId: string;
+    quantity: number;
+    name?: string;
+    image?: string;
+    price?: number;
+  }[];
   createdAt: Timestamp | Date;
   status:
     | "pending"
@@ -84,6 +88,19 @@ export interface ICategory {
   updatedAt: Timestamp | Date;
 }
 
+export interface IReview {
+  id?: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  rating: number; // 1-5 stars
+  comment: string;
+  createdAt: Timestamp | Date;
+  updatedAt: Timestamp | Date;
+  isVerifiedPurchase?: boolean; // If user actually bought the product
+}
+
 export interface IProduct {
   id?: string;
   name: string;
@@ -94,6 +111,8 @@ export interface IProduct {
   description?: string;
   discountPercentage?: number;
   stockQuantity: number;
+  averageRating?: number;
+  totalReviews?: number;
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
 }
@@ -105,6 +124,7 @@ export const COLLECTIONS = {
   ORDERS: "orders",
   RETURN_REQUESTS: "return_requests",
   CATEGORIES: "categories",
+  REVIEWS: "reviews",
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date
@@ -113,9 +133,4 @@ export const timestampToDate = (timestamp: Timestamp | Date): Date => {
     return timestamp.toDate();
   }
   return timestamp;
-};
-
-// Helper function to convert Date to Firestore Timestamp
-export const dateToTimestamp = (date: Date): Timestamp => {
-  return Timestamp.fromDate(date);
 };

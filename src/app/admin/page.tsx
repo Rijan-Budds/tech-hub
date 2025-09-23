@@ -15,10 +15,34 @@ import {
   FaSync,
   FaUndo,
   FaTags,
+  FaStar,
 } from "react-icons/fa";
 import AdminHeader from "@/components/layout/AdminHeader";
 import StatusDropdown from "@/components/StatusDropdown";
 import AdminReturnsSection from "@/components/admin/AdminReturnsSection";
+import DragDropUpload from "@/components/DragDropUpload";
+import dynamic from "next/dynamic";
+
+// Dynamically import QuillEditor to avoid SSR issues
+const QuillEditor = dynamic(() => import("@/components/QuillEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse">
+      <div className="h-10 bg-gray-200 rounded mb-2"></div>
+      <div className="h-72 bg-gray-200 rounded"></div>
+    </div>
+  ),
+});
+
+// Dynamically import InlineQuillEditor for editing descriptions
+const InlineQuillEditor = dynamic(() => import("@/components/InlineQuillEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse">
+      <div className="h-20 bg-gray-200 rounded"></div>
+    </div>
+  ),
+});
 
 interface User {
   _id: string;
@@ -111,7 +135,7 @@ export default function AdminPage() {
   const [reloadingProducts, setReloadingProducts] = useState(false);
   const [reloadingAll, setReloadingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "orders" | "products" | "returns" | "categories"
+    "overview" | "users" | "orders" | "products" | "returns" | "categories" | "reviews"
   >("overview");
 
   // Categories state
@@ -229,6 +253,26 @@ export default function AdminPage() {
     new Set(),
   );
 
+  // Reviews state
+  const [reviews, setReviews] = useState<{
+    id: string;
+    productId: string;
+    userId: string;
+    userName: string;
+    userEmail: string;
+    rating: number;
+    comment: string;
+    createdAt: string | Date;
+    isVerifiedPurchase?: boolean;
+  }[]>([]);
+  const [currentReviewsPage, setCurrentReviewsPage] = useState(1);
+  const [reviewsPerPage, setReviewsPerPage] = useState(5); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [totalReviewsPages, setTotalReviewsPages] = useState(0);
+  const [reviewsSortBy, setReviewsSortBy] = useState("createdAt"); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [reviewsSortOrder, setReviewsSortOrder] = useState("desc"); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [reloadingReviews, setReloadingReviews] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
+
   // Toggle individual return expansion
   const toggleReturnExpansion = (returnId: string) => {
     const newExpandedReturns = new Set(expandedReturns);
@@ -282,7 +326,7 @@ export default function AdminPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [uRes, oRes, pRes, rRes, cRes, pAllRes] = await Promise.all([
+        const [uRes, oRes, pRes, rRes, cRes, reviewsRes, pAllRes] = await Promise.all([
           fetch(
             `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
             {
@@ -313,6 +357,12 @@ export default function AdminPage() {
               credentials: "include",
             },
           ),
+          fetch(
+            `/api/admin/reviews?page=${currentReviewsPage}&limit=${reviewsPerPage}&sortBy=${reviewsSortBy}&sortOrder=${reviewsSortOrder}`,
+            {
+              credentials: "include",
+            },
+          ),
           fetch(`/api/products?all=true`, {
             credentials: "include",
           }),
@@ -329,6 +379,7 @@ export default function AdminPage() {
         const pData = await pRes.json();
         const rData = await rRes.json();
         const cData = await cRes.json();
+        const reviewsData = await reviewsRes.json();
         const pAllData = await pAllRes.json();
         setUsers(uData.users || []);
         setOrders(oData.orders || []);
@@ -336,6 +387,7 @@ export default function AdminPage() {
         setAllProducts(pAllData.products || []);
         setReturnRequests(rData.returnRequests || []);
         setCategories(cData.categories || []);
+        setReviews(reviewsData.reviews || []);
 
         // Set pagination data for users
         if (uData.pagination) {
@@ -365,6 +417,12 @@ export default function AdminPage() {
         if (cData.pagination) {
           setTotalCategories(cData.pagination.totalCount);
           setTotalCategoriesPages(cData.pagination.totalPages);
+        }
+
+        // Set pagination data for reviews
+        if (reviewsData.pagination) {
+          setTotalReviews(reviewsData.pagination.totalCount);
+          setTotalReviewsPages(reviewsData.pagination.totalPages);
         }
 
 
@@ -402,6 +460,10 @@ export default function AdminPage() {
     categoriesPerPage,
     categoriesSortBy,
     categoriesSortOrder,
+    currentReviewsPage,
+    reviewsPerPage,
+    reviewsSortBy,
+    reviewsSortOrder,
   ]);
 
   const reloadUsers = async () => {
@@ -975,7 +1037,8 @@ export default function AdminPage() {
       | "orders"
       | "products"
       | "returns"
-      | "categories",
+      | "categories"
+      | "reviews",
   ) => {
     setActiveTab(tab);
     if (tab === "products") {
@@ -993,12 +1056,13 @@ export default function AdminPage() {
     if (tab === "categories") {
       setCurrentCategoriesPage(1);
     }
+    if (tab === "reviews") {
+      setCurrentReviewsPage(1);
+    }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
+  const handleFileUpload = async (file: File) => {
     try {
       setUploading(true);
       const formData = new FormData();
@@ -1231,6 +1295,7 @@ export default function AdminPage() {
                 { id: "orders", label: "Orders", icon: FaShoppingCart },
                 { id: "products", label: "Products", icon: FaBox },
                 { id: "categories", label: "Categories", icon: FaTags },
+                { id: "reviews", label: "Reviews", icon: FaStar },
                 { id: "returns", label: "Returns", icon: FaUndo },
               ].map(({ id, label, icon: Icon }) => (
                 <button
@@ -1243,7 +1308,8 @@ export default function AdminPage() {
                         | "orders"
                         | "products"
                         | "returns"
-                        | "categories",
+                        | "categories"
+                        | "reviews",
                     )
                   }
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
@@ -2498,16 +2564,16 @@ export default function AdminPage() {
                           <label className="text-sm font-semibold text-gray-700 block mb-2">
                             📝 Description
                           </label>
-                          <textarea
-                            defaultValue={product.description || ""}
-                            onBlur={(e) =>
+                          <InlineQuillEditor
+                            key={`desc-${product.id}-${product.slug}`}
+                            initialValue={product.description || ""}
+                            onSave={(content) =>
                               updateProduct(product.slug, {
-                                description: e.target.value.trim() || undefined,
+                                description: content.trim() || undefined,
                               })
                             }
-                            rows={3}
-                            className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-3 resize-none focus:ring-2 focus:ring-[#0D3B66] focus:border-[#0D3B66] transition-all duration-200"
-                            placeholder="Enter product description..."
+                            placeholder="Click to add product description..."
+                            className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl p-2"
                           />
                         </div>
 
@@ -2702,41 +2768,25 @@ export default function AdminPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Product Image
                     </label>
-                    <div className="flex items-center space-x-4">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="flex-1 border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
-                        disabled={uploading}
-                      />
-                      {uploading && (
-                        <div className="flex items-center space-x-2 text-blue-600">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                          <span className="text-sm">Uploading...</span>
-                        </div>
-                      )}
-                    </div>
-                    {image && (
-                      <div className="mt-4">
-                        <Image
-                          src={image}
-                          alt="Preview"
-                          width={128}
-                          height={128}
-                          className="w-32 h-32 object-cover rounded-lg shadow-md"
-                        />
-                      </div>
-                    )}
+                    <DragDropUpload
+                      onFileUpload={handleFileUpload}
+                      onImageUrl={setImage}
+                      currentImage={image}
+                      uploading={uploading}
+                      className="w-full"
+                    />
                   </div>
 
                   <div className="md:col-span-2">
-                    <textarea
-                      placeholder="Product Description"
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Description
+                    </label>
+                    <QuillEditor 
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      rows={3}
-                      className="w-full border rounded-lg px-4 py-3 bg-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent resize-none transition-all duration-200"
+                      onChange={setDescription}
+                      placeholder="Enter detailed product description..."
+                      height="200px"
+                      className="w-full"
                     />
                   </div>
 
@@ -3242,6 +3292,192 @@ export default function AdminPage() {
               reloadReturns={reloadReturns}
               getReturnStatusColor={getReturnStatusColor}
             />
+          )}
+
+          {activeTab === "reviews" && (
+            <div className="space-y-8">
+              {/* Reviews Header with Gradient */}
+              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
+                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
+                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
+                </div>
+
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
+                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                          <FaStar className="text-2xl" />
+                        </div>
+                        <span>Review Management</span>
+                      </h3>
+                      <p className="text-white/80 text-lg">
+                        Monitor and moderate customer reviews
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="group p-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl transition-all duration-300 transform hover:scale-105"
+                      disabled={reloadingReviews}
+                      title="Refresh reviews"
+                    >
+                      {reloadingReviews ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+                      ) : (
+                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Stats Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-2xl font-bold">{totalReviews}</div>
+                      <div className="text-white/80 text-sm">Total Reviews</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reviews Table */}
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left p-4 font-semibold text-gray-900">User</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Product</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Rating</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Comment</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">Date</th>
+                        <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reviews.map((review) => (
+                        <tr key={review.id} className="border-t hover:bg-gray-50">
+                          <td className="p-4">
+                            <div>
+                              <div className="font-medium">{review.userName}</div>
+                              <div className="text-sm text-gray-500">{review.userEmail}</div>
+                              {review.isVerifiedPurchase && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  Verified Purchase
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-sm text-gray-500">
+                              Product ID: {review.productId}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center">
+                              {[...Array(5)].map((_, i) => (
+                                <FaStar
+                                  key={i}
+                                  className={`text-sm ${
+                                    i < review.rating ? 'text-yellow-400' : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                              <span className="ml-2 text-sm font-medium">{review.rating}/5</span>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="max-w-xs">
+                              <p className="text-sm text-gray-900 line-clamp-3">
+                                {review.comment}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-sm text-gray-500">
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </div>
+                          </td>
+                          <td className="p-4 text-right">
+                            <button
+                              onClick={() => {
+                                if (confirm('Are you sure you want to delete this review?')) {
+                                  fetch(`/api/admin/reviews/${review.id}`, {
+                                    method: 'DELETE',
+                                    credentials: 'include',
+                                  }).then(() => {
+                                    window.location.reload();
+                                  });
+                                }
+                              }}
+                              className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {totalReviewsPages > 1 && (
+                  <div className="p-6 border-t bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-700">
+                        Showing {(currentReviewsPage - 1) * reviewsPerPage + 1} to{' '}
+                        {Math.min(currentReviewsPage * reviewsPerPage, totalReviews)} of{' '}
+                        {totalReviews} reviews
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => setCurrentReviewsPage(currentReviewsPage - 1)}
+                          disabled={currentReviewsPage === 1}
+                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+                        {Array.from({ length: Math.min(5, totalReviewsPages) }, (_, i) => {
+                          let pageNum;
+                          if (totalReviewsPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentReviewsPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentReviewsPage >= totalReviewsPages - 2) {
+                            pageNum = totalReviewsPages - 4 + i;
+                          } else {
+                            pageNum = currentReviewsPage - 2 + i;
+                          }
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentReviewsPage(pageNum)}
+                              className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                currentReviewsPage === pageNum
+                                  ? 'bg-[#0D3B66] text-white'
+                                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                        <button
+                          onClick={() => setCurrentReviewsPage(currentReviewsPage + 1)}
+                          disabled={currentReviewsPage === totalReviewsPages}
+                          className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </div>

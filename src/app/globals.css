@@ -67,3 +67,102 @@
 .no-visible-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+@import 'quill/dist/quill.snow.css';
+@import 'quill/dist/quill.bubble.css';
+@import 'quill/dist/quill.core.css';
+
+/* Rich text content styles */
+.rich-text-content {
+  /* Typography */
+  line-height: 1.6;
+  
+  /* Paragraphs */
+  & p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  
+  /* Headers */
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+  
+  & h1 { font-size: 2rem; }
+  & h2 { font-size: 1.5rem; }
+  & h3 { font-size: 1.25rem; }
+  
+  /* Lists */
+  & ul, & ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  
+  & ul {
+    list-style-type: disc;
+  }
+  
+  & ol {
+    list-style-type: decimal;
+  }
+  
+  & li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  
+  /* Nested lists */
+  & ul ul, & ol ol, & ul ol, & ol ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Text formatting */
+  & strong {
+    font-weight: 600;
+    color: #1f2937; /* gray-800 */
+  }
+  
+  & em {
+    font-style: italic;
+  }
+  
+  & u {
+    text-decoration: underline;
+  }
+  
+  /* Links */
+  & a {
+    color: #0D3B66;
+    text-decoration: underline;
+    
+    &:hover {
+      color: #1E5CAF;
+    }
+  }
+  
+  /* Text alignment */
+  & .ql-align-center {
+    text-align: center;
+  }
+  
+  & .ql-align-right {
+    text-align: right;
+  }
+  
+  & .ql-align-justify {
+    text-align: justify;
+  }
+  
+  /* Remove default margins from first and last elements */
+  & > *:first-child {
+    margin-top: 0;
+  }
+  
+  & > *:last-child {
+    margin-bottom: 0;
+  }
+}

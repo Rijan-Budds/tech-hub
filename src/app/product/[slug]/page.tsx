@@ -5,6 +5,8 @@ import { headers } from "next/headers";
 import ProductActions from "./ProductActions"; // import client component
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ReviewsSection from "@/components/ReviewsSection";
+import StarRating from "@/components/StarRating";
 
 async function fetchProduct(slug: string) {
   try {
@@ -35,6 +37,8 @@ async function fetchProduct(slug: string) {
       discountPercentage?: number;
       stockQuantity: number;
       inStock?: boolean;
+      averageRating?: number;
+      totalReviews?: number;
     };
   } catch (error) {
     console.error("Error fetching product:", error);
@@ -129,6 +133,19 @@ export default async function ProductDetailPage({
               <h1 className="text-4xl font-bold text-gray-900 leading-tight">
                 {product.name}
               </h1>
+              
+              {/* Rating Display */}
+              {product.averageRating && product.averageRating > 0 && (
+                <div className="flex items-center space-x-4">
+                  <StarRating
+                    rating={product.averageRating}
+                    size="lg"
+                  />
+                  <span className="text-sm text-gray-600">
+                    ({product.totalReviews} review{product.totalReviews !== 1 ? 's' : ''})
+                  </span>
+                </div>
+              )}
 
               {/* Price */}
               <div className="flex items-baseline space-x-2">
@@ -160,45 +177,15 @@ export default async function ProductDetailPage({
                   Product Description
                 </h3>
                 {product.description ? (
-                  <p className="text-gray-700 leading-relaxed text-lg">
-                    {product.description}
-                  </p>
+                  <div 
+                    className="text-gray-700 leading-relaxed text-lg rich-text-content"
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                  />
                 ) : (
                   <p className="text-gray-500 leading-relaxed text-lg italic">
                     No description available for this product.
                   </p>
                 )}
-              </div>
-
-              {/* Features */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Key Features
-                </h3>
-                <ul className="space-y-2">
-                  <li className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full"></div>
-                    <span className="text-gray-700">
-                      Premium quality construction
-                    </span>
-                  </li>
-                  <li className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full"></div>
-                    <span className="text-gray-700">
-                      Advanced technology integration
-                    </span>
-                  </li>
-                  <li className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full"></div>
-                    <span className="text-gray-700">Reliable performance</span>
-                  </li>
-                  <li className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full"></div>
-                    <span className="text-gray-700">
-                      1-year warranty included
-                    </span>
-                  </li>
-                </ul>
               </div>
 
               {/* Product Actions */}
@@ -220,6 +207,17 @@ export default async function ProductDetailPage({
                 />
               </div>
             </div>
+          </div>
+
+          {/* Reviews Section */}
+          <div className="mt-16">
+            <ReviewsSection 
+              productId={product.id}
+              productName={product.name}
+              productImage={product.image}
+              averageRating={product.averageRating || 0}
+              totalReviews={product.totalReviews || 0}
+            />
           </div>
         </div>
       </div>

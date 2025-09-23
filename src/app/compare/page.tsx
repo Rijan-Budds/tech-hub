@@ -322,9 +322,10 @@ export default function ComparePage() {
                           <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                             Description
                           </div>
-                          <p className="text-gray-900 dark:text-white text-sm leading-relaxed">
-                            {product.description}
-                          </p>
+                          <div 
+                            className="text-gray-900 dark:text-white text-sm leading-relaxed rich-text-content"
+                            dangerouslySetInnerHTML={{ __html: product.description }}
+                          />
                         </div>
                       )}
                     </div>

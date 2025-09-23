@@ -13,6 +13,7 @@ import {
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import StarRating from "../components/StarRating";
 import Autoplay from "embla-carousel-autoplay";
 
 import {
@@ -65,6 +66,8 @@ type Product = {
   discountPercentage?: number;
   inStock?: boolean;
   purchaseCount?: number;
+  averageRating?: number;
+  totalReviews?: number;
 };
 
 type Category = {
@@ -293,6 +296,16 @@ function Page() {
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-[#0D3B66] transition-colors overflow-hidden text-ellipsis whitespace-nowrap">
                           {product.name}
                         </h3>
+                        
+                        {/* Rating Display */}
+                        {product.averageRating && product.averageRating > 0 && (
+                          <div className="mb-2">
+                            <StarRating
+                              rating={product.averageRating}
+                              size="sm"
+                            />
+                          </div>
+                        )}
                         <div className="flex items-baseline space-x-2">
                           {product.discountPercentage &&
                           product.discountPercentage > 0 ? (
