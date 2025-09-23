@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 
+// Increase the body size limit for this route
+export const runtime = 'nodejs';
+export const maxDuration = 30; // 30 seconds timeout
+
 export async function POST(req: Request) {
   try {
+    console.log('Upload request received');
+    
+    // Log the content-length header to debug
+    const contentLength = req.headers.get('content-length');
+    console.log('Content-Length:', contentLength);
+    
     const formData = await req.formData();
     const files = formData.getAll("images") as File[];
 
@@ -12,10 +22,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Limit to 5 images max
-    if (files.length > 5) {
+    // Limit to 10 images max
+    if (files.length > 10) {
       return NextResponse.json(
-        { message: "Maximum 5 images allowed" },
+        { message: "Maximum 10 images allowed" },
         { status: 400 },
       );
     }
@@ -31,10 +41,12 @@ export async function POST(req: Request) {
         );
       }
 
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
         return NextResponse.json(
-          { message: `File too large: ${file.name}` },
+          { 
+            message: `File too large: ${file.name}. Maximum size allowed is 10MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB` 
+          },
           { status: 400 },
         );
       }

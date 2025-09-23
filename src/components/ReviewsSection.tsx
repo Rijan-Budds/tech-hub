@@ -113,35 +113,6 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
   return (
     <div className={`space-y-8 ${className}`}>
-      {/* Product Info Header */}
-      {(productName || productImage) && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="flex items-center space-x-4">
-            {productImage && (
-              <div className="flex-shrink-0">
-                <Image
-                  src={productImage}
-                  alt={productName || "Product"}
-                  width={80}
-                  height={80}
-                  className="w-20 h-20 object-cover rounded-lg"
-                />
-              </div>
-            )}
-            <div>
-              {productName && (
-                <h2 className="text-xl font-bold text-gray-900 mb-2">
-                  Reviews for {productName}
-                </h2>
-              )}
-              <p className="text-gray-600">
-                See what customers are saying about this product
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-      
       {/* Rating Summary */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-6">
@@ -169,7 +140,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             {currentUser && !hasReviewed && (
               <button
                 onClick={() => setShowReviewForm(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-900 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 Write a Review
               </button>

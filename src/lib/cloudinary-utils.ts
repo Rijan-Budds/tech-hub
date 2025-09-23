@@ -27,3 +27,23 @@ export async function uploadImageToCloudinary(
     secure_url: result.secure_url,
   };
 }
+
+export async function uploadBase64ToCloudinary(
+  base64String: string,
+  folder: string = "ecommerce",
+): Promise<{ url: string; public_id: string; secure_url: string }> {
+  const result = await cloudinary.uploader.upload(base64String, {
+    folder,
+    resource_type: "auto",
+    transformation: [
+      { width: 800, height: 600, crop: "limit" },
+      { quality: "auto" },
+    ],
+  });
+
+  return {
+    url: result.secure_url,
+    public_id: result.public_id,
+    secure_url: result.secure_url,
+  };
+}

@@ -17,8 +17,6 @@ import { toast } from "sonner";
 import {
   FaShoppingCart,
   FaTrash,
-  FaMinus,
-  FaPlus,
   FaTruck,
   FaCreditCard,
   FaUser,
@@ -27,7 +25,9 @@ import {
   FaHome,
   FaMobile,
   FaMoneyBillWave,
+  FaExclamationTriangle,
 } from "react-icons/fa";
+import QuantityInput from "@/components/QuantityInput";
 
 interface CartItem {
   productId: string;
@@ -39,6 +39,7 @@ interface CartItem {
     image: string;
     slug: string;
     category: string;
+    stockQuantity: number;
   } | null;
 }
 
@@ -167,15 +168,6 @@ export default function CartPage() {
 
   const grandTotal = subtotal + deliveryFee;
 
-  const updateQuantity = async (productId: string, delta: number) => {
-    const current = items.find((it) => it.productId === productId);
-    const newQuantity = Math.max(1, (current?.quantity || 0) + delta);
-    try {
-      await cart.update(productId, newQuantity);
-    } catch {
-      toast.error("Failed to update quantity");
-    }
-  };
 
   const removeItem = async (productId: string) => {
     try {
@@ -265,31 +257,40 @@ export default function CartPage() {
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                           {it.product?.name}
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-400 mb-4">
-                          Category: {it.product?.category}
-                        </p>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Category: {it.product?.category}
+                          </p>
+                          {/* Stock Warning */}
+                          {it.product && it.product.stockQuantity <= 0 && (
+                            <div className="flex items-center space-x-1 bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">
+                              <FaExclamationTriangle className="text-xs" />
+                              <span>Out of Stock</span>
+                            </div>
+                          )}
+                          {it.product && it.product.stockQuantity > 0 && it.product.stockQuantity <= 5 && (
+                            <div className="flex items-center space-x-1 bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">
+                              <FaExclamationTriangle className="text-xs" />
+                              <span>Only {it.product.stockQuantity} left</span>
+                            </div>
+                          )}
+                        </div>
 
-                        {/* Quantity Controls */}
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(it.productId, -1)}
-                              className="w-8 h-8 rounded-md bg-white dark:bg-gray-600 hover:bg-gray-50 dark:hover:bg-gray-500 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#0D3B66] transition-colors duration-200"
-                            >
-                              <FaMinus className="text-sm" />
-                            </button>
-                            <span className="min-w-[40px] text-center font-semibold text-gray-900 dark:text-white">
-                              {it.quantity || 0}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(it.productId, 1)}
-                              className="w-8 h-8 rounded-md bg-white dark:bg-gray-600 hover:bg-gray-50 dark:hover:bg-gray-500 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#0D3B66] transition-colors duration-200"
-                            >
-                              <FaPlus className="text-sm" />
-                            </button>
-                          </div>
+                        {/* Quantity Controls and Price */}
+                        <div className="flex items-center justify-between">
+                          {it.product && (
+                            <QuantityInput
+                              quantity={it.quantity}
+                              maxQuantity={it.product.stockQuantity}
+                              onQuantityChange={(newQuantity) => {
+                                cart.update(it.productId, newQuantity).catch((error: unknown) => {
+                                  const message = error instanceof Error ? error.message : "Failed to update quantity";
+                                  toast.error(message);
+                                });
+                              }}
+                              disabled={it.product.stockQuantity <= 0}
+                            />
+                          )}
 
                           {/* Price */}
                           <div className="text-right">

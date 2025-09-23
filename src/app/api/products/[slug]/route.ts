@@ -18,6 +18,7 @@ export async function GET(
         price: product.price,
         category: product.category,
         image: product.image,
+        images: product.images,
         description: product.description,
         discountPercentage:
           product.discountPercentage && product.discountPercentage > 0

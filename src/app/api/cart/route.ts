@@ -34,6 +34,7 @@ export async function GET() {
             price: Number(product.price) || 0,
             category: product.category,
             image: product.image,
+            stockQuantity: product.stockQuantity || 0,
           });
         }
       }
@@ -90,7 +91,32 @@ export async function POST(req: Request) {
           { status: 400 },
         );
 
+      // Get product to check stock
+      const product = await productService.getProductById(productId);
+      if (!product) {
+        return NextResponse.json(
+          { message: "Product not found" },
+          { status: 404 },
+        );
+      }
+
       const existing = updatedCart.find((ci) => ci.productId === productId);
+      const currentCartQuantity = existing ? existing.quantity : 0;
+      const newTotalQuantity = currentCartQuantity + Number(quantity);
+
+      // Check if the new total quantity exceeds available stock
+      if (newTotalQuantity > product.stockQuantity) {
+        return NextResponse.json(
+          {
+            message: `Cannot add ${quantity} items. Only ${product.stockQuantity - currentCartQuantity} more items available in stock.`,
+            availableStock: product.stockQuantity,
+            currentInCart: currentCartQuantity,
+            maxCanAdd: Math.max(0, product.stockQuantity - currentCartQuantity),
+          },
+          { status: 400 },
+        );
+      }
+
       if (existing) {
         existing.quantity += Number(quantity);
       } else {
@@ -118,6 +144,27 @@ export async function POST(req: Request) {
       if (quantity <= 0) {
         updatedCart = updatedCart.filter((ci) => ci.productId !== productId);
       } else {
+        // Get product to check stock when updating quantity
+        const product = await productService.getProductById(productId);
+        if (!product) {
+          return NextResponse.json(
+            { message: "Product not found" },
+            { status: 404 },
+          );
+        }
+
+        // Check if the updated quantity exceeds available stock
+        if (quantity > product.stockQuantity) {
+          return NextResponse.json(
+            {
+              message: `Cannot update to ${quantity} items. Only ${product.stockQuantity} items available in stock.`,
+              availableStock: product.stockQuantity,
+              maxQuantity: product.stockQuantity,
+            },
+            { status: 400 },
+          );
+        }
+
         existing.quantity = quantity;
       }
     }

@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { productService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
+import { uploadBase64ToCloudinary } from "../../../../../lib/cloudinary-utils";
 
 interface ProductUpdates {
   name?: string;
   price?: number;
   category?: string;
   image?: string;
+  images?: string[];
   description?: string;
   discountPercentage?: number;
   stockQuantity?: number;
@@ -28,6 +30,7 @@ export async function PATCH(
       price,
       category,
       image,
+      images,
       description,
       discountPercentage,
       stockQuantity,
@@ -65,12 +68,30 @@ export async function PATCH(
     if (price != null) updates.price = Number(price);
     if (category != null)
       updates.category = String(category).toLowerCase().trim();
-    if (image != null) updates.image = String(image).trim();
     if (description != null)
       updates.description = String(description).trim() || undefined;
     if (discountPercentage != null)
       updates.discountPercentage = Number(discountPercentage);
     if (stockQuantity != null) updates.stockQuantity = Number(stockQuantity);
+
+    if (image && !image.startsWith('http')) {
+      const uploadResult = await uploadBase64ToCloudinary(image);
+      updates.image = uploadResult.secure_url;
+    } else if (image) {
+      updates.image = image;
+    }
+
+    if (images && Array.isArray(images)) {
+      updates.images = await Promise.all(
+        images.map(async (img) => {
+          if (img && !img.startsWith('http')) {
+            const uploadResult = await uploadBase64ToCloudinary(img);
+            return uploadResult.secure_url;
+          }
+          return img;
+        })
+      );
+    }
 
     if (!product.id) {
       return NextResponse.json(
@@ -93,6 +114,7 @@ export async function PATCH(
         price: updatedProduct?.price || product.price,
         category: updatedProduct?.category || product.category,
         image: updatedProduct?.image || product.image,
+        images: updatedProduct?.images || product.images,
         description: updatedProduct?.description || product.description,
         discountPercentage:
           updatedProduct?.discountPercentage &&

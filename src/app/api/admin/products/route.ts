@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { productService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
+import { uploadBase64ToCloudinary } from "../../../../lib/cloudinary-utils";
 
 function slugify(text: string) {
   return String(text)
@@ -36,6 +37,7 @@ export async function POST(req: Request) {
       price,
       category,
       image,
+      images,
       description,
       stockQuantity,
     } = await req.json();
@@ -71,12 +73,32 @@ export async function POST(req: Request) {
       }
     }
 
+    let mainImageUrl = image;
+    if (image && !image.startsWith('http')) {
+      const uploadResult = await uploadBase64ToCloudinary(image);
+      mainImageUrl = uploadResult.secure_url;
+    }
+
+    let secondaryImageUrls = images;
+    if (images && Array.isArray(images)) {
+      secondaryImageUrls = await Promise.all(
+        images.map(async (img) => {
+          if (img && !img.startsWith('http')) {
+            const uploadResult = await uploadBase64ToCloudinary(img);
+            return uploadResult.secure_url;
+          }
+          return img;
+        })
+      );
+    }
+
     const productData = {
       name: name.trim(),
       slug,
       price: Number(price),
       category: String(category).toLowerCase().trim(),
-      image: String(image).trim(),
+      image: mainImageUrl,
+      images: secondaryImageUrls,
       description: description?.trim() || undefined,
       discountPercentage: 0,
       stockQuantity: Number(stockQuantity),
@@ -95,7 +117,8 @@ export async function POST(req: Request) {
           name: created?.name || name.trim(),
           price: created?.price || Number(price),
           category: created?.category || String(category).toLowerCase().trim(),
-          image: created?.image || String(image).trim(),
+          image: created?.image || mainImageUrl,
+          images: created?.images || secondaryImageUrls,
           description: created?.description || description?.trim(),
           stockQuantity: created?.stockQuantity || Number(stockQuantity),
           discountPercentage: created?.discountPercentage || 0,

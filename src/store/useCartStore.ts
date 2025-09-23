@@ -8,6 +8,7 @@ interface Product {
   price: number;
   image: string;
   category: string;
+  stockQuantity: number;
 }
 
 interface CartItem {
@@ -40,6 +41,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       credentials: "include",
       body: JSON.stringify({ action: "add", productId, quantity }),
     });
+    
     if (res.ok) {
       // Update local state instead of refetching
       const currentItems = get().items;
@@ -55,6 +57,10 @@ export const useCartStore = create<CartState>((set, get) => ({
           items: [...currentItems, { productId, quantity, product: null }],
         });
       }
+    } else {
+      // Handle stock validation errors
+      const errorData = await res.json();
+      throw new Error(errorData.message || 'Failed to add item to cart');
     }
   },
   update: async (productId, quantity) => {
@@ -64,6 +70,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       credentials: "include",
       body: JSON.stringify({ action: "update", productId, quantity }),
     });
+    
     if (res.ok) {
       // Update local state instead of refetching
       const currentItems = get().items;
@@ -80,6 +87,10 @@ export const useCartStore = create<CartState>((set, get) => ({
           set({ items: [...currentItems] });
         }
       }
+    } else {
+      // Handle stock validation errors
+      const errorData = await res.json();
+      throw new Error(errorData.message || 'Failed to update cart item');
     }
   },
   remove: async (productId) => {

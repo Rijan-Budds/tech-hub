@@ -107,7 +107,8 @@ export interface IProduct {
   slug: string;
   price: number;
   category: string;
-  image: string;
+  image: string; // Primary image URL (backward compatibility)
+  images?: string[]; // Array of up to 10 image URLs
   description?: string;
   discountPercentage?: number;
   stockQuantity: number;

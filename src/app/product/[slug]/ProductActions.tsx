@@ -12,6 +12,7 @@ interface Product {
   price: number;
   category: string;
   image: string;
+  images?: string[];
   description?: string;
   discountPercentage?: number;
   stockQuantity: number;
@@ -27,6 +28,12 @@ export default function ProductActions({ product }: { product: Product }) {
   } = useCompareStore();
 
   const handleAddToCart = async () => {
+    // Check stock before attempting to add
+    if (product.stockQuantity <= 0) {
+      toast.error("This product is out of stock");
+      return;
+    }
+
     try {
       console.log("Adding to cart for product:", product.id);
       const res = await fetch("/api/cart", {
@@ -46,6 +53,12 @@ export default function ProductActions({ product }: { product: Product }) {
         if (res.status === 401) {
           console.log("User not authenticated, showing login message");
           toast.error("Please log in to add items to your cart");
+          return;
+        }
+        // Handle stock validation errors with detailed messages
+        if (res.status === 400 && data.availableStock !== undefined) {
+          console.log("Stock validation error:", data);
+          toast.error(data.message);
           return;
         }
         throw new Error(data.message || "Failed to add to cart");
@@ -113,15 +126,45 @@ export default function ProductActions({ product }: { product: Product }) {
     }
   };
 
+  const isOutOfStock = product.stockQuantity <= 0;
+  const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
+
   return (
     <div className="space-y-4">
+      {/* Stock Information */}
+      <div className="bg-gray-50 p-4 rounded-xl border">
+        <div className="flex items-center justify-between">
+          <span className="text-gray-700 font-medium">Stock Status:</span>
+          <div className="flex items-center space-x-2">
+            {isOutOfStock ? (
+              <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                Out of Stock
+              </span>
+            ) : isLowStock ? (
+              <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">
+                Only {product.stockQuantity} left!
+              </span>
+            ) : (
+              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                {product.stockQuantity} available
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Add to Cart Button */}
       <button
         onClick={handleAddToCart}
-        className="w-full bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+        disabled={isOutOfStock}
+        className={`w-full px-8 py-4 rounded-xl font-semibold text-lg transform transition-all duration-200 shadow-lg flex items-center justify-center space-x-3 ${
+          isOutOfStock
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 hover:scale-[1.02] hover:shadow-xl'
+        }`}
       >
         <FaShoppingCart className="text-xl" />
-        <span>Add to Cart</span>
+        <span>{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
       </button>
 
       {/* Add to Wishlist Button */}

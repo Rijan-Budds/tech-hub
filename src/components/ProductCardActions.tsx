@@ -34,6 +34,12 @@ export function ProductCardActions({
           toast.error("Please log in to add items to your cart");
           return;
         }
+        // Handle stock validation errors with detailed messages
+        if (res.status === 400 && data.availableStock !== undefined) {
+          console.log("Stock validation error:", data);
+          toast.error(data.message);
+          return;
+        }
         throw new Error(data.message || "Failed to add to cart");
       }
       toast.success("Added to cart");

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
@@ -7,6 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ReviewsSection from "@/components/ReviewsSection";
 import StarRating from "@/components/StarRating";
+import ImageGallery from "@/components/ImageGallery";
 
 async function fetchProduct(slug: string) {
   try {
@@ -32,6 +32,7 @@ async function fetchProduct(slug: string) {
       price: number;
       slug: string;
       image: string;
+      images?: string[];
       category: string;
       description?: string;
       discountPercentage?: number;
@@ -87,23 +88,20 @@ export default async function ProductDetailPage({
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Product Image */}
-            <div className="space-y-4">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={800}
-                  height={600}
-                  className="w-full h-[500px] object-cover rounded-2xl shadow-2xl group-hover:scale-[1.02] transition-transform duration-300"
-                />
-
+            {/* Product Images Gallery */}
+            <div className="space-y-4 relative">
+              <ImageGallery
+                images={product.images && product.images.length > 0 ? product.images : [product.image]}
+                productName={product.name}
+              />
+              
+              {/* Floating Badges */}
+              <div className="absolute top-4 left-4 z-10 space-y-2">
                 {/* Discount Badge */}
                 {product.discountPercentage &&
                   product.discountPercentage > 0 && (
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-red-500 text-white px-4 py-2 rounded-full text-lg font-bold">
+                    <div>
+                      <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
                         -{product.discountPercentage}% OFF
                       </span>
                     </div>
@@ -111,8 +109,8 @@ export default async function ProductDetailPage({
 
                 {/* Stock Status Badge */}
                 {product.inStock === false && (
-                  <div className="absolute top-4 right-4">
-                    <span className="bg-gray-500 text-white px-4 py-2 rounded-full text-lg font-bold">
+                  <div>
+                    <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
                       Out of Stock
                     </span>
                   </div>
@@ -198,6 +196,7 @@ export default async function ProductDetailPage({
                     price: product.price,
                     category: product.category,
                     image: product.image,
+                    images: product.images,
                     description: product.description,
                     discountPercentage: product.discountPercentage,
                     stockQuantity:

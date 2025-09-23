@@ -122,7 +122,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
           <button
             type="submit"
             disabled={isSubmitting || rating === 0 || comment.trim().length < 10}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] text-white px-8 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             {isSubmitting ? (
               <>

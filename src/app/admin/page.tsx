@@ -21,6 +21,7 @@ import AdminHeader from "@/components/layout/AdminHeader";
 import StatusDropdown from "@/components/StatusDropdown";
 import AdminReturnsSection from "@/components/admin/AdminReturnsSection";
 import DragDropUpload from "@/components/DragDropUpload";
+import MultipleImagesUpload from "@/components/MultipleImagesUpload";
 import dynamic from "next/dynamic";
 
 // Dynamically import QuillEditor to avoid SSR issues
@@ -209,6 +210,7 @@ export default function AdminPage() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("cpu");
   const [image, setImage] = useState("");
+  const [images, setImages] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [stockQuantity, setStockQuantity] = useState("");
   const [loading, setLoading] = useState(true);
@@ -815,10 +817,14 @@ export default function AdminPage() {
   };
 
   const addProduct = async () => {
-    if (!name || !price || !category || !image || !stockQuantity) {
+    if (!name || !price || !category || (images.length === 0 && !image) || !stockQuantity) {
       toast.error("Fill all required fields");
       return;
     }
+    
+    // Use first image from images array as primary image, fallback to single image
+    const primaryImage = images.length > 0 ? images[0] : image;
+    
     try {
       const res = await fetch("/api/admin/products", {
         method: "POST",
@@ -828,7 +834,8 @@ export default function AdminPage() {
           name,
           price: Number(price),
           category,
-          image,
+          image: primaryImage,
+          images: images.length > 0 ? images : undefined,
           description: description.trim() || undefined,
           stockQuantity: Number(stockQuantity),
         }),
@@ -840,6 +847,7 @@ export default function AdminPage() {
       setPrice("");
       setCategory("cpu");
       setImage("");
+      setImages([]);
       setDescription("");
       setStockQuantity("");
       await reloadProducts();
@@ -1014,39 +1022,6 @@ export default function AdminPage() {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to delete category";
       toast.error(errorMessage);
-    }
-  };
-
-  const handleCategoryImageUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadingCategoryImage(true);
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Upload failed");
-
-      setCategoryImage(data.url);
-      toast.success("Category image uploaded successfully");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to upload category image";
-      toast.error(errorMessage);
-    } finally {
-      setUploadingCategoryImage(false);
     }
   };
 
@@ -2870,13 +2845,13 @@ export default function AdminPage() {
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Image
+                      Product Images
                     </label>
-                    <DragDropUpload
-                      onFileUpload={handleFileUpload}
-                      onImageUrl={setImage}
-                      currentImage={image}
+                    <MultipleImagesUpload
+                      images={images}
+                      onImagesChange={setImages}
                       uploading={uploading}
+                      maxImages={10}
                       className="w-full"
                     />
                   </div>
