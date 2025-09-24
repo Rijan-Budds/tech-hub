@@ -6,6 +6,7 @@ import { ProductCardActions } from "@/components/ProductCardActions";
 import { FaSearch, FaArrowLeft } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { getProductDisplayImage } from "@/lib/product-utils";
 
 interface SearchProduct {
   id: string;
@@ -13,6 +14,7 @@ interface SearchProduct {
   name: string;
   price: number;
   image: string;
+  images?: string[];
   category: string;
   discountPercentage?: number;
   inStock?: boolean;
@@ -142,7 +144,7 @@ export default async function SearchPage({
                         <div className="relative cursor-pointer">
                           <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                           <Image
-                            src={p.image}
+                            src={getProductDisplayImage(p)}
                             alt={p.name}
                             width={400}
                             height={300}

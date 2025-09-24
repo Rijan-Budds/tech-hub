@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { FaSearchPlus, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
@@ -52,25 +52,25 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
     setIsHovering(false);
   };
 
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     setCurrentImageIndex((prev) => 
       prev === displayImages.length - 1 ? 0 : prev + 1
     );
-  };
+  }, [displayImages.length]);
 
-  const prevImage = () => {
+  const prevImage = useCallback(() => {
     setCurrentImageIndex((prev) => 
       prev === 0 ? displayImages.length - 1 : prev - 1
     );
-  };
+  }, [displayImages.length]);
 
   const openFullscreen = () => {
     setShowFullscreen(true);
   };
 
-  const closeFullscreen = () => {
+  const closeFullscreen = useCallback(() => {
     setShowFullscreen(false);
-  };
+  }, []);
 
   // Handle keyboard navigation
   useEffect(() => {

@@ -68,8 +68,7 @@ export async function PATCH(
     if (price != null) updates.price = Number(price);
     if (category != null)
       updates.category = String(category).toLowerCase().trim();
-    if (description != null)
-      updates.description = String(description).trim() || undefined;
+    if (description != null) updates.description = String(description).trim();
     if (discountPercentage != null)
       updates.discountPercentage = Number(discountPercentage);
     if (stockQuantity != null) updates.stockQuantity = Number(stockQuantity);
@@ -108,14 +107,14 @@ export async function PATCH(
     return NextResponse.json({
       message: "Product updated",
       product: {
-        id: updatedProduct?.id || product.id,
-        slug: updatedProduct?.slug || product.slug,
-        name: updatedProduct?.name || product.name,
-        price: updatedProduct?.price || product.price,
-        category: updatedProduct?.category || product.category,
-        image: updatedProduct?.image || product.image,
-        images: updatedProduct?.images || product.images,
-        description: updatedProduct?.description || product.description,
+        id: updatedProduct?.id ?? product.id,
+        slug: updatedProduct?.slug ?? product.slug,
+        name: updatedProduct?.name ?? product.name,
+        price: updatedProduct?.price ?? product.price,
+        category: updatedProduct?.category ?? product.category,
+        image: updatedProduct?.image ?? product.image,
+        images: updatedProduct?.images ?? product.images,
+        description: updatedProduct?.description ?? product.description,
         discountPercentage:
           updatedProduct?.discountPercentage &&
           updatedProduct.discountPercentage > 0

@@ -7,6 +7,7 @@ import { IProduct } from "@/lib/firebase-models";
 import { FaArrowLeft } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { getProductDisplayImage } from "@/lib/product-utils";
 
 interface ProductDisplay {
   id: string;
@@ -14,6 +15,7 @@ interface ProductDisplay {
   name: string;
   price: number;
   image: string;
+  images?: string[];
   category: string;
   discountPercentage?: number;
   stockQuantity?: number;
@@ -35,6 +37,7 @@ async function fetchProductsByCategory(
         name: product.name,
         price: product.price,
         image: product.image,
+        images: product.images,
         category: product.category,
         discountPercentage:
           product.discountPercentage && product.discountPercentage > 0
@@ -58,6 +61,7 @@ async function fetchProductsByCategory(
       name: product.name,
       price: product.price,
       image: product.image,
+      images: product.images,
       category: product.category,
       discountPercentage:
         product.discountPercentage && product.discountPercentage > 0
@@ -155,7 +159,7 @@ const CategoryPage = async ({
                         <div className="relative cursor-pointer flex-shrink-0">
                           <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                           <Image
-                            src={p.image}
+                            src={getProductDisplayImage(p)}
                             alt={p.name}
                             width={400}
                             height={300}

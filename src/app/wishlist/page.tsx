@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { getProductDisplayImage } from "@/lib/product-utils";
 
 interface Product {
   id: string;
@@ -11,6 +12,7 @@ interface Product {
   price: number;
   category: string;
   image: string;
+  images?: string[];
 }
 
 export default function WishlistPage() {
@@ -80,7 +82,7 @@ export default function WishlistPage() {
               >
                 <div className="relative">
                   <Image
-                    src={p.image}
+                    src={getProductDisplayImage(p)}
                     alt={p.name}
                     width={300}
                     height={192}

@@ -16,6 +16,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useCompareStore } from "@/store/useCompareStore";
 import { toast } from "sonner";
+import { getProductDisplayImage } from "@/lib/product-utils";
 
 export default function ComparePage() {
   const { compareProducts, removeFromCompare, clearCompare } =
@@ -212,7 +213,7 @@ export default function ComparePage() {
 
                       <div className="relative">
                         <Image
-                          src={product.image}
+                          src={getProductDisplayImage(product)}
                           alt={product.name}
                           width={400}
                           height={250}

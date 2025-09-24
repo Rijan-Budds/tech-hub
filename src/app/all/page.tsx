@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { productService, categoryService } from "@/lib/firebase-db";
 import { ICategory } from "@/lib/firebase-models";
+import { getProductDisplayImage } from "@/lib/product-utils";
 
 interface ProductDisplay {
   id: string;
@@ -12,6 +13,7 @@ interface ProductDisplay {
   name: string;
   price: number;
   image: string;
+  images?: string[];
   category: string;
   discountPercentage?: number;
   stockQuantity: number;
@@ -31,6 +33,7 @@ async function fetchAllProducts(): Promise<ProductDisplay[]> {
         name: product.name,
         price: product.price,
         image: product.image,
+        images: product.images,
         category: product.category,
         discountPercentage:
           product.discountPercentage && product.discountPercentage > 0
@@ -156,7 +159,7 @@ const AllProductsPage = async () => {
                       <Link href={`/product/${product.slug}`}>
                         <div className="relative overflow-hidden">
                           <Image
-                            src={product.image}
+                            src={getProductDisplayImage(product)}
                             alt={product.name}
                             width={400}
                             height={300}

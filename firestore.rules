@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read/write access to all documents for development
+    // TODO: Add proper security rules for production
+    match /{document=**} {
+      allow read, write: if true;
+    }
+    
+    // Chat conversations - users can read their own conversations, admins can read all
+    match /chat_conversations/{conversationId} {
+      allow read, write: if true; // Temporary - allow all for development
+      // TODO: Implement proper auth-based rules:
+      // allow read, write: if request.auth != null && 
+      //   (resource.data.userId == request.auth.uid || request.auth.token.role == 'admin');
+    }
+    
+    // Chat messages - users can read messages from their conversations, admins can read all
+    match /chat_messages/{messageId} {
+      allow read, write: if true; // Temporary - allow all for development
+      // TODO: Implement proper auth-based rules:
+      // allow read, write: if request.auth != null;
+    }
+  }
+}
