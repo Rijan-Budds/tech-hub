@@ -20,6 +20,7 @@ import {
   timestampToDate 
 } from "./firebase-models";
 
+
 export class ChatService {
   // Conversation methods
   async createOrGetConversation(
@@ -163,6 +164,10 @@ export class ChatService {
       // Update conversation with last message info
       await this.updateConversationLastMessage(conversationId, message, senderRole);
       console.log('Updated conversation last message');
+      
+      // TODO: Add notification trigger for chat messages
+      // This would need to be implemented in a separate API endpoint
+      // to avoid server/client component conflicts
       
       const sentMessage = {
         id: docRef.id,

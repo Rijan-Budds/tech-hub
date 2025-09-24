@@ -3,6 +3,7 @@ import { orderService, batchService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
 import { sendOrderStatusUpdateEmail } from "@/lib/email";
 import { serverTimestamp, FieldValue } from "firebase/firestore";
+import { addNotificationForUser, createOrderStatusNotification } from "@/lib/notification-helpers";
 
 export async function PATCH(
   req: Request,
@@ -99,13 +100,23 @@ export async function PATCH(
       await orderService.updateOrder(orderId, updateData);
     }
 
-    // Send status update email if status actually changed
+    // Send status update email and trigger notification if status actually changed
     if (oldStatus !== status) {
       try {
         await sendOrderStatusUpdateEmail(order, orderId, status);
       } catch (emailError) {
         console.error("Failed to send status update email:", emailError);
         // Don't fail the request if email fails
+      }
+
+      // Trigger real-time notification via long polling
+      try {
+        const notification = createOrderStatusNotification(orderId, order.userId, oldStatus, status);
+        addNotificationForUser(order.userId, notification);
+        console.log(`[AdminOrderUpdate] Triggered notification for user ${order.userId}: ${oldStatus} → ${status}`);
+      } catch (notificationError) {
+        console.error("Failed to send real-time notification:", notificationError);
+        // Don't fail the request if notification fails
       }
     }
 

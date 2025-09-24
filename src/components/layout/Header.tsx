@@ -19,6 +19,7 @@ import { useCompareStore } from "@/store/useCompareStore";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import LoginForm from "@/components/forms/LoginForm";
 import SignupForm from "@/components/forms/SignupForm";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 interface CurrentUser {
   id: string;
@@ -117,7 +118,9 @@ const Header = () => {
               const query = formData.get("q") as string;
               const trimmedQuery = query.trim();
               if (trimmedQuery) {
-                window.location.href = `/search?q=${encodeURIComponent(trimmedQuery)}`;
+                window.location.href = `/search?q=${encodeURIComponent(
+                  trimmedQuery
+                )}`;
               }
             }}
           >
@@ -147,6 +150,10 @@ const Header = () => {
 
         {/* Right side: Icons */}
         <div className="flex items-center gap-3 sm:gap-4">
+          {/* Notification Dropdown - Only for non-admin users */}
+          {currentUser && currentUser.role !== "admin" && (
+            <NotificationDropdown />
+          )}
           {/* User Icon with Dropdown */}
           {currentUser ? (
             <div className="relative" ref={dropdownRef}>
@@ -264,7 +271,6 @@ const Header = () => {
               <FaShoppingCart className="w-5 h-5 sm:w-5 sm:h-5" />
             </Link>
           )}
-
           <ModeToggle />
         </div>
       </div>
