@@ -65,6 +65,13 @@ export const useNotificationPolling = (options: NotificationPollingOptions = {})
       });
 
       if (!response.ok) {
+        // Handle 401 Unauthorized specifically
+        if (response.status === 401) {
+          console.error('[NotificationPolling] Unauthorized (401) - user not authenticated, stopping polling');
+          pollingActiveRef.current = false;
+          setIsConnected(false);
+          return;
+        }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -121,12 +128,27 @@ export const useNotificationPolling = (options: NotificationPollingOptions = {})
       console.error('[NotificationPolling] Poll request failed:', error);
       setIsConnected(false);
 
-      // Implement exponential backoff for reconnection
+      // Check if it's an authentication error (401)
+      if (error instanceof Error && error.message.includes('401')) {
+        console.error('[NotificationPolling] Authentication failed - stopping polling to prevent spam');
+        // Stop polling immediately on auth failure
+        pollingActiveRef.current = false;
+        return;
+      }
+
+      // Implement exponential backoff for reconnection (only for non-auth errors)
       if (pollingActiveRef.current) {
         const backoffDelay = Math.min(reconnectDelay * Math.pow(2, reconnectCount), 30000);
         console.log(`[NotificationPolling] Reconnecting in ${backoffDelay}ms (attempt ${reconnectCount + 1})`);
         
         setReconnectCount(prev => prev + 1);
+        
+        // Stop after too many failed attempts to prevent infinite loops
+        if (reconnectCount >= 5) {
+          console.error('[NotificationPolling] Too many failed attempts - stopping polling');
+          pollingActiveRef.current = false;
+          return;
+        }
         
         reconnectTimeoutRef.current = setTimeout(() => {
           if (pollingActiveRef.current) {
@@ -171,9 +193,13 @@ export const useNotificationPolling = (options: NotificationPollingOptions = {})
 
   // Start/stop polling based on enabled flag
   useEffect(() => {
+    console.log('[NotificationPolling] useEffect - enabled:', enabled, 'pollingActive:', pollingActiveRef.current);
+    
     if (enabled) {
+      console.log('[NotificationPolling] Starting polling due to enabled=true');
       startPolling();
     } else {
+      console.log('[NotificationPolling] Stopping polling due to enabled=false');
       stopPolling();
     }
 

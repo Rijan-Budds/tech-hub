@@ -14,11 +14,19 @@ export default function NotificationListener({
   enabled = true, 
   showConnectionStatus = false 
 }: NotificationListenerProps) {
-  const { user } = useProfileStore();
+  const { user, loading } = useProfileStore();
   const [isVisible, setIsVisible] = useState(false);
 
-  // Only enable for authenticated non-admin users
-  const shouldEnable = Boolean(enabled && user && user.role !== 'admin');
+  // Only enable for authenticated non-admin users, and only after loading is complete
+  const shouldEnable = Boolean(
+    enabled && 
+    !loading && 
+    user && 
+    user.id && 
+    user.role !== 'admin'
+  );
+  
+  console.log('[NotificationListener] shouldEnable:', shouldEnable, 'loading:', loading, 'user:', user?.username, 'role:', user?.role);
 
   const {
     isConnected,
@@ -38,6 +46,14 @@ export default function NotificationListener({
       return () => clearTimeout(timer);
     }
   }, [isConnected, showConnectionStatus, shouldEnable]);
+
+  // Stop polling if user becomes unauthenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      console.log('[NotificationListener] User not authenticated, ensuring polling is stopped');
+      // The polling hook will handle stopping based on shouldEnable change
+    }
+  }, [loading, user]);
 
   // Don't render anything if user is not authenticated or is admin
   if (!shouldEnable) {
