@@ -11,6 +11,7 @@ import {
   FaSignOutAlt,
   FaHeart,
   FaBalanceScale,
+  FaComment,
 } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
 import { useCompareStore } from "@/store/useCompareStore";
@@ -207,6 +208,15 @@ const Header = () => {
                           Wishlist
                         </Link>
 
+                        <Link
+                        href="/chats"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => setDropdownOpen(false)}
+                        >
+                        <FaComment className="w-4 h-4 mr-3" />
+                        Chat with Admin
+                        </Link>
+                      
                         <Link
                           href="/compare"
                           className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

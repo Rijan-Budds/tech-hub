@@ -68,6 +68,36 @@
   display: none;
 }
 
+/* Custom scrollbar styles for chat */
+.chat-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB #F3F4F6;
+}
+
+.chat-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 3px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+.chat-scrollbar::-webkit-scrollbar-corner {
+  background: #F3F4F6;
+}
+
 @import 'quill/dist/quill.snow.css';
 @import 'quill/dist/quill.bubble.css';
 @import 'quill/dist/quill.core.css';

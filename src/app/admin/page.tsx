@@ -16,10 +16,12 @@ import {
   FaUndo,
   FaTags,
   FaStar,
+  FaComment,
 } from "react-icons/fa";
 import AdminHeader from "@/components/layout/AdminHeader";
 import StatusDropdown from "@/components/StatusDropdown";
 import AdminReturnsSection from "@/components/admin/AdminReturnsSection";
+import AdminChatInterface from "@/components/admin/AdminChatInterface";
 import DragDropUpload from "@/components/DragDropUpload";
 import MultipleImagesUpload from "@/components/MultipleImagesUpload";
 import dynamic from "next/dynamic";
@@ -220,7 +222,7 @@ export default function AdminPage() {
   const [reloadingProducts, setReloadingProducts] = useState(false);
   const [reloadingAll, setReloadingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "orders" | "products" | "returns" | "categories" | "reviews"
+    "overview" | "users" | "orders" | "products" | "returns" | "categories" | "reviews" | "chat"
   >("overview");
 
   // Categories state
@@ -1123,7 +1125,8 @@ export default function AdminPage() {
       | "products"
       | "returns"
       | "categories"
-      | "reviews",
+      | "reviews"
+      | "chat",
   ) => {
     setActiveTab(tab);
     if (tab === "products") {
@@ -1382,6 +1385,7 @@ export default function AdminPage() {
                 { id: "categories", label: "Categories", icon: FaTags },
                 { id: "reviews", label: "Reviews", icon: FaStar },
                 { id: "returns", label: "Returns", icon: FaUndo },
+                { id: "chat", label: "Chat Support", icon: FaComment },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -1394,7 +1398,8 @@ export default function AdminPage() {
                         | "products"
                         | "returns"
                         | "categories"
-                        | "reviews",
+                        | "reviews"
+                        | "chat",
                     )
                   }
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
@@ -3558,6 +3563,55 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === "chat" && (
+            <div className="space-y-8">
+              {/* Chat Header with Gradient */}
+              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
+                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
+                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
+                </div>
+
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
+                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
+                          <FaComment className="text-2xl" />
+                        </div>
+                        <span>Customer Support Chat</span>
+                      </h3>
+                      <p className="text-white/80 text-lg">
+                        Real-time chat with customers for support and assistance
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Chat Features Info */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-lg font-bold mb-1">🎯 All Messages</div>
+                      <div className="text-white/80 text-sm">View all customer conversations</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-lg font-bold mb-1">📢 Broadcast</div>
+                      <div className="text-white/80 text-sm">Send messages to all users</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                      <div className="text-lg font-bold mb-1">💬 Private Chat</div>
+                      <div className="text-white/80 text-sm">One-on-one conversations</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chat Interface */}
+              <AdminChatInterface />
             </div>
           )}
         </div>

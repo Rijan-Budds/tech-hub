@@ -9,6 +9,7 @@ import {
   FaShoppingCart,
   FaHeart,
   FaArrowRight,
+  FaComment,
 } from "react-icons/fa";
 
 import Header from "../components/layout/Header";
