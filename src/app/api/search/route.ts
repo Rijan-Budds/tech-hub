@@ -24,6 +24,7 @@ export async function GET(request: Request) {
         price: product.price,
         category: product.category,
         image: product.image,
+        images: product.images, // Include images array
         discountPercentage:
           product.discountPercentage && product.discountPercentage > 0
             ? product.discountPercentage

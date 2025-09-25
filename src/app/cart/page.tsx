@@ -28,6 +28,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import QuantityInput from "@/components/QuantityInput";
+import { getProductDisplayImage } from "@/lib/product-utils";
 
 interface CartItem {
   productId: string;
@@ -37,6 +38,7 @@ interface CartItem {
     name: string;
     price: number;
     image: string;
+    images?: string[];
     slug: string;
     category: string;
     stockQuantity: number;
@@ -240,7 +242,7 @@ export default function CartPage() {
                       {it.product && (
                         <div className="relative mr-6">
                           <Image
-                            src={it.product.image}
+                            src={getProductDisplayImage(it.product)}
                             alt={it.product.name}
                             width={120}
                             height={120}

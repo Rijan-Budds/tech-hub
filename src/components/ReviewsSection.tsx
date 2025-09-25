@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
+
 import { FaStar } from "react-icons/fa";
 import StarRating from "./StarRating";
 import ReviewForm from "./ReviewForm";
@@ -23,7 +23,6 @@ interface RatingDistribution {
 const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   productId,
   productName,
-  productImage,
   averageRating = 0,
   totalReviews = 0,
   className = "",

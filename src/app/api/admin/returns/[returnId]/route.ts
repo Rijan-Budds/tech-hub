@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { returnService, orderService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
 import { sendReturnRequestEmail } from "@/lib/email";
+import { addNotificationForUser, createReturnStatusNotification } from "@/lib/notification-helpers";
 
 export async function PATCH(
   req: Request,
@@ -95,7 +96,7 @@ export async function PATCH(
       `Return request ${returnId} status updated from ${oldStatus} to ${status}`,
     );
 
-    // Send status update email if status changed
+    // Send status update email and trigger notification if status changed
     if (oldStatus !== status) {
       try {
         const updatedReturnRequest =
@@ -124,6 +125,23 @@ export async function PATCH(
       } catch (emailError) {
         console.error("Failed to send return status update email:", emailError);
         // Don't fail the request if email fails
+      }
+
+      // Trigger real-time notification via long polling
+      if (order) {
+        try {
+          const notification = createReturnStatusNotification(
+            returnId,
+            order.userId,
+            returnRequest.orderId,
+            status
+          );
+          addNotificationForUser(order.userId, notification);
+          console.log(`[AdminReturnUpdate] Triggered notification for user ${order.userId}: ${oldStatus} → ${status}`);
+        } catch (notificationError) {
+          console.error("Failed to send real-time notification:", notificationError);
+          // Don't fail the request if notification fails
+        }
       }
     }
 

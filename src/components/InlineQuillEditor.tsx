@@ -21,8 +21,9 @@ const InlineQuillEditor: React.FC<InlineQuillEditorProps> = ({
   const quillRef = useRef<QuillType | null>(null);
   const isInitializedRef = useRef(false);
   const [isClient, setIsClient] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true); // Start in editing mode by default
   const [currentContent, setCurrentContent] = useState(initialValue || "");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -35,6 +36,7 @@ const InlineQuillEditor: React.FC<InlineQuillEditorProps> = ({
 
 
   useEffect(() => {
+    console.log('InlineQuillEditor useEffect:', { isClient, hasEditorRef: !!editorRef.current, isEditing, isInitialized: isInitializedRef.current });
     if (!isClient || !editorRef.current || !isEditing) {
       return;
     }
@@ -43,32 +45,45 @@ const InlineQuillEditor: React.FC<InlineQuillEditorProps> = ({
     if (isInitializedRef.current) return;
 
     const initializeQuill = async () => {
-      const { default: Quill } = await import("quill");
+      try {
+        console.log('Initializing Quill editor...');
+        const { default: Quill } = await import("quill");
+        console.log('Quill imported successfully');
 
-      const quill = new Quill(editorRef.current!, {
-        theme: "snow",
-        modules: {
-          toolbar: [
-            [{ header: [1, 2, 3, false] }],
-            ["bold", "italic", "underline"],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
-            [{ align: [] }],
-          ],
-        },
-        placeholder,
-      });
+        const quill = new Quill(editorRef.current!, {
+          theme: "snow",
+          modules: {
+            toolbar: [
+              [{ header: [1, 2, 3, false] }],
+              ["bold", "italic", "underline"],
+              [{ list: "ordered" }, { list: "bullet" }],
+              ["link"],
+              [{ align: [] }],
+            ],
+          },
+          placeholder,
+        });
+        console.log('Quill instance created');
 
-      quillRef.current = quill;
-      isInitializedRef.current = true;
+        quillRef.current = quill;
+        isInitializedRef.current = true;
+        console.log('Quill editor initialized successfully');
 
-      // Set initial content
-      if (currentContent) {
-        quill.root.innerHTML = currentContent;
+        // Set initial content
+        if (currentContent) {
+          console.log('Setting initial content:', currentContent);
+          quill.root.innerHTML = currentContent;
+        }
+
+        // Focus the editor
+        console.log('Focusing Quill editor');
+        setTimeout(() => {
+          quill.focus();
+        }, 100); // Small delay to ensure DOM is ready
+      } catch (error) {
+        console.error('Error initializing Quill editor:', error);
+        setError(error instanceof Error ? error.message : 'Failed to initialize editor');
       }
-
-      // Focus the editor
-      quill.focus();
     };
 
     initializeQuill();
@@ -154,18 +169,29 @@ const InlineQuillEditor: React.FC<InlineQuillEditorProps> = ({
     );
   }
 
+  if (error) {
+    return (
+      <div className={className}>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="text-red-700 text-sm font-medium mb-2">Editor Error:</div>
+          <div className="text-red-600 text-sm">{error}</div>
+          <button
+            onClick={() => {
+              setError(null);
+              setIsEditing(true);
+            }}
+            className="mt-2 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       <div className="relative">
-        {/* Close button */}
-        <button
-          onClick={handleCancel}
-          className="absolute top-2 right-2 z-10 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs transition-colors"
-          title="Close editor"
-        >
-          ✕
-        </button>
-        
         <div
           ref={editorRef}
           style={{ height: "150px", backgroundColor: "white" }}
@@ -174,7 +200,6 @@ const InlineQuillEditor: React.FC<InlineQuillEditorProps> = ({
       </div>
       
       <div className="flex justify-between items-center mt-2 px-1">
-        <span className="text-xs text-gray-500">Click Save to update or Cancel to discard changes</span>
         <div className="flex space-x-2">
           <button
             onClick={handleCancel}

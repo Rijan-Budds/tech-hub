@@ -16,6 +16,7 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import StarRating from "../components/StarRating";
 import Autoplay from "embla-carousel-autoplay";
+import { getProductDisplayImage } from "@/lib/product-utils";
 
 import {
   Carousel,
@@ -63,6 +64,7 @@ type Product = {
   name: string;
   price: number;
   image: string;
+  images?: string[];
   category: string;
   discountPercentage?: number;
   inStock?: boolean;
@@ -252,7 +254,7 @@ function Page() {
                     <Link href={`/product/${product.slug}`}>
                       <div className="relative overflow-hidden">
                         <Image
-                          src={product.image}
+                          src={getProductDisplayImage(product)}
                           alt={product.name}
                           width={400}
                           height={300}

@@ -101,6 +101,32 @@ export interface IReview {
   isVerifiedPurchase?: boolean; // If user actually bought the product
 }
 
+export interface IChatConversation {
+  id?: string;
+  userId: string; // Customer ID
+  userName: string; // Customer name
+  userEmail: string; // Customer email
+  status: "active" | "closed" | "archived"; // Conversation status
+  lastMessage?: string; // Preview of last message
+  lastMessageAt?: Timestamp | Date | FieldValue; // When last message was sent
+  unreadCount: number; // Number of unread messages (for admin)
+  createdAt: Timestamp | Date | FieldValue;
+  updatedAt: Timestamp | Date | FieldValue;
+}
+
+export interface IChatMessage {
+  id?: string;
+  conversationId: string; // Reference to conversation
+  senderId: string; // Who sent the message (userId or 'admin')
+  senderName: string; // Name of sender
+  senderRole: "customer" | "admin"; // Role of sender
+  message: string; // Message content
+  messageType: "text" | "image" | "file"; // Type of message
+  isRead: boolean; // Has message been read
+  createdAt: Timestamp | Date | FieldValue;
+  updatedAt?: Timestamp | Date | FieldValue;
+}
+
 export interface IProduct {
   id?: string;
   name: string;
@@ -126,12 +152,18 @@ export const COLLECTIONS = {
   RETURN_REQUESTS: "return_requests",
   CATEGORIES: "categories",
   REVIEWS: "reviews",
+  CHAT_CONVERSATIONS: "chat_conversations",
+  CHAT_MESSAGES: "chat_messages",
 } as const;
 
 // Helper function to convert Firestore Timestamp to Date
-export const timestampToDate = (timestamp: Timestamp | Date): Date => {
+export const timestampToDate = (timestamp: Timestamp | Date | FieldValue): Date => {
   if (timestamp instanceof Timestamp) {
     return timestamp.toDate();
   }
-  return timestamp;
+  if (timestamp instanceof Date) {
+    return timestamp;
+  }
+  // If it's a FieldValue (serverTimestamp), return current date as fallback
+  return new Date();
 };

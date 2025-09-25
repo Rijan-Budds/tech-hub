@@ -23,6 +23,8 @@ import StatusDropdown from "@/components/StatusDropdown";
 import AdminReturnsSection from "@/components/admin/AdminReturnsSection";
 import AdminChatInterface from "@/components/admin/AdminChatInterface";
 import DragDropUpload from "@/components/DragDropUpload";
+
+
 import MultipleImagesUpload from "@/components/MultipleImagesUpload";
 import dynamic from "next/dynamic";
 
@@ -111,35 +113,91 @@ function ProductDescriptionSection({
   const plain = description ? getPlainText(description) : "";
   const isLong = plain.length > 160;
   const preview = isLong ? plain.slice(0, 160) + "…" : plain;
+  const hasDescription = plain.length > 0;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
         <label className="text-sm font-semibold text-gray-700 block">
-          Description
+          📝 Product Description
         </label>
-        {isLong && (
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-          >
-            {expanded ? "Minimize" : "Show more"}
-          </button>
-        )}
+        <div className="flex items-center space-x-2">
+          {expanded ? (
+            <button
+              type="button"
+              onClick={() => {
+                console.log('Closing description editor from header');
+                setExpanded(false);
+              }}
+              className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs rounded-lg font-medium transition-colors duration-200 flex items-center space-x-1"
+              title="Close editor"
+            >
+              <span>✕</span>
+              <span>Close Editor</span>
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setExpanded(true)}
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-lg font-medium transition-colors duration-200 flex items-center space-x-1"
+              >
+                <span>✏️</span>
+                <span>Edit Description</span>
+              </button>
+              {isLong && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded(true)}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
+                  Show full description
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
       {expanded ? (
-        <InlineQuillEditor
-          key={`desc-${productId}-${productSlug}`}
-          initialValue={description || ""}
-          onSave={(content) => onSave(content)}
-          placeholder="Click to add product description..."
-          className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl p-2"
-        />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-blue-600 font-medium flex items-center space-x-1">
+              <span>Editor is active </span>
+            </div>
+          </div>
+          <InlineQuillEditor
+            key={`desc-${productId}-${productSlug}`}
+            initialValue={description || ""}
+            onSave={(content) => {
+              console.log('Saving description:', content);
+              onSave(content);
+              setExpanded(false);
+            }}
+            placeholder="Enter detailed product description with rich text formatting..."
+            className="w-full"
+          />
+        </div>
       ) : (
-        <div className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl p-3 text-sm text-gray-700">
-          {preview || "No description"}
+        <div className={`w-full bg-white/80 backdrop-blur-sm border-2 rounded-xl p-3 text-sm transition-all duration-200 ${
+          hasDescription 
+            ? "border-gray-200 text-gray-700 hover:border-blue-300 hover:shadow-sm cursor-pointer" 
+            : "border-dashed border-gray-300 text-gray-500 hover:border-blue-400 hover:bg-blue-50/30 cursor-pointer"
+        }`}
+          onClick={() => {
+            console.log('Description area clicked, expanding editor');
+            setExpanded(true);
+          }}
+          title="Click to edit description"
+        >
+          {hasDescription ? (
+            <div dangerouslySetInnerHTML={{ __html: preview }} />
+          ) : (
+            <div className="flex items-center justify-center py-4 space-x-2">
+              <span className="text-lg">📝</span>
+              <span className="font-medium">Click to add product description</span>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -217,6 +275,8 @@ export default function AdminPage() {
   const [stockQuantity, setStockQuantity] = useState("");
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+
+
   const [reloadingUsers, setReloadingUsers] = useState(false);
   const [reloadingOrders, setReloadingOrders] = useState(false);
   const [reloadingProducts, setReloadingProducts] = useState(false);
@@ -1150,31 +1210,10 @@ export default function AdminPage() {
   };
 
 
-  const handleFileUpload = async (file: File) => {
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append("image", file);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Upload failed");
 
-      setImage(data.url);
-      toast.success("Image uploaded successfully");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to upload image";
-      toast.error(errorMessage);
-    } finally {
-      setUploading(false);
-    }
-  };
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -2855,6 +2894,7 @@ export default function AdminPage() {
                     <MultipleImagesUpload
                       images={images}
                       onImagesChange={setImages}
+                      onUploadingChange={setUploading} // Pass the function
                       uploading={uploading}
                       maxImages={10}
                       className="w-full"

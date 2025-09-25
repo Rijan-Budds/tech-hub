@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import ComparisonProvider from "@/components/ComparisonProvider";
+import NotificationListener from "@/components/NotificationListener";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config as faConfig } from "@fortawesome/fontawesome-svg-core";
 faConfig.autoAddCss = false;
@@ -44,6 +45,10 @@ export default function RootLayout({
           {/* Optional: import '@/lib/fontawesome' here if you want to pre-add icons */}
           {children}
           <ComparisonProvider />
+          <NotificationListener 
+            enabled={true}
+            showConnectionStatus={process.env.NODE_ENV === 'development'}
+          />
           <Toaster />
         </ThemeProvider>
       </body>

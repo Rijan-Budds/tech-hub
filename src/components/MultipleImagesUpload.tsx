@@ -9,6 +9,7 @@ import { compressImages, validateImageFile, formatFileSize } from '@/utils/image
 interface MultipleImagesUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
+  onUploadingChange?: (uploading: boolean) => void; // New prop
   uploading?: boolean;
   maxImages?: number;
   className?: string;
@@ -17,6 +18,7 @@ interface MultipleImagesUploadProps {
 const MultipleImagesUpload: React.FC<MultipleImagesUploadProps> = ({
   images,
   onImagesChange,
+  onUploadingChange,
   uploading = false,
   maxImages = 10,
   className = "",
@@ -86,6 +88,7 @@ const MultipleImagesUpload: React.FC<MultipleImagesUploadProps> = ({
     }
 
     try {
+      onUploadingChange?.(true); // Set uploading to true
       toast.info('Compressing and uploading images...');
       
       // Compress images to reduce size
@@ -131,6 +134,8 @@ const MultipleImagesUpload: React.FC<MultipleImagesUploadProps> = ({
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to upload images');
+    } finally {
+      onUploadingChange?.(false); // Set uploading to false
     }
   };
 
