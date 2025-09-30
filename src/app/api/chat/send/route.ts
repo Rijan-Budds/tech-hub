@@ -1,39 +1,34 @@
 import { NextRequest } from 'next/server';
-import { chatStore } from '@/lib/chatStore';
+import { chatService } from '@/lib/chat-service';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { from, role, userId, text, targetUserId } = body;
+    const { from, role, userId, text, userName } = body;
 
-    if (!from || !role || !text) {
-      return new Response(JSON.stringify({ error: 'Missing required fields: from, role, text' }), { 
+    if (!from || !role || !text || !userId) {
+      return new Response(JSON.stringify({ error: 'Missing required fields: from, role, text, userId' }), { 
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // For user messages, userId is required
-    if (role === 'user' && !userId) {
-      return new Response(JSON.stringify({ error: 'userId is required for user messages' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
+    // Get or create chat session
+    const chatName = userName || from;
+    const chatId = await chatService.getOrCreateChat(userId, chatName);
 
-    // Add message to store (this will automatically broadcast to relevant connections)
-    const message = chatStore.addMessage({
+    // Add message to the chat
+    const messageId = await chatService.addMessage(chatId, {
       from,
       role: role as 'user' | 'admin',
-      userId: role === 'user' ? userId : targetUserId, // For admin messages, targetUserId specifies recipient
       text,
     });
 
     return new Response(JSON.stringify({ 
       status: 'success', 
       message: 'Message sent successfully',
-      messageId: message.id,
-      timestamp: message.timestamp
+      chatId,
+      messageId,
     }), {
       headers: { 'Content-Type': 'application/json' }
     });

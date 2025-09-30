@@ -1150,31 +1150,6 @@ export default function AdminPage() {
   };
 
 
-  const handleFileUpload = async (file: File) => {
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Upload failed");
-
-      setImage(data.url);
-      toast.success("Image uploaded successfully");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to upload image";
-      toast.error(errorMessage);
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -2856,6 +2831,7 @@ export default function AdminPage() {
                       images={images}
                       onImagesChange={setImages}
                       uploading={uploading}
+                      setUploading={setUploading}
                       maxImages={10}
                       className="w-full"
                     />

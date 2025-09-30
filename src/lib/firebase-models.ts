@@ -126,7 +126,26 @@ export const COLLECTIONS = {
   RETURN_REQUESTS: "return_requests",
   CATEGORIES: "categories",
   REVIEWS: "reviews",
+  CHATS: "chats",
 } as const;
+
+export interface IChat {
+  id?: string;
+  userId: string;
+  userName: string;
+  lastMessage: string;
+  lastMessageAt: Timestamp | Date;
+  isRead: boolean;
+}
+
+export interface IMessage {
+  id?: string;
+  chatId: string;
+  from: string;
+  role: "user" | "admin";
+  text: string;
+  timestamp: Timestamp | Date;
+}
 
 // Helper function to convert Firestore Timestamp to Date
 export const timestampToDate = (timestamp: Timestamp | Date): Date => {

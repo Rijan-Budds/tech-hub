@@ -10,6 +10,7 @@ interface MultipleImagesUploadProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
   uploading?: boolean;
+  setUploading: (uploading: boolean) => void;
   maxImages?: number;
   className?: string;
 }
