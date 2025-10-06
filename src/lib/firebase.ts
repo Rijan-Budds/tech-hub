@@ -17,4 +17,5 @@ const app =
 
 // Initialize Firebase services
 export const db = getFirestore(app);
+export { app };
 

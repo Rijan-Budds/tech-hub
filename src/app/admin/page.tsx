@@ -17,14 +17,17 @@ import {
   FaTags,
   FaStar,
   FaComment,
+  FaQuestionCircle,
 } from "react-icons/fa";
 import AdminHeader from "@/components/layout/AdminHeader";
 import StatusDropdown from "@/components/StatusDropdown";
 import AdminReturnsSection from "@/components/admin/AdminReturnsSection";
 import AdminChatInterface from "@/components/admin/AdminChatInterface";
+import AdminInquiriesSection from "@/components/admin/AdminInquiriesSection";
 import DragDropUpload from "@/components/DragDropUpload";
 import MultipleImagesUpload from "@/components/MultipleImagesUpload";
 import dynamic from "next/dynamic";
+import { IInquiry } from "@/lib/firebase-models";
 
 // Dynamically import QuillEditor to avoid SSR issues
 const QuillEditor = dynamic(() => import("@/components/QuillEditor"), {
@@ -222,7 +225,7 @@ export default function AdminPage() {
   const [reloadingProducts, setReloadingProducts] = useState(false);
   const [reloadingAll, setReloadingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "orders" | "products" | "returns" | "categories" | "reviews" | "chat"
+    "overview" | "users" | "orders" | "products" | "returns" | "categories" | "reviews" | "chat" | "inquiries"
   >("overview");
 
   // Categories state
@@ -336,9 +339,18 @@ export default function AdminPage() {
   const [returnsSortOrder, setReturnsSortOrder] = useState("desc");
   const [returnsStatusFilter, setReturnsStatusFilter] = useState("all");
   const [reloadingReturns, setReloadingReturns] = useState(false);
-  const [expandedReturns, setExpandedReturns] = useState<Set<string>>(
-    new Set(),
-  );
+  const [expandedReturns, setExpandedReturns] = useState<Set<string>>(new Set());
+
+  // Inquiries state
+  const [inquiries, setInquiries] = useState<(IInquiry & { id: string })[]>([]);
+  const [currentInquiriesPage, setCurrentInquiriesPage] = useState(1);
+  const [inquiriesPerPage, setInquiriesPerPage] = useState(10); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [totalInquiries, setTotalInquiries] = useState(0);
+  const [totalInquiriesPages, setTotalInquiriesPages] = useState(0);
+  const [inquiriesSortBy, setInquiriesSortBy] = useState("createdAt");
+  const [inquiriesSortOrder, setInquiriesSortOrder] = useState("desc");
+  const [inquiriesStatusFilter, setInquiriesStatusFilter] = useState("all");
+  const [reloadingInquiries, setReloadingInquiries] = useState(false);
 
   // Reviews state
   const [reviews, setReviews] = useState<{
@@ -413,7 +425,7 @@ export default function AdminPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [uRes, oRes, pRes, rRes, cRes, reviewsRes, pAllRes] = await Promise.all([
+        const [uRes, oRes, pRes, rRes, cRes, reviewsRes, iRes, pAllRes] = await Promise.all([
           fetch(
             `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
             {
@@ -450,6 +462,12 @@ export default function AdminPage() {
               credentials: "include",
             },
           ),
+          fetch(
+            `/api/admin/inquiries?page=${currentInquiriesPage}&limit=${inquiriesPerPage}&sortBy=${inquiriesSortBy}&sortOrder=${inquiriesSortOrder}&status=${inquiriesStatusFilter}`,
+            {
+              credentials: "include",
+            },
+          ),
           fetch(`/api/products?all=true`, {
             credentials: "include",
           }),
@@ -467,6 +485,7 @@ export default function AdminPage() {
         const rData = await rRes.json();
         const cData = await cRes.json();
         const reviewsData = await reviewsRes.json();
+        const iData = await iRes.json();
         const pAllData = await pAllRes.json();
         setUsers(uData.users || []);
         setOrders(oData.orders || []);
@@ -475,6 +494,7 @@ export default function AdminPage() {
         setReturnRequests(rData.returnRequests || []);
         setCategories(cData.categories || []);
         setReviews(reviewsData.reviews || []);
+        setInquiries(iData.inquiries || []);
 
         // Set pagination data for users
         if (uData.pagination) {
@@ -510,6 +530,12 @@ export default function AdminPage() {
         if (reviewsData.pagination) {
           setTotalReviews(reviewsData.pagination.totalCount);
           setTotalReviewsPages(reviewsData.pagination.totalPages);
+        }
+
+        // Set pagination data for inquiries
+        if (iData.pagination) {
+          setTotalInquiries(iData.pagination.totalInquiries);
+          setTotalInquiriesPages(iData.pagination.totalPages);
         }
 
 
@@ -551,6 +577,11 @@ export default function AdminPage() {
     reviewsPerPage,
     reviewsSortBy,
     reviewsSortOrder,
+    currentInquiriesPage,
+    inquiriesPerPage,
+    inquiriesSortBy,
+    inquiriesSortOrder,
+    inquiriesStatusFilter,
   ]);
 
   const reloadUsers = async () => {
@@ -674,10 +705,81 @@ export default function AdminPage() {
     }
   };
 
+  const reloadInquiries = async () => {
+    try {
+      setReloadingInquiries(true);
+      const res = await fetch(
+        `/api/admin/inquiries?page=${currentInquiriesPage}&limit=${inquiriesPerPage}&sortBy=${inquiriesSortBy}&sortOrder=${inquiriesSortOrder}&status=${inquiriesStatusFilter}`,
+        {
+          credentials: "include",
+        },
+      );
+      const data = await res.json();
+      setInquiries(data.inquiries || []);
+
+      // Set pagination data for inquiries
+      if (data.pagination) {
+        setTotalInquiries(data.pagination.totalInquiries);
+        setTotalInquiriesPages(data.pagination.totalPages);
+      }
+
+      toast.success("Inquiries refreshed successfully");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to reload inquiries";
+      toast.error(errorMessage);
+    } finally {
+      setReloadingInquiries(false);
+    }
+  };
+
+  const updateInquiry = async (inquiryId: string, data: { status?: "pending" | "in-progress" | "resolved" | "closed"; adminResponse?: string; respondedBy?: string }) => {
+    try {
+      const res = await fetch(`/api/admin/inquiries/${inquiryId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+      const response = await res.json();
+      if (!res.ok) throw new Error(response.error || "Failed to update inquiry");
+
+      // Update local state
+      setInquiries((prev) =>
+        prev.map((inquiry) => 
+          inquiry.id === inquiryId 
+            ? { ...inquiry, ...data, respondedAt: data.adminResponse ? new Date() : inquiry.respondedAt }
+            : inquiry
+        )
+      );
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const deleteInquiry = async (inquiryId: string) => {
+    try {
+      const res = await fetch(`/api/admin/inquiries/${inquiryId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const response = await res.json();
+      if (!res.ok) throw new Error(response.error || "Failed to delete inquiry");
+
+      // Update local state
+      setInquiries((prev) => prev.filter((inquiry) => inquiry.id !== inquiryId));
+      setTotalInquiries((prev) => prev - 1);
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const reloadAll = async () => {
     try {
       setReloadingAll(true);
-      const [uRes, oRes, pRes, rRes, pAllRes] = await Promise.all([
+      const [uRes, oRes, pRes, rRes, iRes, pAllRes] = await Promise.all([
         fetch(
           `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
           {
@@ -702,6 +804,12 @@ export default function AdminPage() {
             credentials: "include",
           },
         ),
+        fetch(
+          `/api/admin/inquiries?page=${currentInquiriesPage}&limit=${inquiriesPerPage}&sortBy=${inquiriesSortBy}&sortOrder=${inquiriesSortOrder}&status=${inquiriesStatusFilter}`,
+          {
+            credentials: "include",
+          },
+        ),
         fetch(`/api/products?all=true`, {
           credentials: "include",
         }),
@@ -711,12 +819,14 @@ export default function AdminPage() {
       const oData = await oRes.json();
       const pData = await pRes.json();
       const rData = await rRes.json();
+      const iData = await iRes.json();
       const pAllData = await pAllRes.json();
       setUsers(uData.users || []);
       setOrders(oData.orders || []);
       setProducts(pData.products || []);
       setAllProducts(pAllData.products || []);
       setReturnRequests(rData.returnRequests || []);
+      setInquiries(iData.inquiries || []);
 
       // Set pagination data for users
       if (uData.pagination) {
@@ -740,6 +850,12 @@ export default function AdminPage() {
       if (rData.pagination) {
         setTotalReturns(rData.pagination.totalCount);
         setTotalReturnsPages(rData.pagination.totalPages);
+      }
+
+      // Set pagination data for inquiries
+      if (iData.pagination) {
+        setTotalInquiries(iData.pagination.totalInquiries);
+        setTotalInquiriesPages(iData.pagination.totalPages);
       }
 
       toast.success("All data refreshed successfully");
@@ -1126,7 +1242,8 @@ export default function AdminPage() {
       | "returns"
       | "categories"
       | "reviews"
-      | "chat",
+      | "chat"
+      | "inquiries",
   ) => {
     setActiveTab(tab);
     if (tab === "products") {
@@ -1146,6 +1263,9 @@ export default function AdminPage() {
     }
     if (tab === "reviews") {
       setCurrentReviewsPage(1);
+    }
+    if (tab === "inquiries") {
+      setCurrentInquiriesPage(1);
     }
   };
 
@@ -1361,6 +1481,7 @@ export default function AdminPage() {
                 { id: "reviews", label: "Reviews", icon: FaStar },
                 { id: "returns", label: "Returns", icon: FaUndo },
                 { id: "chat", label: "Chat Support", icon: FaComment },
+                { id: "inquiries", label: "Inquiries", icon: FaQuestionCircle },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -1374,7 +1495,8 @@ export default function AdminPage() {
                         | "returns"
                         | "categories"
                         | "reviews"
-                        | "chat",
+                        | "chat"
+                        | "inquiries",
                     )
                   }
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
@@ -1394,14 +1516,8 @@ export default function AdminPage() {
           {activeTab === "overview" && (
             <div className="space-y-8">
               {/* Overview Header with Gradient */}
-              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+              <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
                 {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
-                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
-                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
-                </div>
-
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div>
@@ -1486,23 +1602,17 @@ export default function AdminPage() {
             </div>
           )}
 
-          {activeTab === "users" && (
+        {activeTab === "users" && (
             <div className="space-y-8">
-              {/* Users Header with Gradient */}
-              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+              {/* Overview Header with Gradient */}
+              <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
                 {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
-                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
-                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
-                </div>
-
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
                         <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                          <FaUsers className="text-2xl" />
+                          <FaEye className="text-2xl" />
                         </div>
                         <span>User Management Center</span>
                       </h3>
@@ -1722,14 +1832,7 @@ export default function AdminPage() {
           {activeTab === "orders" && (
             <div className="space-y-8">
               {/* Header Section with Gradient */}
-              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
-                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
-                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
-                </div>
-
+              <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div>
@@ -2320,14 +2423,7 @@ export default function AdminPage() {
           {activeTab === "products" && (
             <div className="space-y-8">
               {/* Premium Products Header */}
-              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
-                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
-                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
-                </div>
-
+              <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div>
@@ -2877,14 +2973,7 @@ export default function AdminPage() {
           {activeTab === "categories" && (
             <div className="space-y-8">
               {/* Categories Header */}
-              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
-                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
-                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
-                </div>
-
+              <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div>
@@ -3338,14 +3427,7 @@ export default function AdminPage() {
           {activeTab === "reviews" && (
             <div className="space-y-8">
               {/* Reviews Header with Gradient */}
-              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
-                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
-                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
-                </div>
-
+              <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div>
@@ -3545,14 +3627,7 @@ export default function AdminPage() {
           {activeTab === "chat" && (
             <div className="space-y-8">
               {/* Chat Header with Gradient */}
-              <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
-                  <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
-                  <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
-                </div>
-
+              <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div>
@@ -3563,24 +3638,8 @@ export default function AdminPage() {
                         <span>Customer Support Chat</span>
                       </h3>
                       <p className="text-white/80 text-lg">
-                        Real-time chat with customers for support and assistance
+                        Chat with customers.
                       </p>
-                    </div>
-                  </div>
-
-                  {/* Chat Features Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                      <div className="text-lg font-bold mb-1">🎯 All Messages</div>
-                      <div className="text-white/80 text-sm">View all customer conversations</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                      <div className="text-lg font-bold mb-1">📢 Broadcast</div>
-                      <div className="text-white/80 text-sm">Send messages to all users</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                      <div className="text-lg font-bold mb-1">💬 Private Chat</div>
-                      <div className="text-white/80 text-sm">One-on-one conversations</div>
                     </div>
                   </div>
                 </div>
@@ -3589,6 +3648,29 @@ export default function AdminPage() {
               {/* Chat Interface */}
               <AdminChatInterface />
             </div>
+          )}
+
+          {activeTab === "inquiries" && (
+            <AdminInquiriesSection
+              inquiries={inquiries}
+              totalInquiries={totalInquiries}
+              currentPage={currentInquiriesPage}
+              totalPages={totalInquiriesPages}
+              pageSize={inquiriesPerPage}
+              statusFilter={inquiriesStatusFilter}
+              sortBy={inquiriesSortBy}
+              sortOrder={inquiriesSortOrder}
+              loading={reloadingInquiries}
+              onPageChange={setCurrentInquiriesPage}
+              onStatusFilterChange={setInquiriesStatusFilter}
+              onSortChange={(sortBy, sortOrder) => {
+                setInquiriesSortBy(sortBy);
+                setInquiriesSortOrder(sortOrder);
+              }}
+              onRefresh={reloadInquiries}
+              onUpdateInquiry={updateInquiry}
+              onDeleteInquiry={deleteInquiry}
+            />
           )}
         </div>
       </div>

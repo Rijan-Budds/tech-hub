@@ -116,14 +116,7 @@ export default function AdminReturnsSection({
   return (
     <div className="space-y-8">
       {/* Header Section with Gradient */}
-      <div className="bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute -top-4 -right-4 w-32 h-32 bg-white rounded-full"></div>
-          <div className="absolute top-10 -left-8 w-24 h-24 bg-white rounded-full"></div>
-          <div className="absolute bottom-4 right-20 w-16 h-16 bg-white rounded-full"></div>
-        </div>
-
+      <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
         <div className="relative z-10">
           <div className="flex justify-between items-start mb-6">
             <div>

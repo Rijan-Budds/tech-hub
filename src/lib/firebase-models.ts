@@ -127,7 +127,20 @@ export const COLLECTIONS = {
   CATEGORIES: "categories",
   REVIEWS: "reviews",
   CHATS: "chats",
+  INQUIRIES: "inquiries",
 } as const;
+
+export interface IInquiry {
+  id?: string;
+  name: string;
+  email: string;
+  message: string;
+  createdAt: Timestamp | Date;
+  status: "pending" | "in-progress" | "resolved" | "closed";
+  adminResponse?: string;
+  respondedAt?: Timestamp | Date;
+  respondedBy?: string;
+}
 
 export interface IChat {
   id?: string;

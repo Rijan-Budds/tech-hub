@@ -19,10 +19,48 @@ export default function ContactPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSent(true);
+        setName("");
+        setEmail("");
+        setMessage("");
+      } else {
+        setError(data.error || "Failed to send message. Please try again.");
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -93,16 +131,31 @@ export default function ContactPage() {
             <div className="mt-6">
               <AnimatedSupportCard />
             </div>
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
-              Send Message
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>Sending...</span>
+                </>
+              ) : (
+                <span>Send Message</span>
+              )}
             </button>
             {sent && (
-              <p className="text-green-600 mt-2">
-                Thanks! We’ll get back to you soon.
-              </p>
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-600 font-medium">
+                  ✓ Thank you for your inquiry! We&apos;ll get back to you soon.
+                </p>
+              </div>
             )}
           </form>
 
