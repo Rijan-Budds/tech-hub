@@ -5,6 +5,8 @@ import {
   sendOrderStatusUpdateEmail,
 } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     // Test email connection

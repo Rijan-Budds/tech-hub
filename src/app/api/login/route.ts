@@ -3,6 +3,8 @@ import { userService } from "@/lib/firebase-db";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const ADMIN_EMAIL = "admin@admin.com";
 const ADMIN_PASSWORD = "admin@admin";
 

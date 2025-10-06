@@ -3,6 +3,8 @@ import { returnService, orderService } from "@/lib/firebase-db";
 import { getAuth } from "@/lib/auth";
 import { sendReturnRequestEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ returnId: string }> },

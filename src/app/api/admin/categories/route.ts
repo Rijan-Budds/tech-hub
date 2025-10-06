@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { categoryService } from "@/lib/firebase-db";
 
+export const dynamic = "force-dynamic";
+
 const JWT_SECRET =
   process.env.JWT_SECRET || "fallback_secret_key_change_in_production";
 

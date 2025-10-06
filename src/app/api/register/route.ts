@@ -3,6 +3,8 @@ import { userService } from "@/lib/firebase-db";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   const { username, email, password } = await req.json();
   if (!username || !email || !password) {

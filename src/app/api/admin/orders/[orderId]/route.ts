@@ -4,6 +4,8 @@ import { getAuth } from "@/lib/auth";
 import { sendOrderStatusUpdateEmail } from "@/lib/email";
 import { serverTimestamp, FieldValue } from "firebase/firestore";
 
+export const dynamic = "force-dynamic";
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ orderId: string }> },

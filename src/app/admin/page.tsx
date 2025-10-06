@@ -347,9 +347,9 @@ export default function AdminPage() {
   const [inquiriesPerPage, setInquiriesPerPage] = useState(10); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [totalInquiries, setTotalInquiries] = useState(0);
   const [totalInquiriesPages, setTotalInquiriesPages] = useState(0);
-  const [inquiriesSortBy, setInquiriesSortBy] = useState("createdAt");
-  const [inquiriesSortOrder, setInquiriesSortOrder] = useState("desc");
-  const [inquiriesStatusFilter, setInquiriesStatusFilter] = useState("all");
+  const [inquiriesSortBy, setInquiriesSortBy] = useState("createdAt"); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [inquiriesSortOrder, setInquiriesSortOrder] = useState("desc"); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [inquiriesStatusFilter, setInquiriesStatusFilter] = useState("all"); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [reloadingInquiries, setReloadingInquiries] = useState(false);
 
   // Reviews state
@@ -735,7 +735,7 @@ export default function AdminPage() {
     }
   };
 
-  const updateInquiry = async (inquiryId: string, data: { status?: "pending" | "in-progress" | "resolved" | "closed"; adminResponse?: string; respondedBy?: string }) => {
+  const updateInquiry = async (inquiryId: string, data: { status?: "pending" | "in-progress" | "resolved" | "closed"; adminResponse?: string; respondedBy?: string }) => { // eslint-disable-line @typescript-eslint/no-unused-vars
     try {
       const res = await fetch(`/api/admin/inquiries/${inquiryId}`, {
         method: "PUT",
@@ -3657,18 +3657,9 @@ export default function AdminPage() {
               currentPage={currentInquiriesPage}
               totalPages={totalInquiriesPages}
               pageSize={inquiriesPerPage}
-              statusFilter={inquiriesStatusFilter}
-              sortBy={inquiriesSortBy}
-              sortOrder={inquiriesSortOrder}
               loading={reloadingInquiries}
               onPageChange={setCurrentInquiriesPage}
-              onStatusFilterChange={setInquiriesStatusFilter}
-              onSortChange={(sortBy, sortOrder) => {
-                setInquiriesSortBy(sortBy);
-                setInquiriesSortOrder(sortOrder);
-              }}
               onRefresh={reloadInquiries}
-              onUpdateInquiry={updateInquiry}
               onDeleteInquiry={deleteInquiry}
             />
           )}

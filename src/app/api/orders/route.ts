@@ -8,6 +8,8 @@ import {
 import { getAuth } from "@/lib/auth";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 const cityFees: Record<string, number> = {
   Kathmandu: 3.5,
   Pokhara: 4.5,
