@@ -1,30 +1,73 @@
 import PixelTransition from "@/components/PixelTransition";
-
+import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Image from "next/image";
 import { FaLightbulb, FaShieldAlt, FaHeart } from "react-icons/fa";
 
 const teamMembers = [
   {
-    name: "Someone",
+    name: "Hideo Kojima",
     role: "Founder & CEO",
     image: "/home/rejina.jpg",
     description:
-      "Visionary leader and passionate about building amazing products.",
+      "Visionary leader driving the overall strategy and growth of the company",
   },
   {
-    name: "Parisma Buddhacharya",
+    name: "Sydney Sweeney",
     role: "Lead Designer",
     image: "/home/parisma.jpg",
     description: "Creative mind behind our sleek and user-friendly designs.",
   },
   {
-    name: "Rina Buddhacharya",
-    role: "Senior Developer",
+    name: "Linus Torvalds",
+    role: "Frontend Developer",
     image: "/home/asdf.jpg",
     description:
-      "Code ninja making sure everything runs smoothly and efficiently.",
+      "Builds and maintains the website interface, ensuring smooth and responsive user interactions.",
   },
+    {
+    name: "Margaret Hamilton",
+    role: "Backend Developer",
+    image: "/home/asdf.jpg",
+    description:
+      "Manages server logic, APIs, and databases to ensure the platform runs seamlessly.",
+  },
+    {
+    name: "",
+    role: "Product Manager",
+    image: "/home/asdf.jpg",
+    description:
+      "Plans and prioritizes product features to deliver the best user experience.",
+  },
+    {
+    name: "Margaret Qualley",
+    role: "UI/UX Designer",
+    image: "/home/asdf.jpg",
+    description:
+      "Designs intuitive and engaging interfaces that delight users across devices.",
+  },
+    {
+    name: "Léa Seydoux",
+    role: "Digital Marketing Manager",
+    image: "/home/asdf.jpg",
+    description:
+      "Drives online campaigns, SEO, and social media strategies to grow traffic and sales.",
+  },
+    {
+    name: "Norman Reedus",
+    role: "Customer Support Representative",
+    image: "/home/asdf.jpg",
+    description:
+      "Assists customers with inquiries, returns, and ensures a positive shopping experience.",
+  },
+    {
+    name: "Elle Fanning",
+    role: "Data Analyst",
+    image: "/home/elle.jpg",
+    description:
+      "Analyzes sales, traffic, and user behavior to provide actionable insights for growth.",
+  },
+  
 ];
 
 const values = [
@@ -50,16 +93,18 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            About{" "}
-            <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-              Us
-            </span>
-          </h1>
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          {/* Hero Section */}
+          <div className="text-center mb-16">
+            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              About{" "}
+              <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                Us
+              </span>
+            </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
             We&apos;re passionate about creating exceptional products that
             enhance your digital experience. Our journey is driven by
@@ -223,5 +268,6 @@ export default function AboutPage() {
       </div>
       <Footer />
     </div>
+    </>
   );
 }

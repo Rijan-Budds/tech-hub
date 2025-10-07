@@ -10,7 +10,6 @@ export default function MapComponent() {
   useEffect(() => {
     setIsClient(true);
 
-    // Fix for default markers in react-leaflet
     delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
       ._getIconUrl;
     L.Icon.Default.mergeOptions({
@@ -39,7 +38,6 @@ export default function MapComponent() {
       style={{ minHeight: "320px" }}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Marker position={[27.6734, 85.4348]}>

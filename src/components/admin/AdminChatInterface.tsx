@@ -86,7 +86,6 @@ export default function AdminChatInterface() {
       <div className="w-1/4 border-r bg-gray-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="w-5 h-5" />
             Active Chats
           </CardTitle>
         </CardHeader>

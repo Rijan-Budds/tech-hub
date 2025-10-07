@@ -365,7 +365,7 @@ export default function ComparePage() {
               {compareProducts.length === 2 && (
                 <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-2xl p-8 border border-green-200 dark:border-green-700">
                   <h4 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-                    🏆 Price Comparison Winner
+                    Cheaper
                   </h4>
                   <div className="text-center">
                     {(() => {

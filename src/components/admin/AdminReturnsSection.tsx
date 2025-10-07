@@ -121,13 +121,10 @@ export default function AdminReturnsSection({
           <div className="flex justify-between items-start mb-6">
             <div>
               <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                  <FaUndo className="text-2xl" />
-                </div>
                 <span>Return Requests Center</span>
               </h3>
               <p className="text-white/80 text-lg">
-                Manage customer return and refund requests
+                All returns and refunds of the customers
               </p>
             </div>
             <button
@@ -139,7 +136,7 @@ export default function AdminReturnsSection({
               {reloadingReturns ? (
                 <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
               ) : (
-                <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                <FaSync className="text-xl" />
               )}
             </button>
           </div>
@@ -308,9 +305,6 @@ export default function AdminReturnsSection({
                 {/* Header - Always Visible */}
                 <div className="relative z-10 flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-4 flex-1">
-                    <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-900 rounded-2xl shadow-lg">
-                      <FaUndo className="text-white text-lg" />
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-3 mb-2">
                         <h4 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
@@ -326,15 +320,12 @@ export default function AdminReturnsSection({
                       </div>
                       <div className="flex items-center space-x-4 text-sm text-gray-600">
                         <span className="flex items-center space-x-1">
-                          <FaUser className="text-xs" />
                           <span>
                             {returnRequest.userDetails?.username ||
                               "Unknown User"}
                           </span>
                         </span>
-                        <span>•</span>
                         <span className="flex items-center space-x-1">
-                          <FaShoppingCart className="text-xs" />
                           <span>
                             Order #
                             {returnRequest.orderDetails?.orderNumber ||
@@ -345,7 +336,6 @@ export default function AdminReturnsSection({
                         <span>
                           {getReasonDisplayText(returnRequest.reason)}
                         </span>
-                        <span>•</span>
                         <span>
                           {new Date(
                             returnRequest.requestedAt,
@@ -375,9 +365,6 @@ export default function AdminReturnsSection({
                     {/* Return Items */}
                     <div className="relative z-10">
                       <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl">
-                          <FaBox className="text-white text-lg" />
-                        </div>
                         <h5 className="text-lg font-bold text-gray-800">
                           Items to Return
                         </h5>
@@ -448,7 +435,6 @@ export default function AdminReturnsSection({
                         {/* Request Information */}
                         <div className="space-y-3">
                           <h6 className="font-bold text-gray-800 flex items-center space-x-2">
-                            <FaExclamationTriangle className="text-blue-500" />
                             <span>Return Details</span>
                           </h6>
                           <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 space-y-2">
@@ -482,7 +468,6 @@ export default function AdminReturnsSection({
                         {/* Order Information */}
                         <div className="space-y-3">
                           <h6 className="font-bold text-gray-800 flex items-center space-x-2">
-                            <FaShoppingCart className="text-blue-500" />
                             <span>Order Information</span>
                           </h6>
                           <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30 space-y-2">
@@ -616,7 +601,7 @@ export default function AdminReturnsSection({
                         )}
                         <button
                           onClick={() => deleteReturnRequest(returnRequest.id)}
-                          className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+                          className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                         >
                           <FaTrash />
                           <span>Delete</span>

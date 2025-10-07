@@ -445,8 +445,6 @@ function Page() {
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
               </Carousel>
             )}
           </div>
@@ -482,7 +480,6 @@ function Page() {
           </div>
         </section>
       </main>
-
       <Footer />
     </>
   );

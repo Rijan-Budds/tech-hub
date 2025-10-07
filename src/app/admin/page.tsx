@@ -41,14 +41,17 @@ const QuillEditor = dynamic(() => import("@/components/QuillEditor"), {
 });
 
 // Dynamically import InlineQuillEditor for editing descriptions
-const InlineQuillEditor = dynamic(() => import("@/components/InlineQuillEditor"), {
-  ssr: false,
-  loading: () => (
-    <div className="animate-pulse">
-      <div className="h-20 bg-gray-200 rounded"></div>
-    </div>
-  ),
-});
+const InlineQuillEditor = dynamic(
+  () => import("@/components/InlineQuillEditor"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse">
+        <div className="h-20 bg-gray-200 rounded"></div>
+      </div>
+    ),
+  }
+);
 
 interface User {
   _id: string;
@@ -67,17 +70,14 @@ interface Category {
 }
 
 // Collapsible cell for long descriptions in categories table
-function CategoryDescriptionCell({
-  description,
-}: {
-  description?: string;
-}) {
+function CategoryDescriptionCell({ description }: { description?: string }) {
   const [expanded, setExpanded] = React.useState(false);
   if (!description || description.trim().length === 0) {
     return <span className="text-gray-400">No description</span>;
   }
   const isLong = description.length > 120;
-  const shown = expanded || !isLong ? description : description.slice(0, 120) + "…";
+  const shown =
+    expanded || !isLong ? description : description.slice(0, 120) + "…";
   return (
     <div className="space-y-1">
       <div className={expanded ? "" : "line-clamp-3"}>{shown}</div>
@@ -109,7 +109,10 @@ function ProductDescriptionSection({
   const [expanded, setExpanded] = React.useState(false);
 
   const getPlainText = (html: string) =>
-    html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    html
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
 
   const plain = description ? getPlainText(description) : "";
   const isLong = plain.length > 160;
@@ -194,7 +197,7 @@ export default function AdminPage() {
       stockQuantity: number;
     }[]
   >([]);
-  
+
   const [allProducts, setAllProducts] = useState<
     {
       id: string;
@@ -223,7 +226,15 @@ export default function AdminPage() {
   const [reloadingProducts, setReloadingProducts] = useState(false);
   const [reloadingAll, setReloadingAll] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "orders" | "products" | "returns" | "categories" | "reviews" | "chat" | "inquiries"
+    | "overview"
+    | "users"
+    | "orders"
+    | "products"
+    | "returns"
+    | "categories"
+    | "reviews"
+    | "chat"
+    | "inquiries"
   >("overview");
 
   // Categories state
@@ -247,7 +258,7 @@ export default function AdminPage() {
 
   // Dynamic categories for product form
   const [availableCategories, setAvailableCategories] = useState<Category[]>(
-    [],
+    []
   );
 
   // Pagination state for products
@@ -337,7 +348,9 @@ export default function AdminPage() {
   const [returnsSortOrder, setReturnsSortOrder] = useState("desc");
   const [returnsStatusFilter, setReturnsStatusFilter] = useState("all");
   const [reloadingReturns, setReloadingReturns] = useState(false);
-  const [expandedReturns, setExpandedReturns] = useState<Set<string>>(new Set());
+  const [expandedReturns, setExpandedReturns] = useState<Set<string>>(
+    new Set()
+  );
 
   // Inquiries state
   const [inquiries, setInquiries] = useState<(IInquiry & { id: string })[]>([]);
@@ -351,17 +364,19 @@ export default function AdminPage() {
   const [reloadingInquiries, setReloadingInquiries] = useState(false);
 
   // Reviews state
-  const [reviews, setReviews] = useState<{
-    id: string;
-    productId: string;
-    userId: string;
-    userName: string;
-    userEmail: string;
-    rating: number;
-    comment: string;
-    createdAt: string | Date;
-    isVerifiedPurchase?: boolean;
-  }[]>([]);
+  const [reviews, setReviews] = useState<
+    {
+      id: string;
+      productId: string;
+      userId: string;
+      userName: string;
+      userEmail: string;
+      rating: number;
+      comment: string;
+      createdAt: string | Date;
+      isVerifiedPurchase?: boolean;
+    }[]
+  >([]);
   const [currentReviewsPage, setCurrentReviewsPage] = useState(1);
   const [reviewsPerPage, setReviewsPerPage] = useState(5); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [totalReviews, setTotalReviews] = useState(0);
@@ -403,7 +418,7 @@ export default function AdminPage() {
         `/api/search?q=${encodeURIComponent(productSearchTerm)}`,
         {
           credentials: "include",
-        },
+        }
       );
       const data = await res.json();
       setSearchedProducts(data.products || []);
@@ -418,58 +433,57 @@ export default function AdminPage() {
     ? searchedProducts
     : products;
 
-
-
   useEffect(() => {
     const load = async () => {
       try {
-        const [uRes, oRes, pRes, rRes, cRes, reviewsRes, iRes, pAllRes] = await Promise.all([
-          fetch(
-            `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
-            {
+        const [uRes, oRes, pRes, rRes, cRes, reviewsRes, iRes, pAllRes] =
+          await Promise.all([
+            fetch(
+              `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
+              {
+                credentials: "include",
+              }
+            ),
+            fetch(
+              `/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`,
+              {
+                credentials: "include",
+              }
+            ),
+            fetch(
+              `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
+              {
+                credentials: "include",
+              }
+            ),
+            fetch(
+              `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
+              {
+                credentials: "include",
+              }
+            ),
+            fetch(
+              `/api/admin/categories?page=${currentCategoriesPage}&limit=${categoriesPerPage}&sortBy=${categoriesSortBy}&sortOrder=${categoriesSortOrder}`,
+              {
+                credentials: "include",
+              }
+            ),
+            fetch(
+              `/api/admin/reviews?page=${currentReviewsPage}&limit=${reviewsPerPage}&sortBy=${reviewsSortBy}&sortOrder=${reviewsSortOrder}`,
+              {
+                credentials: "include",
+              }
+            ),
+            fetch(
+              `/api/admin/inquiries?page=${currentInquiriesPage}&limit=${inquiriesPerPage}&sortBy=${inquiriesSortBy}&sortOrder=${inquiriesSortOrder}&status=${inquiriesStatusFilter}`,
+              {
+                credentials: "include",
+              }
+            ),
+            fetch(`/api/products?all=true`, {
               credentials: "include",
-            },
-          ),
-          fetch(
-            `/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`,
-            {
-              credentials: "include",
-            },
-          ),
-          fetch(
-            `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
-            {
-              credentials: "include",
-            },
-          ),
-          fetch(
-            `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
-            {
-              credentials: "include",
-            },
-          ),
-          fetch(
-            `/api/admin/categories?page=${currentCategoriesPage}&limit=${categoriesPerPage}&sortBy=${categoriesSortBy}&sortOrder=${categoriesSortOrder}`,
-            {
-              credentials: "include",
-            },
-          ),
-          fetch(
-            `/api/admin/reviews?page=${currentReviewsPage}&limit=${reviewsPerPage}&sortBy=${reviewsSortBy}&sortOrder=${reviewsSortOrder}`,
-            {
-              credentials: "include",
-            },
-          ),
-          fetch(
-            `/api/admin/inquiries?page=${currentInquiriesPage}&limit=${inquiriesPerPage}&sortBy=${inquiriesSortBy}&sortOrder=${inquiriesSortOrder}&status=${inquiriesStatusFilter}`,
-            {
-              credentials: "include",
-            },
-          ),
-          fetch(`/api/products?all=true`, {
-            credentials: "include",
-          }),
-        ]);
+            }),
+          ]);
 
         if (uRes.status === 403) {
           toast.error("Forbidden: Admin only");
@@ -536,8 +550,6 @@ export default function AdminPage() {
           setTotalInquiriesPages(iData.pagination.totalPages);
         }
 
-
-
         // Load available categories for product form
         await loadAvailableCategories();
       } catch (error) {
@@ -589,7 +601,7 @@ export default function AdminPage() {
         `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
         {
           credentials: "include",
-        },
+        }
       );
       const data = await res.json();
       setUsers(data.users || []);
@@ -617,7 +629,7 @@ export default function AdminPage() {
         `/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`,
         {
           credentials: "include",
-        },
+        }
       );
       const data = await res.json();
       setOrders(data.orders || []);
@@ -646,7 +658,7 @@ export default function AdminPage() {
           `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
           {
             credentials: "include",
-          },
+          }
         ),
         fetch(`/api/products?all=true`, {
           credentials: "include",
@@ -680,7 +692,7 @@ export default function AdminPage() {
         `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
         {
           credentials: "include",
-        },
+        }
       );
       const data = await res.json();
       setReturnRequests(data.returnRequests || []);
@@ -710,7 +722,7 @@ export default function AdminPage() {
         `/api/admin/inquiries?page=${currentInquiriesPage}&limit=${inquiriesPerPage}&sortBy=${inquiriesSortBy}&sortOrder=${inquiriesSortOrder}&status=${inquiriesStatusFilter}`,
         {
           credentials: "include",
-        },
+        }
       );
       const data = await res.json();
       setInquiries(data.inquiries || []);
@@ -724,16 +736,22 @@ export default function AdminPage() {
       toast.success("Inquiries refreshed successfully");
     } catch (error) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to reload inquiries";
+        error instanceof Error ? error.message : "Failed to reload inquiries";
       toast.error(errorMessage);
     } finally {
       setReloadingInquiries(false);
     }
   };
 
-  const updateInquiry = async (inquiryId: string, data: { status?: "pending" | "in-progress" | "resolved" | "closed"; adminResponse?: string; respondedBy?: string }) => { // eslint-disable-line @typescript-eslint/no-unused-vars
+  const updateInquiry = async (
+    inquiryId: string,
+    data: {
+      status?: "pending" | "in-progress" | "resolved" | "closed";
+      adminResponse?: string;
+      respondedBy?: string;
+    }
+  ) => {
+    // eslint-disable-line @typescript-eslint/no-unused-vars
     try {
       const res = await fetch(`/api/admin/inquiries/${inquiryId}`, {
         method: "PUT",
@@ -742,13 +760,20 @@ export default function AdminPage() {
         body: JSON.stringify(data),
       });
       const response = await res.json();
-      if (!res.ok) throw new Error(response.error || "Failed to update inquiry");
+      if (!res.ok)
+        throw new Error(response.error || "Failed to update inquiry");
 
       // Update local state
       setInquiries((prev) =>
-        prev.map((inquiry) => 
-          inquiry.id === inquiryId 
-            ? { ...inquiry, ...data, respondedAt: data.adminResponse ? new Date() : inquiry.respondedAt }
+        prev.map((inquiry) =>
+          inquiry.id === inquiryId
+            ? {
+                ...inquiry,
+                ...data,
+                respondedAt: data.adminResponse
+                  ? new Date()
+                  : inquiry.respondedAt,
+              }
             : inquiry
         )
       );
@@ -764,10 +789,13 @@ export default function AdminPage() {
         credentials: "include",
       });
       const response = await res.json();
-      if (!res.ok) throw new Error(response.error || "Failed to delete inquiry");
+      if (!res.ok)
+        throw new Error(response.error || "Failed to delete inquiry");
 
       // Update local state
-      setInquiries((prev) => prev.filter((inquiry) => inquiry.id !== inquiryId));
+      setInquiries((prev) =>
+        prev.filter((inquiry) => inquiry.id !== inquiryId)
+      );
       setTotalInquiries((prev) => prev - 1);
     } catch (error) {
       throw error;
@@ -782,31 +810,31 @@ export default function AdminPage() {
           `/api/admin/users?page=${currentUsersPage}&limit=${usersPerPage}&sortBy=${usersSortBy}&sortOrder=${usersSortOrder}`,
           {
             credentials: "include",
-          },
+          }
         ),
         fetch(
           `/api/admin/orders?page=${currentOrdersPage}&limit=${ordersPerPage}&sortBy=${ordersSortBy}&sortOrder=${ordersSortOrder}`,
           {
             credentials: "include",
-          },
+          }
         ),
         fetch(
           `/api/products?page=${currentPage}&limit=${productsPerPage}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
           {
             credentials: "include",
-          },
+          }
         ),
         fetch(
           `/api/admin/returns?page=${currentReturnsPage}&limit=${returnsPerPage}&sortBy=${returnsSortBy}&sortOrder=${returnsSortOrder}&status=${returnsStatusFilter}`,
           {
             credentials: "include",
-          },
+          }
         ),
         fetch(
           `/api/admin/inquiries?page=${currentInquiriesPage}&limit=${inquiriesPerPage}&sortBy=${inquiriesSortBy}&sortOrder=${inquiriesSortOrder}&status=${inquiriesStatusFilter}`,
           {
             credentials: "include",
-          },
+          }
         ),
         fetch(`/api/products?all=true`, {
           credentials: "include",
@@ -875,7 +903,7 @@ export default function AdminPage() {
       | "out-for-delivery"
       | "delivered"
       | "returned"
-      | "canceled",
+      | "canceled"
   ) => {
     try {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
@@ -888,7 +916,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to update");
 
       setOrders((prev) =>
-        prev.map((o) => (o.orderId === orderId ? { ...o, status } : o)),
+        prev.map((o) => (o.orderId === orderId ? { ...o, status } : o))
       );
       toast.success("Order status updated");
     } catch (error) {
@@ -933,14 +961,20 @@ export default function AdminPage() {
   };
 
   const addProduct = async () => {
-    if (!name || !price || !category || (images.length === 0 && !image) || !stockQuantity) {
+    if (
+      !name ||
+      !price ||
+      !category ||
+      (images.length === 0 && !image) ||
+      !stockQuantity
+    ) {
       toast.error("Fill all required fields");
       return;
     }
-    
+
     // Use first image from images array as primary image, fallback to single image
     const primaryImage = images.length > 0 ? images[0] : image;
-    
+
     try {
       const res = await fetch("/api/admin/products", {
         method: "POST",
@@ -967,7 +1001,6 @@ export default function AdminPage() {
       setDescription("");
       setStockQuantity("");
       await reloadProducts();
-
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to add product";
@@ -1003,7 +1036,7 @@ export default function AdminPage() {
       description?: string;
       discountPercentage: number;
       stockQuantity: number;
-    }>,
+    }>
   ) => {
     try {
       const res = await fetch(`/api/admin/products/${slug}`, {
@@ -1015,7 +1048,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update");
       setProducts((prev) =>
-        prev.map((p) => (p.slug === slug ? data.product : p)),
+        prev.map((p) => (p.slug === slug ? data.product : p))
       );
 
       toast.success("Product updated");
@@ -1042,7 +1075,7 @@ export default function AdminPage() {
         `/api/admin/categories?page=${currentCategoriesPage}&limit=${categoriesPerPage}&sortBy=${categoriesSortBy}&sortOrder=${categoriesSortOrder}`,
         {
           credentials: "include",
-        },
+        }
       );
       const data = await res.json();
       setCategories(data.categories || []);
@@ -1099,7 +1132,7 @@ export default function AdminPage() {
       name: string;
       description: string;
       image: string;
-    }>,
+    }>
   ) => {
     try {
       const res = await fetch(`/api/admin/categories/${categoryId}`, {
@@ -1111,7 +1144,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update category");
       setCategories((prev) =>
-        prev.map((c) => (c.id === categoryId ? data.category : c)),
+        prev.map((c) => (c.id === categoryId ? data.category : c))
       );
       toast.success("Category updated successfully");
       setEditingCategory(null);
@@ -1185,7 +1218,7 @@ export default function AdminPage() {
     returnId: string,
     status: "pending" | "approved" | "rejected" | "completed" | "refunded",
     adminNote?: string,
-    refundAmount?: number,
+    refundAmount?: number
   ) => {
     try {
       const res = await fetch(`/api/admin/returns/${returnId}`, {
@@ -1198,7 +1231,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.message || "Failed to update");
 
       setReturnRequests((prev) =>
-        prev.map((r) => (r.id === returnId ? { ...r, status, adminNote } : r)),
+        prev.map((r) => (r.id === returnId ? { ...r, status, adminNote } : r))
       );
       toast.success("Return request status updated");
     } catch (error) {
@@ -1241,7 +1274,7 @@ export default function AdminPage() {
       | "categories"
       | "reviews"
       | "chat"
-      | "inquiries",
+      | "inquiries"
   ) => {
     setActiveTab(tab);
     if (tab === "products") {
@@ -1266,8 +1299,6 @@ export default function AdminPage() {
       setCurrentInquiriesPage(1);
     }
   };
-
-
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -1418,9 +1449,6 @@ export default function AdminPage() {
                     {totalUsers}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center">
-                  <FaUsers className="text-white text-xl" />
-                </div>
               </div>
             </div>
             <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
@@ -1431,9 +1459,6 @@ export default function AdminPage() {
                     {totalOrders}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center">
-                  <FaShoppingCart className="text-white text-xl" />
-                </div>
               </div>
             </div>
             <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow">
@@ -1443,9 +1468,6 @@ export default function AdminPage() {
                   <p className="text-3xl font-bold text-gray-900">
                     {totalProducts}
                   </p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center">
-                  <FaBox className="text-white text-xl" />
                 </div>
               </div>
             </div>
@@ -1459,9 +1481,6 @@ export default function AdminPage() {
                       .reduce((sum, order) => sum + (order.grandTotal || 0), 0)
                       .toFixed(2)}
                   </p>
-                </div>
-                <div className="w-12 h-12 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-xl flex items-center justify-center">
-                  <span className="text-white text-xl font-bold">रु</span>
                 </div>
               </div>
             </div>
@@ -1494,7 +1513,7 @@ export default function AdminPage() {
                         | "categories"
                         | "reviews"
                         | "chat"
-                        | "inquiries",
+                        | "inquiries"
                     )
                   }
                   className={`flex items-center space-x-2 px-6 py-4 font-semibold transition-colors ${
@@ -1520,9 +1539,6 @@ export default function AdminPage() {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                          <FaEye className="text-2xl" />
-                        </div>
                         <span>Dashboard Overview</span>
                       </h3>
                       <p className="text-white/80 text-lg">
@@ -1538,7 +1554,7 @@ export default function AdminPage() {
                       {reloadingAll ? (
                         <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
                       ) : (
-                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                        <FaSync className="text-xl" />
                       )}
                     </button>
                   </div>
@@ -1555,12 +1571,18 @@ export default function AdminPage() {
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                       <div className="text-2xl font-bold">{totalProducts}</div>
-                      <div className="text-white/80 text-sm">Total Products</div>
+                      <div className="text-white/80 text-sm">
+                        Total Products
+                      </div>
                     </div>
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                      <div className="text-2xl font-bold text-emerald-300">
-                        रु{orders
-                          .reduce((sum, order) => sum + (order.grandTotal || 0), 0)
+                      <div className="text-2xl font-bold text-green-500">
+                        रु
+                        {orders
+                          .reduce(
+                            (sum, order) => sum + (order.grandTotal || 0),
+                            0
+                          )
                           .toFixed(0)}
                       </div>
                       <div className="text-white/80 text-sm">Total Revenue</div>
@@ -1588,7 +1610,7 @@ export default function AdminPage() {
                       </div>
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          order.status,
+                          order.status
                         )}`}
                       >
                         {order.status}
@@ -1600,7 +1622,7 @@ export default function AdminPage() {
             </div>
           )}
 
-        {activeTab === "users" && (
+          {activeTab === "users" && (
             <div className="space-y-8">
               {/* Overview Header with Gradient */}
               <div className="bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
@@ -1609,9 +1631,6 @@ export default function AdminPage() {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                          <FaEye className="text-2xl" />
-                        </div>
                         <span>User Management Center</span>
                       </h3>
                       <p className="text-white/80 text-lg">
@@ -1627,7 +1646,7 @@ export default function AdminPage() {
                       {reloadingUsers ? (
                         <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
                       ) : (
-                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                        <FaSync className="text-xl" />
                       )}
                     </button>
                   </div>
@@ -1636,7 +1655,9 @@ export default function AdminPage() {
                   <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                       <div className="text-2xl font-bold">{totalUsers}</div>
-                      <div className="text-white/80 text-sm">Total Registered Users</div>
+                      <div className="text-white/80 text-sm">
+                        Total Registered Users
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1680,13 +1701,13 @@ export default function AdminPage() {
                           value={usersSortBy}
                           onChange={(e) => {
                             setUsersSortBy(e.target.value);
-                            setCurrentUsersPage(1); // Reset to first page
+                            setCurrentUsersPage(1);
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-500"
                         >
-                          <option value="createdAt">📅 Date Created</option>
-                          <option value="username">👤 Username</option>
-                          <option value="email">📧 Email</option>
+                          <option value="createdAt">Date Created</option>
+                          <option value="username">Username</option>
+                          <option value="email">Email</option>
                         </select>
                       </div>
                     </div>
@@ -1705,8 +1726,8 @@ export default function AdminPage() {
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-500"
                         >
-                          <option value="desc">📈 Latest First</option>
-                          <option value="asc">📉 Oldest First</option>
+                          <option value="desc">Latest First</option>
+                          <option value="asc">Oldest First</option>
                         </select>
                       </div>
                     </div>
@@ -1806,7 +1827,7 @@ export default function AdminPage() {
                                   {pageNum}
                                 </button>
                               );
-                            },
+                            }
                           )}
                         </div>
 
@@ -1835,9 +1856,6 @@ export default function AdminPage() {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                          <FaShoppingCart className="text-2xl" />
-                        </div>
                         <span>Order Command Center</span>
                       </h3>
                       <p className="text-white/80 text-lg">
@@ -1853,7 +1871,7 @@ export default function AdminPage() {
                       {reloadingOrders ? (
                         <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
                       ) : (
-                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                        <FaSync className="text-xl" />
                       )}
                     </button>
                   </div>
@@ -1882,7 +1900,7 @@ export default function AdminPage() {
                         {orders
                           .reduce(
                             (sum, order) => sum + (order.grandTotal || 0),
-                            0,
+                            0
                           )
                           .toFixed(0)}
                       </div>
@@ -1928,16 +1946,14 @@ export default function AdminPage() {
                           value={orderStatusFilter}
                           onChange={(e) => {
                             setOrderStatusFilter(
-                              e.target.value as "all" | "pending" | "others",
+                              e.target.value as "all" | "pending" | "others"
                             );
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-900 focus:border-blue-500 transition-all duration-200 hover:border-blue-500"
                         >
                           <option value="all">All Orders</option>
-                          <option value="pending">🟡 Pending Only</option>
-                          <option value="others">
-                            🔄 Others (Non-Pending)
-                          </option>
+                          <option value="pending">Pending Only</option>
+                          <option value="others">Others (Non-Pending)</option>
                         </select>
                       </div>
                     </div>
@@ -1958,12 +1974,10 @@ export default function AdminPage() {
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-500"
                         >
-                          <option value="createdAt">📅 Date Created</option>
-                          <option value="grandTotal">💰 Total Amount</option>
-                          <option value="status">⚡ Status</option>
-                          <option value="customer.name">
-                            👤 Customer Name
-                          </option>
+                          <option value="createdAt">Date Created</option>
+                          <option value="grandTotal">Total Amount</option>
+                          <option value="status">Status</option>
+                          <option value="customer.name">Customer Name</option>
                         </select>
                       </div>
                     </div>
@@ -1982,8 +1996,8 @@ export default function AdminPage() {
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-500"
                         >
-                          <option value="desc">📈 Latest First</option>
-                          <option value="asc">📉 Oldest First</option>
+                          <option value="desc">Latest First</option>
+                          <option value="asc">Oldest First</option>
                         </select>
                       </div>
                     </div>
@@ -2011,15 +2025,15 @@ export default function AdminPage() {
                       {orderStatusFilter === "pending"
                         ? "No Pending Orders"
                         : orderStatusFilter === "others"
-                          ? "No Other Orders"
-                          : "No Orders Found"}
+                        ? "No Other Orders"
+                        : "No Orders Found"}
                     </h3>
                     <p className="text-gray-600 text-lg mb-6">
                       {orderStatusFilter === "pending"
                         ? "All caught up! No pending orders to process."
                         : orderStatusFilter === "others"
-                          ? "Only pending orders are available."
-                          : "Orders will appear here once customers start placing them."}
+                        ? "Only pending orders are available."
+                        : "Orders will appear here once customers start placing them."}
                     </p>
 
                     {orderStatusFilter !== "all" && (
@@ -2027,7 +2041,6 @@ export default function AdminPage() {
                         onClick={() => setOrderStatusFilter("all")}
                         className="px-8 py-4 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2 mx-auto"
                       >
-                        <span>🔄</span>
                         <span>Show All Orders</span>
                       </button>
                     )}
@@ -2050,10 +2063,6 @@ export default function AdminPage() {
                           }ms forwards`,
                         }}
                       >
-                        {/* Gradient overlay */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#0D3B66]/10 to-transparent rounded-full transform translate-x-16 -translate-y-16 group-hover:scale-150 transition-transform duration-700"></div>
-
-                        {/* Compact Header - Always Visible */}
                         <div className="relative z-10 flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-4 flex-1">
                             <div className="p-3 bg-gradient-to-br from-[#0D3B66] to-[#1E5CAF] rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300">
@@ -2066,7 +2075,7 @@ export default function AdminPage() {
                                 </h4>
                                 <span
                                   className={`px-3 py-1 rounded-xl text-xs font-bold shadow-md ${getStatusColor(
-                                    order.status,
+                                    order.status
                                   )}`}
                                 >
                                   {order.status === "out-for-delivery"
@@ -2077,14 +2086,12 @@ export default function AdminPage() {
                               </div>
                               <div className="flex items-center space-x-4 text-sm text-gray-600">
                                 <span className="flex items-center space-x-1">
-                                  <span>🎯</span>
                                   <span>
                                     #{order.orderId.slice(-6).toUpperCase()}
                                   </span>
                                 </span>
                                 <span>•</span>
                                 <span className="flex items-center space-x-1">
-                                  <span>📦</span>
                                   <span>
                                     {order.items.length} item
                                     {order.items.length > 1 ? "s" : ""}
@@ -2101,7 +2108,7 @@ export default function AdminPage() {
                                     {
                                       month: "short",
                                       day: "numeric",
-                                    },
+                                    }
                                   )}
                                 </span>
                               </div>
@@ -2135,15 +2142,10 @@ export default function AdminPage() {
                           </button>
                         </div>
 
-                        {/* Expandable Details Section */}
                         {isExpanded && (
                           <div className="mt-4 space-y-6 animate-fade-in-up">
-                            {/* Order Items with Premium Styling */}
                             <div className="relative z-10">
                               <div className="flex items-center space-x-3 mb-4">
-                                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">
-                                  <FaBox className="text-white text-lg" />
-                                </div>
                                 <h5 className="text-lg font-bold text-gray-800">
                                   Order Items
                                 </h5>
@@ -2162,7 +2164,7 @@ export default function AdminPage() {
                                   return (
                                     <div
                                       key={index}
-                                      className="bg-gradient-to-br from-gray-50 to-gray-100/50 backdrop-blur-sm rounded-2xl p-4 border border-gray-200/50 hover:border-indigo-300 transition-all duration-300 transform hover:scale-105 group"
+                                      className="bg-gradient-to-br from-gray-50 to-gray-100/50 backdrop-blur-sm rounded-2xl p-4 border border-gray-200/50 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 group"
                                     >
                                       <div className="flex items-center space-x-4">
                                         {hasProductDetails && item.image ? (
@@ -2174,7 +2176,7 @@ export default function AdminPage() {
                                               height={60}
                                               className="w-15 h-15 object-cover rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300"
                                             />
-                                            <div className="absolute -top-2 -right-2 bg-indigo-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                                            <div className="absolute -top-2 -right-2 bg-blue-700 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
                                               {item.quantity}
                                             </div>
                                           </div>
@@ -2183,22 +2185,21 @@ export default function AdminPage() {
                                             <div className="w-15 h-15 bg-gradient-to-br from-gray-300 to-gray-400 rounded-xl shadow-md flex items-center justify-center group-hover:shadow-lg transition-shadow duration-300">
                                               <FaBox className="text-gray-600 text-lg" />
                                             </div>
-                                            <div className="absolute -top-2 -right-2 bg-indigo-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                                            <div className="absolute -top-2 -right-2 bg-blue-700 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
                                               {item.quantity}
                                             </div>
                                           </div>
                                         )}
 
                                         <div className="flex-1 min-w-0">
-                                          <p className="font-bold text-gray-900 truncate group-hover:text-indigo-600 transition-colors duration-300">
+                                          <p className="font-bold text-gray-900 group-hover:text-blue-900">
                                             {item.name ||
                                               `Product #${item.productId.slice(
-                                                -6,
+                                                -6
                                               )}`}
                                           </p>
                                           <div className="flex items-center justify-between mt-1">
                                             <p className="text-sm text-gray-600 flex items-center space-x-1">
-                                              <span>📦</span>
                                               <span>Qty: {item.quantity}</span>
                                             </p>
                                             {item.price && (
@@ -2229,18 +2230,12 @@ export default function AdminPage() {
                                 {/* Delivery Information */}
                                 <div className="space-y-3">
                                   <div className="flex items-center space-x-3">
-                                    <div className="p-2 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg">
-                                      <span className="text-white text-lg">
-                                        🚚
-                                      </span>
-                                    </div>
                                     <h6 className="font-bold text-gray-800">
                                       Delivery Address
                                     </h6>
                                   </div>
                                   <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/30">
                                     <p className="font-medium text-gray-900 flex items-center space-x-2 mb-2">
-                                      <span>📍</span>
                                       <span>
                                         {order.customer?.address?.street}
                                       </span>
@@ -2249,7 +2244,6 @@ export default function AdminPage() {
                                       {order.customer?.address?.city}
                                     </p>
                                     <p className="text-gray-700 flex items-center space-x-2 ml-6">
-                                      <span>📧</span>
                                       <span className="font-medium">
                                         {order.customer?.email || order.email}
                                       </span>
@@ -2260,11 +2254,6 @@ export default function AdminPage() {
                                 {/* Order Financial Summary */}
                                 <div className="space-y-3">
                                   <div className="flex items-center space-x-3">
-                                    <div className="p-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg">
-                                      <span className="text-white text-lg">
-                                        💰
-                                      </span>
-                                    </div>
                                     <h6 className="font-bold text-gray-800">
                                       Order Summary
                                     </h6>
@@ -2309,9 +2298,9 @@ export default function AdminPage() {
                                 </div>
                                 <button
                                   onClick={() => deleteOrder(order.orderId)}
-                                  className="group px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-red-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+                                  className="group px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-blue-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                                 >
-                                  <FaTrash className="group-hover:animate-bounce" />
+                                  <FaTrash />
                                   <span>Delete Order</span>
                                 </button>
                               </div>
@@ -2324,15 +2313,10 @@ export default function AdminPage() {
                 </>
               )}
 
-              {/* Premium Pagination Controls */}
               {totalOrdersPages > 1 && (
                 <div className="bg-gradient-to-r from-white via-blue-50/30 to-white backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-200/50 p-8">
                   <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    {/* Pagination Info */}
                     <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-2xl shadow-lg">
-                        <span className="text-white text-lg font-bold">#</span>
-                      </div>
                       <div>
                         <p className="text-lg font-bold text-gray-900">
                           Page {currentOrdersPage} of {totalOrdersPages}
@@ -2341,7 +2325,7 @@ export default function AdminPage() {
                           Showing {(currentOrdersPage - 1) * ordersPerPage + 1}-
                           {Math.min(
                             currentOrdersPage * ordersPerPage,
-                            totalOrders,
+                            totalOrders
                           )}{" "}
                           of {totalOrders} orders
                         </p>
@@ -2395,7 +2379,7 @@ export default function AdminPage() {
                                 {pageNum}
                               </button>
                             );
-                          },
+                          }
                         )}
                       </div>
 
@@ -2426,9 +2410,6 @@ export default function AdminPage() {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                          <FaBox className="text-2xl" />
-                        </div>
                         <span>Product Command Center</span>
                       </h3>
                       <p className="text-white/80 text-lg">
@@ -2437,14 +2418,14 @@ export default function AdminPage() {
                     </div>
                     <button
                       onClick={reloadProducts}
-                      className="group p-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl transition-all duration-300 transform hover:scale-105"
+                      className="group p-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl "
                       disabled={reloadingProducts}
                       title="Refresh products"
                     >
                       {reloadingProducts ? (
-                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+                        <div className=""></div>
                       ) : (
-                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                        <FaSync className="text-xl" />
                       )}
                     </button>
                   </div>
@@ -2461,7 +2442,7 @@ export default function AdminPage() {
                       <div className="text-2xl font-bold text-yellow-300">
                         {
                           allProducts.filter(
-                            (p) => p.stockQuantity <= 5 && p.stockQuantity > 0,
+                            (p) => p.stockQuantity <= 5 && p.stockQuantity > 0
                           ).length
                         }
                       </div>
@@ -2495,9 +2476,6 @@ export default function AdminPage() {
                   {/* Search Section */}
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-4">
-                      <div className="p-2 bg-gradient-to-r from-[#0D3B66] via-[#1E5CAF] to-[#2E7DD2] rounded-lg">
-                        <span className="text-white text-lg">🔍</span>
-                      </div>
                       <h4 className="text-lg font-bold text-gray-800">
                         Product Search
                       </h4>
@@ -2519,7 +2497,6 @@ export default function AdminPage() {
                         className="px-6 py-3 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-300 transform hover:scale-105"
                       >
                         <span className="flex items-center space-x-2">
-                          <span>🔍</span>
                           <span>Search</span>
                         </span>
                       </button>
@@ -2540,7 +2517,7 @@ export default function AdminPage() {
                     {productSearchTerm.trim() && (
                       <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
                         <p className="text-sm text-blue-800 font-medium">
-                          🎯 Search results for &ldquo;{productSearchTerm}
+                          Search results for &ldquo;{productSearchTerm}
                           &rdquo;: {searchedProducts.length} products found
                         </p>
                       </div>
@@ -2585,13 +2562,12 @@ export default function AdminPage() {
                         >
                           <option value="createdAt">Date Created</option>
                           <option value="name">Name</option>
-                          <option value="price">💰 Price</option>
-                          <option value="category">📦 Category</option>
-                          <option value="stockQuantity">📊 Stock</option>
+                          <option value="price">Price</option>
+                          <option value="category">Category</option>
+                          <option value="stockQuantity">Stock</option>
                         </select>
                       </div>
 
-                      {/* Sort order */}
                       <div>
                         <label className="text-sm font-semibold text-gray-700 mb-2 block">
                           Order
@@ -2604,8 +2580,8 @@ export default function AdminPage() {
                           }}
                           className="w-full bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#0D3B66] focus:border-[#0D3B66] transition-all duration-200"
                         >
-                          <option value="desc">📈 Newest First</option>
-                          <option value="asc">📉 Oldest First</option>
+                          <option value="desc">Newest First</option>
+                          <option value="asc">Oldest First</option>
                         </select>
                       </div>
                     </div>
@@ -2646,22 +2622,22 @@ export default function AdminPage() {
                               product.stockQuantity === 0
                                 ? "bg-red-500 text-white"
                                 : product.stockQuantity <= 5
-                                  ? "bg-yellow-500 text-white"
-                                  : "bg-green-500 text-white"
+                                ? "bg-yellow-500 text-white"
+                                : "bg-green-500 text-white"
                             }`}
                           >
                             {product.stockQuantity === 0
                               ? "Out of Stock"
                               : product.stockQuantity <= 5
-                                ? "Low Stock"
-                                : "In Stock"}
+                              ? "Low Stock"
+                              : "In Stock"}
                           </div>
                         </div>
 
                         {/* Stock Quantity */}
                         <div className="text-center">
                           <label className="text-sm font-semibold text-gray-700 block mb-2">
-                            📊 Stock Quantity
+                            Stock Quantity
                           </label>
                           <input
                             type="number"
@@ -2683,7 +2659,7 @@ export default function AdminPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm font-semibold text-gray-700 block mb-2">
-                              🏷️ Product Name
+                              Product Name
                             </label>
                             <input
                               defaultValue={product.name}
@@ -2697,7 +2673,7 @@ export default function AdminPage() {
                           </div>
                           <div>
                             <label className="text-sm font-semibold text-gray-700 block mb-2">
-                              📦 Category
+                              Category
                             </label>
                             <select
                               defaultValue={product.category}
@@ -2734,7 +2710,7 @@ export default function AdminPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm font-semibold text-gray-700 block mb-2">
-                              💰 Price (रु)
+                              Price (रु)
                             </label>
                             <input
                               type="number"
@@ -2750,7 +2726,7 @@ export default function AdminPage() {
                           </div>
                           <div>
                             <label className="text-sm font-semibold text-gray-700 block mb-2">
-                              🏷️ Discount (%)
+                              Discount (%)
                             </label>
                             <input
                               type="number"
@@ -2768,13 +2744,12 @@ export default function AdminPage() {
                           </div>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex justify-end pt-4 border-t border-gray-200/50">
                           <button
                             onClick={() => deleteProduct(product.slug)}
-                            className="group px-6 py-3 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-red-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+                            className="group px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:from-blue-500 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
                           >
-                            <FaTrash className="group-hover:animate-bounce" />
+                            <FaTrash />
                             <span>Delete Product</span>
                           </button>
                         </div>
@@ -2784,15 +2759,10 @@ export default function AdminPage() {
                 ))}
               </div>
 
-              {/* Pagination Controls */}
               {totalPages > 1 && (
                 <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200/50 p-6">
                   <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                    {/* Pagination Info */}
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-lg shadow-lg">
-                        <span className="text-white text-sm font-bold">#</span>
-                      </div>
                       <div>
                         <p className="text-sm font-bold text-gray-900">
                           Page {currentPage} of {totalPages}
@@ -2801,7 +2771,7 @@ export default function AdminPage() {
                           Showing {(currentPage - 1) * productsPerPage + 1}-
                           {Math.min(
                             currentPage * productsPerPage,
-                            totalProducts,
+                            totalProducts
                           )}{" "}
                           of {totalProducts} products
                         </p>
@@ -2848,7 +2818,7 @@ export default function AdminPage() {
                                 {pageNum}
                               </button>
                             );
-                          },
+                          }
                         )}
                       </div>
 
@@ -2869,9 +2839,6 @@ export default function AdminPage() {
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center justify-center space-x-2">
-                    <div className="p-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-lg shadow-lg">
-                      <FaPlus className="text-white text-lg" />
-                    </div>
                     <span>Add New Product</span>
                   </h3>
                   <p className="text-gray-600">
@@ -2935,7 +2902,7 @@ export default function AdminPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Product Description
                     </label>
-                    <QuillEditor 
+                    <QuillEditor
                       value={description}
                       onChange={setDescription}
                       placeholder="Enter detailed product description..."
@@ -2957,7 +2924,6 @@ export default function AdminPage() {
                         </>
                       ) : (
                         <>
-                          <FaPlus />
                           <span>Add Product</span>
                         </>
                       )}
@@ -2976,13 +2942,10 @@ export default function AdminPage() {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                          <FaTags className="text-2xl" />
-                        </div>
                         <span>Category Management</span>
                       </h3>
                       <p className="text-white/80 text-lg">
-                        Organize your products with custom categories
+                        Organize categories
                       </p>
                     </div>
                     <button
@@ -2994,7 +2957,7 @@ export default function AdminPage() {
                       {reloadingCategories ? (
                         <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
                       ) : (
-                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                        <FaSync className="text-xl" />
                       )}
                     </button>
                   </div>
@@ -3053,8 +3016,8 @@ export default function AdminPage() {
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                         >
-                          <option value="createdAt">📅 Date Created</option>
-                          <option value="name">🏷️ Name</option>
+                          <option value="createdAt">Date Created</option>
+                          <option value="name">Name</option>
                         </select>
                       </div>
                     </div>
@@ -3131,7 +3094,9 @@ export default function AdminPage() {
                           <td className="p-4 font-semibold">{category.name}</td>
                           <td className="p-4 text-gray-600">{category.slug}</td>
                           <td className="p-4 text-gray-600 max-w-xs">
-                            <CategoryDescriptionCell description={category.description} />
+                            <CategoryDescriptionCell
+                              description={category.description}
+                            />
                           </td>
                           <td className="p-4 text-gray-600">
                             {new Date(category.createdAt).toLocaleDateString()}
@@ -3169,7 +3134,7 @@ export default function AdminPage() {
                         {(currentCategoriesPage - 1) * categoriesPerPage + 1} to{" "}
                         {Math.min(
                           currentCategoriesPage * categoriesPerPage,
-                          totalCategories,
+                          totalCategories
                         )}{" "}
                         of {totalCategories} categories
                       </div>
@@ -3218,7 +3183,7 @@ export default function AdminPage() {
                                   {pageNum}
                                 </button>
                               );
-                            },
+                            }
                           )}
                         </div>
 
@@ -3243,9 +3208,6 @@ export default function AdminPage() {
               <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2 flex items-center justify-center space-x-2">
-                    <div className="p-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-lg shadow-lg">
-                      <FaPlus className="text-white text-lg" />
-                    </div>
                     <span>Add New Category</span>
                   </h3>
                   <p className="text-gray-600">
@@ -3296,7 +3258,6 @@ export default function AdminPage() {
                         </>
                       ) : (
                         <>
-                          <FaPlus />
                           <span>Add Category</span>
                         </>
                       )}
@@ -3430,13 +3391,10 @@ export default function AdminPage() {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                          <FaStar className="text-2xl" />
-                        </div>
                         <span>Review Management</span>
                       </h3>
                       <p className="text-white/80 text-lg">
-                        Monitor and moderate customer reviews
+                        Reviews left by customers
                       </p>
                     </div>
                     <button
@@ -3448,7 +3406,7 @@ export default function AdminPage() {
                       {reloadingReviews ? (
                         <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
                       ) : (
-                        <FaSync className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                        <FaSync className="text-xl" />
                       )}
                     </button>
                   </div>
@@ -3469,21 +3427,40 @@ export default function AdminPage() {
                   <table className="w-full">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="text-left p-4 font-semibold text-gray-900">User</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Product</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Rating</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Comment</th>
-                        <th className="text-left p-4 font-semibold text-gray-900">Date</th>
-                        <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          User
+                        </th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Product
+                        </th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Rating
+                        </th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Comment
+                        </th>
+                        <th className="text-left p-4 font-semibold text-gray-900">
+                          Date
+                        </th>
+                        <th className="text-right p-4 font-semibold text-gray-900">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {reviews.map((review) => (
-                        <tr key={review.id} className="border-t hover:bg-gray-50">
+                        <tr
+                          key={review.id}
+                          className="border-t hover:bg-gray-50"
+                        >
                           <td className="p-4">
                             <div>
-                              <div className="font-medium">{review.userName}</div>
-                              <div className="text-sm text-gray-500">{review.userEmail}</div>
+                              <div className="font-medium">
+                                {review.userName}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {review.userEmail}
+                              </div>
                               {review.isVerifiedPurchase && (
                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                   Verified Purchase
@@ -3493,7 +3470,9 @@ export default function AdminPage() {
                           </td>
                           <td className="p-4">
                             {(() => {
-                              const prod = allProducts.find((p) => p.id === review.productId);
+                              const prod = allProducts.find(
+                                (p) => p.id === review.productId
+                              );
                               return prod ? (
                                 <div className="flex items-center space-x-3">
                                   {prod.image ? (
@@ -3508,12 +3487,18 @@ export default function AdminPage() {
                                     <div className="w-10 h-10 bg-gray-200 rounded-md" />
                                   )}
                                   <div>
-                                    <div className="font-medium text-gray-900">{prod.name}</div>
-                                    <div className="text-xs text-gray-500">{prod.slug}</div>
+                                    <div className="font-medium text-gray-900">
+                                      {prod.name}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {prod.slug}
+                                    </div>
                                   </div>
                                 </div>
                               ) : (
-                                <div className="text-sm text-gray-500">Product ID: {review.productId}</div>
+                                <div className="text-sm text-gray-500">
+                                  Product ID: {review.productId}
+                                </div>
                               );
                             })()}
                           </td>
@@ -3523,11 +3508,15 @@ export default function AdminPage() {
                                 <FaStar
                                   key={i}
                                   className={`text-sm ${
-                                    i < review.rating ? 'text-yellow-400' : 'text-gray-300'
+                                    i < review.rating
+                                      ? "text-yellow-400"
+                                      : "text-gray-300"
                                   }`}
                                 />
                               ))}
-                              <span className="ml-2 text-sm font-medium">{review.rating}/5</span>
+                              <span className="ml-2 text-sm font-medium">
+                                {review.rating}/5
+                              </span>
                             </div>
                           </td>
                           <td className="p-4">
@@ -3545,10 +3534,14 @@ export default function AdminPage() {
                           <td className="p-4 text-right">
                             <button
                               onClick={() => {
-                                if (confirm('Are you sure you want to delete this review?')) {
+                                if (
+                                  confirm(
+                                    "Are you sure you want to delete this review?"
+                                  )
+                                ) {
                                   fetch(`/api/admin/reviews/${review.id}`, {
-                                    method: 'DELETE',
-                                    credentials: 'include',
+                                    method: "DELETE",
+                                    credentials: "include",
                                   }).then(() => {
                                     window.location.reload();
                                   });
@@ -3570,45 +3563,59 @@ export default function AdminPage() {
                   <div className="p-6 border-t bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-700">
-                        Showing {(currentReviewsPage - 1) * reviewsPerPage + 1} to{' '}
-                        {Math.min(currentReviewsPage * reviewsPerPage, totalReviews)} of{' '}
-                        {totalReviews} reviews
+                        Showing {(currentReviewsPage - 1) * reviewsPerPage + 1}{" "}
+                        to{" "}
+                        {Math.min(
+                          currentReviewsPage * reviewsPerPage,
+                          totalReviews
+                        )}{" "}
+                        of {totalReviews} reviews
                       </div>
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => setCurrentReviewsPage(currentReviewsPage - 1)}
+                          onClick={() =>
+                            setCurrentReviewsPage(currentReviewsPage - 1)
+                          }
                           disabled={currentReviewsPage === 1}
                           className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Previous
                         </button>
-                        {Array.from({ length: Math.min(5, totalReviewsPages) }, (_, i) => {
-                          let pageNum;
-                          if (totalReviewsPages <= 5) {
-                            pageNum = i + 1;
-                          } else if (currentReviewsPage <= 3) {
-                            pageNum = i + 1;
-                          } else if (currentReviewsPage >= totalReviewsPages - 2) {
-                            pageNum = totalReviewsPages - 4 + i;
-                          } else {
-                            pageNum = currentReviewsPage - 2 + i;
+                        {Array.from(
+                          { length: Math.min(5, totalReviewsPages) },
+                          (_, i) => {
+                            let pageNum;
+                            if (totalReviewsPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (currentReviewsPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (
+                              currentReviewsPage >=
+                              totalReviewsPages - 2
+                            ) {
+                              pageNum = totalReviewsPages - 4 + i;
+                            } else {
+                              pageNum = currentReviewsPage - 2 + i;
+                            }
+                            return (
+                              <button
+                                key={pageNum}
+                                onClick={() => setCurrentReviewsPage(pageNum)}
+                                className={`px-3 py-2 text-sm font-medium rounded-lg ${
+                                  currentReviewsPage === pageNum
+                                    ? "bg-[#0D3B66] text-white"
+                                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50"
+                                }`}
+                              >
+                                {pageNum}
+                              </button>
+                            );
                           }
-                          return (
-                            <button
-                              key={pageNum}
-                              onClick={() => setCurrentReviewsPage(pageNum)}
-                              className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                                currentReviewsPage === pageNum
-                                  ? 'bg-[#0D3B66] text-white'
-                                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                              }`}
-                            >
-                              {pageNum}
-                            </button>
-                          );
-                        })}
+                        )}
                         <button
-                          onClick={() => setCurrentReviewsPage(currentReviewsPage + 1)}
+                          onClick={() =>
+                            setCurrentReviewsPage(currentReviewsPage + 1)
+                          }
                           disabled={currentReviewsPage === totalReviewsPages}
                           className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -3630,9 +3637,6 @@ export default function AdminPage() {
                   <div className="flex justify-between items-start mb-6">
                     <div>
                       <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                          <FaComment className="text-2xl" />
-                        </div>
                         <span>Customer Support Chat</span>
                       </h3>
                       <p className="text-white/80 text-lg">

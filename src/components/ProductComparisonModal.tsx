@@ -310,7 +310,7 @@ export default function ProductComparisonModal() {
               {compareProducts.length === 2 && (
                 <div className="mt-8 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg p-6 border border-green-200 dark:border-green-700">
                   <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 text-center">
-                    Price Comparison Winner
+                    Cheaper
                   </h4>
                   <div className="text-center">
                     {(() => {
@@ -326,21 +326,21 @@ export default function ProductComparisonModal() {
                       if (product1Price < product2Price) {
                         return (
                           <div className="text-green-600 dark:text-green-400 font-semibold">
-                            🏆 {compareProducts[0].name} offers better value at
+                            {compareProducts[0].name} offers better value at
                             रु{product1Price.toFixed(2)}
                           </div>
                         );
                       } else if (product2Price < product1Price) {
                         return (
                           <div className="text-green-600 dark:text-green-400 font-semibold">
-                            🏆 {compareProducts[1].name} offers better value at
+                            {compareProducts[1].name} offers better value at
                             रु{product2Price.toFixed(2)}
                           </div>
                         );
                       } else {
                         return (
                           <div className="text-blue-600 dark:text-blue-400 font-semibold">
-                            🤝 Both products have the same price at रु
+                            Both products have the same price at रु
                             {product1Price.toFixed(2)}
                           </div>
                         );

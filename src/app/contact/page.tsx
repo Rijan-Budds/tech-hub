@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import dynamic from "next/dynamic";
 import { AnimatedSupportCard } from "@/components/AnimatedSupportCard";
@@ -65,6 +66,7 @@ export default function ContactPage() {
 
   return (
     <>
+    <Header />
       <main className="max-w-6xl mx-auto px-4 py-10 space-y-10">
         <header className="space-y-2">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -173,7 +175,7 @@ export default function ContactPage() {
             </div>
             <div className="text-center">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                📍 Suryamadhi, Bhaktapur 44800, Nepal
+                Suryamadhi, Bhaktapur 44800, Nepal
               </p>
             </div>
           </div>

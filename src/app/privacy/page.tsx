@@ -1,23 +1,15 @@
 "use client";
 
 import React from "react";
+import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WorldMap from "@/components/ui/world-map";
 import Link from "next/link";
-import {
-  FaShieldAlt,
-  FaUserLock,
-  FaDatabase,
-  FaEye,
-  FaHandshake,
-  FaGlobe,
-  FaCog,
-  FaBell,
-} from "react-icons/fa";
 
 export default function PrivacyPage() {
   return (
     <>
+    <Header />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-6 py-12">
           {/* Header Section */}
@@ -40,9 +32,6 @@ export default function PrivacyPage() {
             {/* Data Collection Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-4">
-                <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl mr-4">
-                  <FaDatabase className="text-blue-600 dark:text-blue-400 text-xl" />
-                </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                   Data Collection
                 </h3>
@@ -57,9 +46,6 @@ export default function PrivacyPage() {
             {/* Data Security Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-4">
-                <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl mr-4">
-                  <FaShieldAlt className="text-green-600 dark:text-green-400 text-xl" />
-                </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                   Data Security
                 </h3>
@@ -74,9 +60,6 @@ export default function PrivacyPage() {
             {/* Data Usage Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-4">
-                <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl mr-4">
-                  <FaEye className="text-purple-600 dark:text-purple-400 text-xl" />
-                </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                   Data Usage
                 </h3>
@@ -91,9 +74,6 @@ export default function PrivacyPage() {
             {/* User Rights Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-4">
-                <div className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-xl mr-4">
-                  <FaUserLock className="text-orange-600 dark:text-orange-400 text-xl" />
-                </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                   Your Rights
                 </h3>
@@ -108,9 +88,6 @@ export default function PrivacyPage() {
             {/* Third Party Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-4">
-                <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-xl mr-4">
-                  <FaHandshake className="text-red-600 dark:text-red-400 text-xl" />
-                </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                   Third Parties
                 </h3>
@@ -125,9 +102,6 @@ export default function PrivacyPage() {
             {/* Cookies Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-4">
-                <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-xl mr-4">
-                  <FaCog className="text-yellow-600 dark:text-yellow-400 text-xl" />
-                </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                   Cookies
                 </h3>
@@ -201,9 +175,6 @@ export default function PrivacyPage() {
             {/* Data Retention Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-6">
-                <div className="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-xl mr-4">
-                  <FaBell className="text-indigo-600 dark:text-indigo-400 text-2xl" />
-                </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Data Retention
                 </h3>
@@ -231,9 +202,6 @@ export default function PrivacyPage() {
             {/* International Compliance Card */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-6">
-                <div className="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-xl mr-4">
-                  <FaGlobe className="text-teal-600 dark:text-teal-400 text-2xl" />
-                </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Global Compliance
                 </h3>

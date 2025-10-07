@@ -2,7 +2,7 @@
 
 import React from "react";
 import { toast } from "sonner";
-import { FaTrash, FaSpinner } from "react-icons/fa";
+import { FaTrash, FaSync } from "react-icons/fa";
 import { IInquiry } from "@/lib/firebase-models";
 
 interface AdminInquiriesSectionProps {
@@ -26,11 +26,14 @@ export default function AdminInquiriesSection({
   loading,
   onPageChange,
   onRefresh,
-  onDeleteInquiry
+  onDeleteInquiry,
 }: AdminInquiriesSectionProps) {
-
   const handleDeleteInquiry = async (inquiryId: string) => {
-    if (window.confirm("Are you sure you want to delete this inquiry? This action cannot be undone.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this inquiry? This action cannot be undone."
+      )
+    ) {
       try {
         await onDeleteInquiry(inquiryId);
         toast.success("Inquiry deleted successfully");
@@ -63,7 +66,7 @@ export default function AdminInquiriesSection({
               {loading ? (
                 <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
               ) : (
-                <FaSpinner className="text-xl group-hover:rotate-180 transition-transform duration-500" />
+                <FaSync className="text-xl" />
               )}
             </button>
           </div>
@@ -76,10 +79,18 @@ export default function AdminInquiriesSection({
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="text-left p-4 font-semibold text-gray-900">Contact Info</th>
-                <th className="text-left p-4 font-semibold text-gray-900">Message</th>
-                <th className="text-left p-4 font-semibold text-gray-900">Date</th>
-                <th className="text-right p-4 font-semibold text-gray-900">Actions</th>
+                <th className="text-left p-4 font-semibold text-gray-900">
+                  Contact Info
+                </th>
+                <th className="text-left p-4 font-semibold text-gray-900">
+                  Message
+                </th>
+                <th className="text-left p-4 font-semibold text-gray-900">
+                  Date
+                </th>
+                <th className="text-right p-4 font-semibold text-gray-900">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -87,38 +98,50 @@ export default function AdminInquiriesSection({
                 <tr className="border-t hover:bg-gray-50" key={inquiry.id}>
                   <td className="p-4">
                     <div>
-                      <div className="font-medium text-gray-900">{inquiry.name}</div>
-                      <div className="text-sm text-gray-500">{inquiry.email}</div>
+                      <div className="font-medium text-gray-900">
+                        {inquiry.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {inquiry.email}
+                      </div>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="max-w-xs">
-                      <p className="text-sm text-gray-900">
-                        {inquiry.message}
-                      </p>
+                      <p className="text-sm text-gray-900">{inquiry.message}</p>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="text-sm text-gray-500">
                       {(() => {
                         try {
-                          const date = inquiry.createdAt && typeof inquiry.createdAt === 'object' && 'toDate' in inquiry.createdAt
-                            ? (inquiry.createdAt as { toDate(): Date }).toDate()
-                            : new Date(inquiry.createdAt);
+                          const date =
+                            inquiry.createdAt &&
+                            typeof inquiry.createdAt === "object" &&
+                            "toDate" in inquiry.createdAt
+                              ? (
+                                  inquiry.createdAt as { toDate(): Date }
+                                ).toDate()
+                              : new Date(inquiry.createdAt);
                           return date.toLocaleDateString();
                         } catch {
-                          return 'Invalid Date';
+                          return "Invalid Date";
                         }
                       })()}
                       <div className="text-xs text-gray-400">
                         {(() => {
                           try {
-                            const date = inquiry.createdAt && typeof inquiry.createdAt === 'object' && 'toDate' in inquiry.createdAt
-                              ? (inquiry.createdAt as { toDate(): Date }).toDate()
-                              : new Date(inquiry.createdAt);
+                            const date =
+                              inquiry.createdAt &&
+                              typeof inquiry.createdAt === "object" &&
+                              "toDate" in inquiry.createdAt
+                                ? (
+                                    inquiry.createdAt as { toDate(): Date }
+                                  ).toDate()
+                                : new Date(inquiry.createdAt);
                             return date.toLocaleTimeString();
                           } catch {
-                            return 'Invalid Time';
+                            return "Invalid Time";
                           }
                         })()}
                       </div>
@@ -146,7 +169,8 @@ export default function AdminInquiriesSection({
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to{" "}
-                {Math.min(currentPage * pageSize, totalInquiries)} of {totalInquiries} inquiries
+                {Math.min(currentPage * pageSize, totalInquiries)} of{" "}
+                {totalInquiries} inquiries
               </div>
               <div className="flex items-center space-x-2">
                 <button

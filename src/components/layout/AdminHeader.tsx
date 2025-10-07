@@ -138,7 +138,6 @@ const AdminHeader = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       onClick={() => setDropdownOpen(false)}
                     >
-                      <RiAdminFill className="w-4 h-4 mr-3" />
                       Admin Dashboard
                     </Link>
 
@@ -148,7 +147,6 @@ const AdminHeader = () => {
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       onClick={() => setDropdownOpen(false)}
                     >
-                      <span className="w-4 h-4 mr-3">🏠</span>
                       Back to Shop
                     </Link>
                   </div>
