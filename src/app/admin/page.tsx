@@ -121,15 +121,13 @@ function ProductDescriptionSection({
         <label className="text-sm font-semibold text-gray-700 block">
           Description
         </label>
-        {isLong && (
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-          >
-            {expanded ? "Minimize" : "Show more"}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+        >
+          {expanded ? "Minimize" : isLong ? "Show more" : "Edit"}
+        </button>
       </div>
 
       {expanded ? (
