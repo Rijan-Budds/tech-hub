@@ -20,11 +20,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 
-// Carousel images with their corresponding category slugs
 const sliderData = [
   {
     image: "/home/slider1.jpg",

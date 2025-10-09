@@ -9,9 +9,6 @@ import {
   FaTimes,
   FaTrash,
   FaBox,
-  FaExclamationTriangle,
-  FaUser,
-  FaShoppingCart,
 } from "react-icons/fa";
 
 interface ReturnRequest {

@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen`}
       >
         <ThemeProvider
           attribute="class"
@@ -40,9 +40,10 @@ export default function RootLayout({
           themes={["light", "dark"]}
           disableTransitionOnChange
         >
-          {/* Initialize Font Awesome library icons */}
-          {/* Optional: import '@/lib/fontawesome' here if you want to pre-add icons */}
-          {children}
+          {/* Scrollable container with hidden scrollbar */}
+          <div className="h-full overflow-auto no-visible-scrollbar">
+            {children}
+          </div>
           <ComparisonProvider />
           <Toaster />
         </ThemeProvider>

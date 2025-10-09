@@ -8,7 +8,6 @@ import {
   FaUsers,
   FaShoppingCart,
   FaBox,
-  FaPlus,
   FaTrash,
   FaSignOutAlt,
   FaEye,
@@ -740,45 +739,6 @@ export default function AdminPage() {
       toast.error(errorMessage);
     } finally {
       setReloadingInquiries(false);
-    }
-  };
-
-  const updateInquiry = async (
-    inquiryId: string,
-    data: {
-      status?: "pending" | "in-progress" | "resolved" | "closed";
-      adminResponse?: string;
-      respondedBy?: string;
-    }
-  ) => {
-    // eslint-disable-line @typescript-eslint/no-unused-vars
-    try {
-      const res = await fetch(`/api/admin/inquiries/${inquiryId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-      const response = await res.json();
-      if (!res.ok)
-        throw new Error(response.error || "Failed to update inquiry");
-
-      // Update local state
-      setInquiries((prev) =>
-        prev.map((inquiry) =>
-          inquiry.id === inquiryId
-            ? {
-                ...inquiry,
-                ...data,
-                respondedAt: data.adminResponse
-                  ? new Date()
-                  : inquiry.respondedAt,
-              }
-            : inquiry
-        )
-      );
-    } catch (error) {
-      throw error;
     }
   };
 
