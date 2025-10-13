@@ -1,14 +1,17 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 import { useProfileStore } from "@/store/useProfileStore";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageCircle, User, Shield } from "lucide-react";
+import { Send, MessageCircle, User, Shield, ArrowLeft } from "lucide-react";
 import { chatService } from "@/lib/chat-service";
 import { IMessage } from "@/lib/firebase-models";
 import { Timestamp } from "firebase/firestore";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 export default function ChatPage() {
   const { user, loadProfile } = useProfileStore();
@@ -30,7 +33,10 @@ export default function ChatPage() {
     if (!user?.id) return;
 
     const initChat = async () => {
-      const id = await chatService.getOrCreateChat(user.id, user.username || user.email);
+      const id = await chatService.getOrCreateChat(
+        user.id,
+        user.username || user.email
+      );
       setChatId(id);
     };
 
@@ -73,7 +79,7 @@ export default function ChatPage() {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -81,72 +87,103 @@ export default function ChatPage() {
 
   const formatTime = (timestamp: Timestamp | Date) => {
     const date = timestamp instanceof Timestamp ? timestamp.toDate() : timestamp;
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   if (!user) {
-    return <div>Loading...</div>; // Or a more sophisticated loading state
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <div>Loading...</div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Card className="h-[600px] flex flex-col">
-        <CardHeader className="border-b">
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="w-5 h-5" />
-            Customer Support Chat
-          </CardTitle>
-        </CardHeader>
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
-            {messages.map(message => (
-              <div
-                key={message.id}
-                className={`flex items-start gap-3 ${
-                  message.role === 'user' ? 'flex-row-reverse' : ''
-                }`}
-              >
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                  message.role === 'admin' 
-                    ? 'bg-blue-100 text-blue-600' 
-                    : 'bg-green-100 text-green-600'
-                }`}>
-                  {message.role === 'admin' ? <Shield className="w-4 h-4" /> : <User className="w-4 h-4" />}
-                </div>
-                <div className={`max-w-xs lg:max-w-md ${
-                  message.role === 'user' ? 'text-right' : 'text-left'
-                }`}>
-                  <div className={`rounded-lg px-4 py-2 ${
-                    message.role === 'admin'
-                      ? 'bg-gray-200 text-gray-800'
-                      : 'bg-blue-500 text-white'
-                  }`}>
-                    <p className="text-sm">{message.text}</p>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {message.from} • {formatTime(message.timestamp)}
-                  </p>
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-        <div className="border-t p-4">
-          <div className="flex gap-2">
-            <Input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your message..."
-              disabled={!chatId || isLoading}
-            />
-            <Button onClick={handleSendMessage} disabled={!text.trim() || !chatId || isLoading}>
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        <div className="mb-4">
+          <Link href="/" className="flex items-center text-sm text-gray-600 hover:text-gray-900">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Link>
         </div>
-      </Card>
+        <Card className="h-[600px] flex flex-col">
+          <CardHeader className="border-b">
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" />
+              Customer Support Chat
+            </CardTitle>
+          </CardHeader>
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex items-start gap-3 ${
+                    message.role === "user" ? "flex-row-reverse" : ""
+                  }`}
+                >
+                  <div
+                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                      message.role === "admin"
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-green-100 text-green-600"
+                    }`}
+                  >
+                    {message.role === "admin" ? (
+                      <Shield className="w-4 h-4" />
+                    ) : (
+                      <User className="w-4 h-4" />
+                    )}
+                  </div>
+                  <div
+                    className={`max-w-xs lg:max-w-md ${
+                      message.role === "user" ? "text-right" : "text-left"
+                    }`}
+                  >
+                    <div
+                      className={`rounded-lg px-4 py-2 ${
+                        message.role === "admin"
+                          ? "bg-gray-200 text-gray-800"
+                          : "bg-blue-500 text-white"
+                      }`}
+                    >
+                      <p className="text-sm">{message.text}</p>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {message.from} • {formatTime(message.timestamp)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+          <div className="border-t p-4">
+            <div className="flex gap-2">
+              <Input
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type your message..."
+                disabled={!chatId || isLoading}
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!text.trim() || !chatId || isLoading}
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </main>
+      <Footer />
     </div>
   );
 }

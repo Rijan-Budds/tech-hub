@@ -90,10 +90,16 @@ export const AnimatedSupportCard = () => {
     <div className="w-full">
       <Typewrite
         examples={[
-          "How do I track my order status?",
-          "What's your return policy?",
-          "Do you ship to all cities in Nepal?",
-          "Can I cancel my order before shipping?",
+          "I received a damaged product, need a replacement.",
+          "The tracking number for my order is not working.",
+          "I was charged twice for the same order.",
+          "The product I ordered is out of stock but I was still billed.",
+          "My promo code didn’t apply during checkout.",
+          "The website crashed while placing my order.",
+          "I received the wrong item in my delivery.",
+          "The payment failed but the amount was deducted from my account.",
+          "I can’t log in to my account after registering.",
+          "My order has been delayed beyond the estimated delivery date.",
         ]}
       />
     </div>

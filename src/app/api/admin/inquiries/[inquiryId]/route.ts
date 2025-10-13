@@ -12,7 +12,7 @@ interface RouteParams {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     // Check if user is admin (you should implement proper admin auth check)
-    const isAdmin = true; // Replace with actual admin check
+    const isAdmin = true;
     
     if (!isAdmin) {
       return NextResponse.json(
@@ -31,7 +31,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Validate status
     const validStatuses = ["pending", "in-progress", "resolved", "closed"];
     if (status && !validStatuses.includes(status)) {
       return NextResponse.json(
@@ -43,7 +42,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const db = getFirestore(app);
     const inquiryRef = doc(db, COLLECTIONS.INQUIRIES, inquiryId);
 
-    // Check if inquiry exists
     const inquiryDoc = await getDoc(inquiryRef);
     if (!inquiryDoc.exists()) {
       return NextResponse.json(
@@ -52,7 +50,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Prepare update data
     const updateData: Record<string, string | Timestamp> = {};
     
     if (status) {
@@ -67,7 +64,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Update the inquiry
     await updateDoc(inquiryRef, updateData);
 
     return NextResponse.json({
@@ -87,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     // Check if user is admin (you should implement proper admin auth check)
-    const isAdmin = true; // Replace with actual admin check
+    const isAdmin = true;
     
     if (!isAdmin) {
       return NextResponse.json(
@@ -108,7 +104,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const db = getFirestore(app);
     const inquiryRef = doc(db, COLLECTIONS.INQUIRIES, inquiryId);
 
-    // Check if inquiry exists
     const inquiryDoc = await getDoc(inquiryRef);
     if (!inquiryDoc.exists()) {
       return NextResponse.json(
@@ -117,7 +112,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Delete the inquiry
     await deleteDoc(inquiryRef);
 
     return NextResponse.json({

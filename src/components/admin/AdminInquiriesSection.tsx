@@ -51,10 +51,10 @@ export default function AdminInquiriesSection({
           <div className="flex justify-between items-start mb-6">
             <div>
               <h3 className="text-3xl font-bold mb-2 flex items-center space-x-3">
-                <span>Customer Inquiries</span>
+                <span>Customer Problems</span>
               </h3>
               <p className="text-white/80 text-lg">
-                Manage and respond to customer contact requests
+                Look at problems customers are facing
               </p>
             </div>
             <button
@@ -83,7 +83,7 @@ export default function AdminInquiriesSection({
                   Contact Info
                 </th>
                 <th className="text-left p-4 font-semibold text-gray-900">
-                  Message
+                  Problem
                 </th>
                 <th className="text-left p-4 font-semibold text-gray-900">
                   Date

@@ -13,9 +13,9 @@ function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, "") // Remove special characters
-    .replace(/[\s_-]+/g, "-") // Replace spaces, underscores, and hyphens with single hyphen
-    .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export async function PATCH(
@@ -23,7 +23,6 @@ export async function PATCH(
   context: { params: Promise<{ categoryId: string }> },
 ) {
   try {
-    // Check if user is admin
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
 
@@ -36,7 +35,6 @@ export async function PATCH(
       email: string;
     };
 
-    // Check if user is admin
     if (!decoded.email || !decoded.email.includes("admin")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -45,7 +43,6 @@ export async function PATCH(
     const { categoryId } = params;
     const body = await req.json();
 
-    // Check if category exists
     const existingCategory = await categoryService.getCategoryById(categoryId);
     if (!existingCategory) {
       return NextResponse.json(
@@ -61,11 +58,9 @@ export async function PATCH(
       image: string;
     }> = {};
 
-    // Handle name update (and generate new slug if name changed)
     if (body.name && body.name.trim() !== existingCategory.name) {
       const newSlug = generateSlug(body.name);
 
-      // Check if another category with this slug already exists
       const categoryWithNewSlug =
         await categoryService.getCategoryBySlug(newSlug);
       if (categoryWithNewSlug && categoryWithNewSlug.id !== categoryId) {
@@ -79,17 +74,14 @@ export async function PATCH(
       updates.slug = newSlug;
     }
 
-    // Handle description update
     if (body.description !== undefined) {
       updates.description = body.description?.trim() || "";
     }
 
-    // Handle image update
     if (body.image !== undefined) {
       updates.image = body.image || "";
     }
 
-    // Only update if there are actual changes
     if (Object.keys(updates).length === 0) {
       return NextResponse.json(
         { error: "No changes provided" },
@@ -97,10 +89,8 @@ export async function PATCH(
       );
     }
 
-    // Update the category
     await categoryService.updateCategory(categoryId, updates);
 
-    // Get the updated category to return it
     const updatedCategory = await categoryService.getCategoryById(categoryId);
 
     return NextResponse.json({
@@ -121,7 +111,6 @@ export async function DELETE(
   context: { params: Promise<{ categoryId: string }> },
 ) {
   try {
-    // Check if user is admin
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
 
@@ -134,7 +123,6 @@ export async function DELETE(
       email: string;
     };
 
-    // Check if user is admin
     if (!decoded.email || !decoded.email.includes("admin")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -142,7 +130,6 @@ export async function DELETE(
     const params = await context.params;
     const { categoryId } = params;
 
-    // Check if category exists
     const existingCategory = await categoryService.getCategoryById(categoryId);
     if (!existingCategory) {
       return NextResponse.json(
@@ -154,7 +141,6 @@ export async function DELETE(
     // TODO: You might want to check if there are products using this category
     // and prevent deletion or reassign them to a default category
 
-    // Delete the category
     await categoryService.deleteCategory(categoryId);
 
     return NextResponse.json({

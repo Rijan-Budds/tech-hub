@@ -16,7 +16,7 @@ const validationSchema = Yup.object({
 });
 
 const LoginForm = ({ onSubmit }: LoginFormProps) => {
-  const router = useRouter(); // ✅ initialize router
+  const router = useRouter(); 
 
   const handleSubmit = async (
     values: { email: string; password: string },
@@ -54,7 +54,6 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
           router.push("/profile");
         }
       } else {
-        // Handle error responses
         if (response.status === 401) {
           toast.error(data.message || "Invalid email or password");
         } else if (response.status === 400) {
@@ -83,7 +82,6 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
       >
         {({ isSubmitting }) => (
           <Form className="space-y-4">
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -105,7 +103,6 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -127,7 +124,6 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
               />
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={isSubmitting}

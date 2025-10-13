@@ -234,33 +234,27 @@ export default function AdminPage() {
     | "reviews"
     | "chat"
     | "inquiries"
-  >("overview");
-
-  // Categories state
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [currentCategoriesPage, setCurrentCategoriesPage] = useState(1);
-  const [categoriesPerPage, setCategoriesPerPage] = useState(5);
-  const [totalCategories, setTotalCategories] = useState(0);
-  const [totalCategoriesPages, setTotalCategoriesPages] = useState(0);
-  const [categoriesSortBy, setCategoriesSortBy] = useState("createdAt");
-  const [categoriesSortOrder, setCategoriesSortOrder] = useState("desc");
-  const [reloadingCategories, setReloadingCategories] = useState(false);
-
-  // Category form state
-  const [categoryName, setCategoryName] = useState("");
-  const [categoryDescription, setCategoryDescription] = useState("");
-  const [categoryImage, setCategoryImage] = useState("");
-  const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false);
-
-  // Category editing state
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-  // Dynamic categories for product form
-  const [availableCategories, setAvailableCategories] = useState<Category[]>(
-    []
+    >("overview");
+  
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [currentCategoriesPage, setCurrentCategoriesPage] = useState(1);
+    const [categoriesPerPage, setCategoriesPerPage] = useState(5);
+    const [totalCategories, setTotalCategories] = useState(0);
+    const [totalCategoriesPages, setTotalCategoriesPages] = useState(0);
+    const [categoriesSortBy, setCategoriesSortBy] = useState("createdAt");
+    const [categoriesSortOrder, setCategoriesSortOrder] = useState("desc");
+    const [reloadingCategories, setReloadingCategories] = useState(false);
+  
+    const [categoryName, setCategoryName] = useState("");
+    const [categoryDescription, setCategoryDescription] = useState("");
+    const [categoryImage, setCategoryImage] = useState("");
+    const [uploadingCategoryImage, setUploadingCategoryImage] = useState(false);
+  
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  
+    const [availableCategories, setAvailableCategories] = useState<Category[]>([]
   );
 
-  // Pagination state for products
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(4);
   const [totalProducts, setTotalProducts] = useState(0);
@@ -268,7 +262,6 @@ export default function AdminPage() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
 
-  // Pagination state for orders
   const [currentOrdersPage, setCurrentOrdersPage] = useState(1);
   const [ordersPerPage, setOrdersPerPage] = useState(5);
   const [totalOrders, setTotalOrders] = useState(0);
@@ -276,7 +269,6 @@ export default function AdminPage() {
   const [ordersSortBy, setOrdersSortBy] = useState("createdAt");
   const [ordersSortOrder, setOrdersSortOrder] = useState("desc");
 
-  // Pagination state for users
   const [currentUsersPage, setCurrentUsersPage] = useState(1);
   const [usersPerPage, setUsersPerPage] = useState(5);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -284,19 +276,15 @@ export default function AdminPage() {
   const [usersSortBy, setUsersSortBy] = useState("createdAt");
   const [usersSortOrder, setUsersSortOrder] = useState("desc");
 
-  // Order filtering
   const [orderStatusFilter, setOrderStatusFilter] = useState<
     "all" | "pending" | "others"
   >("all");
 
-  // Product search
   const [productSearchTerm, setProductSearchTerm] = useState("");
   const [searchedProducts, setSearchedProducts] = useState<typeof products>([]);
 
-  // Individual order expansion state
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
-  // Toggle individual order expansion
   const toggleOrderExpansion = (orderId: string) => {
     const newExpandedOrders = new Set(expandedOrders);
     if (newExpandedOrders.has(orderId)) {
@@ -307,7 +295,6 @@ export default function AdminPage() {
     setExpandedOrders(newExpandedOrders);
   };
 
-  // Return requests state
   const [returnRequests, setReturnRequests] = useState<
     {
       id: string;
@@ -351,18 +338,16 @@ export default function AdminPage() {
     new Set()
   );
 
-  // Inquiries state
   const [inquiries, setInquiries] = useState<(IInquiry & { id: string })[]>([]);
   const [currentInquiriesPage, setCurrentInquiriesPage] = useState(1);
-  const [inquiriesPerPage, setInquiriesPerPage] = useState(10); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [inquiriesPerPage] = useState(10);
   const [totalInquiries, setTotalInquiries] = useState(0);
   const [totalInquiriesPages, setTotalInquiriesPages] = useState(0);
-  const [inquiriesSortBy, setInquiriesSortBy] = useState("createdAt"); // eslint-disable-line @typescript-eslint/no-unused-vars
-  const [inquiriesSortOrder, setInquiriesSortOrder] = useState("desc"); // eslint-disable-line @typescript-eslint/no-unused-vars
-  const [inquiriesStatusFilter, setInquiriesStatusFilter] = useState("all"); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [inquiriesSortBy] = useState("createdAt");
+  const [inquiriesSortOrder] = useState("desc");
+  const [inquiriesStatusFilter] = useState("all");
   const [reloadingInquiries, setReloadingInquiries] = useState(false);
 
-  // Reviews state
   const [reviews, setReviews] = useState<
     {
       id: string;
@@ -377,14 +362,13 @@ export default function AdminPage() {
     }[]
   >([]);
   const [currentReviewsPage, setCurrentReviewsPage] = useState(1);
-  const [reviewsPerPage, setReviewsPerPage] = useState(5); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [reviewsPerPage] = useState(5);
   const [totalReviews, setTotalReviews] = useState(0);
   const [totalReviewsPages, setTotalReviewsPages] = useState(0);
-  const [reviewsSortBy, setReviewsSortBy] = useState("createdAt"); // eslint-disable-line @typescript-eslint/no-unused-vars
-  const [reviewsSortOrder, setReviewsSortOrder] = useState("desc"); // eslint-disable-line @typescript-eslint/no-unused-vars
-  const [reloadingReviews, setReloadingReviews] = useState(false); // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [reviewsSortBy] = useState("createdAt");
+  const [reviewsSortOrder] = useState("desc");
+  const [reloadingReviews] = useState(false);
 
-  // Toggle individual return expansion
   const toggleReturnExpansion = (returnId: string) => {
     const newExpandedReturns = new Set(expandedReturns);
     if (newExpandedReturns.has(returnId)) {
@@ -397,7 +381,6 @@ export default function AdminPage() {
 
   const router = useRouter();
 
-  // Filter orders based on status filter
   const filteredOrders = orders.filter((order) => {
     if (orderStatusFilter === "all") return true;
     if (orderStatusFilter === "pending") return order.status === "pending";
@@ -405,7 +388,6 @@ export default function AdminPage() {
     return true;
   });
 
-  // Search products function
   const searchProducts = async () => {
     if (!productSearchTerm.trim()) {
       setSearchedProducts([]);
@@ -427,7 +409,6 @@ export default function AdminPage() {
     }
   };
 
-  // Get displayed products (search results or regular products)
   const displayedProducts = productSearchTerm.trim()
     ? searchedProducts
     : products;
@@ -507,49 +488,41 @@ export default function AdminPage() {
         setReviews(reviewsData.reviews || []);
         setInquiries(iData.inquiries || []);
 
-        // Set pagination data for users
         if (uData.pagination) {
           setTotalUsers(uData.pagination.totalCount);
           setTotalUsersPages(uData.pagination.totalPages);
         }
 
-        // Set pagination data for products
         if (pData.pagination) {
           setTotalProducts(pData.pagination.totalCount);
           setTotalPages(pData.pagination.totalPages);
         }
 
-        // Set pagination data for orders
         if (oData.pagination) {
           setTotalOrders(oData.pagination.totalCount);
           setTotalOrdersPages(oData.pagination.totalPages);
         }
 
-        // Set pagination data for returns
         if (rData.pagination) {
           setTotalReturns(rData.pagination.totalCount);
           setTotalReturnsPages(rData.pagination.totalPages);
         }
 
-        // Set pagination data for categories
         if (cData.pagination) {
           setTotalCategories(cData.pagination.totalCount);
           setTotalCategoriesPages(cData.pagination.totalPages);
         }
 
-        // Set pagination data for reviews
         if (reviewsData.pagination) {
           setTotalReviews(reviewsData.pagination.totalCount);
           setTotalReviewsPages(reviewsData.pagination.totalPages);
         }
 
-        // Set pagination data for inquiries
         if (iData.pagination) {
           setTotalInquiries(iData.pagination.totalInquiries);
           setTotalInquiriesPages(iData.pagination.totalPages);
         }
 
-        // Load available categories for product form
         await loadAvailableCategories();
       } catch (error) {
         const errorMessage =
@@ -605,7 +578,6 @@ export default function AdminPage() {
       const data = await res.json();
       setUsers(data.users || []);
 
-      // Set pagination data for users
       if (data.pagination) {
         setTotalUsers(data.pagination.totalCount);
         setTotalUsersPages(data.pagination.totalPages);
@@ -633,7 +605,6 @@ export default function AdminPage() {
       const data = await res.json();
       setOrders(data.orders || []);
 
-      // Set pagination data for orders
       if (data.pagination) {
         setTotalOrders(data.pagination.totalCount);
         setTotalOrdersPages(data.pagination.totalPages);
@@ -668,7 +639,6 @@ export default function AdminPage() {
       setProducts(pData.products || []);
       setAllProducts(pAllData.products || []);
 
-      // Set pagination data
       if (pData.pagination) {
         setTotalProducts(pData.pagination.totalCount);
         setTotalPages(pData.pagination.totalPages);
@@ -696,7 +666,6 @@ export default function AdminPage() {
       const data = await res.json();
       setReturnRequests(data.returnRequests || []);
 
-      // Set pagination data for returns
       if (data.pagination) {
         setTotalReturns(data.pagination.totalCount);
         setTotalReturnsPages(data.pagination.totalPages);
@@ -726,7 +695,6 @@ export default function AdminPage() {
       const data = await res.json();
       setInquiries(data.inquiries || []);
 
-      // Set pagination data for inquiries
       if (data.pagination) {
         setTotalInquiries(data.pagination.totalInquiries);
         setTotalInquiriesPages(data.pagination.totalPages);
@@ -752,7 +720,6 @@ export default function AdminPage() {
       if (!res.ok)
         throw new Error(response.error || "Failed to delete inquiry");
 
-      // Update local state
       setInquiries((prev) =>
         prev.filter((inquiry) => inquiry.id !== inquiryId)
       );
@@ -814,31 +781,26 @@ export default function AdminPage() {
       setReturnRequests(rData.returnRequests || []);
       setInquiries(iData.inquiries || []);
 
-      // Set pagination data for users
       if (uData.pagination) {
         setTotalUsers(uData.pagination.totalCount);
         setTotalUsersPages(uData.pagination.totalPages);
       }
 
-      // Set pagination data for products
       if (pData.pagination) {
         setTotalProducts(pData.pagination.totalCount);
         setTotalPages(pData.pagination.totalPages);
       }
 
-      // Set pagination data for orders
       if (oData.pagination) {
         setTotalOrders(oData.pagination.totalCount);
         setTotalOrdersPages(oData.pagination.totalPages);
       }
 
-      // Set pagination data for returns
       if (rData.pagination) {
         setTotalReturns(rData.pagination.totalCount);
         setTotalReturnsPages(rData.pagination.totalPages);
       }
 
-      // Set pagination data for inquiries
       if (iData.pagination) {
         setTotalInquiries(iData.pagination.totalInquiries);
         setTotalInquiriesPages(iData.pagination.totalPages);
@@ -932,7 +894,6 @@ export default function AdminPage() {
       return;
     }
 
-    // Use first image from images array as primary image, fallback to single image
     const primaryImage = images.length > 0 ? images[0] : image;
 
     try {
@@ -1027,7 +988,6 @@ export default function AdminPage() {
     router.push("/");
   };
 
-  // Category management functions
   const reloadCategories = async () => {
     try {
       setReloadingCategories(true);
@@ -1134,7 +1094,6 @@ export default function AdminPage() {
     }
   };
 
-  // Upload helper for drag-and-drop component
   const uploadImageAndGetUrl = async (file: File): Promise<string | null> => {
     try {
       setUploadingCategoryImage(true);
@@ -1173,7 +1132,6 @@ export default function AdminPage() {
     }
   };
 
-  // Return request management functions
   const updateReturnStatus = async (
     returnId: string,
     status: "pending" | "approved" | "rejected" | "completed" | "refunded",
@@ -1223,7 +1181,6 @@ export default function AdminPage() {
     }
   };
 
-  // Reset pagination when switching tabs
   const handleTabChange = (
     tab:
       | "overview"
@@ -1458,7 +1415,7 @@ export default function AdminPage() {
                 { id: "reviews", label: "Reviews", icon: FaStar },
                 { id: "returns", label: "Returns", icon: FaUndo },
                 { id: "chat", label: "Chat Support", icon: FaComment },
-                { id: "inquiries", label: "Inquiries", icon: FaQuestionCircle },
+                { id: "inquiries", label: "Problems", icon: FaQuestionCircle },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -1637,7 +1594,7 @@ export default function AdminPage() {
                           value={usersPerPage}
                           onChange={(e) => {
                             setUsersPerPage(Number(e.target.value));
-                            setCurrentUsersPage(1); // Reset to first page
+                            setCurrentUsersPage(1);
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-[#0D3B66] focus:border-[#0D3B66] transition-all duration-200 hover:border-[#1E5CAF]"
                         >
@@ -1682,7 +1639,7 @@ export default function AdminPage() {
                           value={usersSortOrder}
                           onChange={(e) => {
                             setUsersSortOrder(e.target.value);
-                            setCurrentUsersPage(1); // Reset to first page
+                            setCurrentUsersPage(1);
                           }}
                           className="ml-2 bg-white/80 backdrop-blur-sm border-2 border-gray-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-blue-500"
                         >

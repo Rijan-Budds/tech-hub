@@ -40,7 +40,6 @@ export default function RootLayout({
           themes={["light", "dark"]}
           disableTransitionOnChange
         >
-          {/* Scrollable container with hidden scrollbar */}
           <div className="h-full overflow-auto no-visible-scrollbar">
             {children}
           </div>

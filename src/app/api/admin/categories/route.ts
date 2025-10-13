@@ -13,14 +13,13 @@ function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, "") // Remove special characters
-    .replace(/[\s_-]+/g, "-") // Replace spaces, underscores, and hyphens with single hyphen
-    .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export async function GET(req: Request) {
   try {
-    // Check if user is admin
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
 
@@ -73,7 +72,6 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    // Check if user is admin
     const cookieStore = await cookies();
     const token = cookieStore.get("token");
 
@@ -86,7 +84,6 @@ export async function POST(req: Request) {
       email: string;
     };
 
-    // Check if user is admin
     if (!decoded.email || !decoded.email.includes("admin")) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -94,15 +91,12 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, description, image } = body;
 
-    // Validate required fields
     if (!name || !name.trim()) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Generate slug from name
     const slug = generateSlug(name);
 
-    // Check if category with this slug already exists
     const existingCategory = await categoryService.getCategoryBySlug(slug);
     if (existingCategory) {
       return NextResponse.json(
@@ -111,7 +105,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create the category
     const categoryId = await categoryService.createCategory({
       name: name.trim(),
       slug,
@@ -119,7 +112,6 @@ export async function POST(req: Request) {
       image: image || "",
     });
 
-    // Get the created category to return it
     const newCategory = await categoryService.getCategoryById(categoryId);
 
     return NextResponse.json({

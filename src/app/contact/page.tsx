@@ -73,8 +73,7 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
-            Have a question about a product or an order? We&apos;re here to
-            help.
+            Have a question about a product or any problems with service?
           </p>
         </header>
 
@@ -125,7 +124,7 @@ export default function ContactPage() {
                 className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 h-32 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200 resize-none"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Tell us how we can help you..."
+                placeholder="Tell us what your problem is..."
                 required
               />
             </div>
@@ -149,7 +148,7 @@ export default function ContactPage() {
                   <span>Sending...</span>
                 </>
               ) : (
-                <span>Send Message</span>
+                <span>Send Report</span>
               )}
             </button>
             {sent && (
