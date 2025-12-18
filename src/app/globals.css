@@ -67,7 +67,6 @@
   display: none;
 }
 
-/* Custom scrollbar styles for chat */
 .chat-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #D1D5DB #F3F4F6;

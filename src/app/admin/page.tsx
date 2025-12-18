@@ -21,8 +21,6 @@ import {
 import AdminHeader from "@/components/layout/AdminHeader";
 import StatusDropdown from "@/components/StatusDropdown";
 import AdminReturnsSection from "@/components/admin/AdminReturnsSection";
-import AdminChatInterface from "@/components/admin/AdminChatInterface";
-import AdminInquiriesSection from "@/components/admin/AdminInquiriesSection";
 import DragDropUpload from "@/components/DragDropUpload";
 import MultipleImagesUpload from "@/components/MultipleImagesUpload";
 import dynamic from "next/dynamic";
@@ -1414,8 +1412,6 @@ export default function AdminPage() {
                 { id: "categories", label: "Categories", icon: FaTags },
                 { id: "reviews", label: "Reviews", icon: FaStar },
                 { id: "returns", label: "Returns", icon: FaUndo },
-                { id: "chat", label: "Chat Support", icon: FaComment },
-                { id: "inquiries", label: "Problems", icon: FaQuestionCircle },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -3565,22 +3561,7 @@ export default function AdminPage() {
               </div>
 
               {/* Chat Interface */}
-              <AdminChatInterface />
             </div>
-          )}
-
-          {activeTab === "inquiries" && (
-            <AdminInquiriesSection
-              inquiries={inquiries}
-              totalInquiries={totalInquiries}
-              currentPage={currentInquiriesPage}
-              totalPages={totalInquiriesPages}
-              pageSize={inquiriesPerPage}
-              loading={reloadingInquiries}
-              onPageChange={setCurrentInquiriesPage}
-              onRefresh={reloadInquiries}
-              onDeleteInquiry={deleteInquiry}
-            />
           )}
         </div>
       </div>
