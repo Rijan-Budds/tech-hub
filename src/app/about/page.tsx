@@ -8,55 +8,55 @@ const teamMembers = [
   {
     name: "Hideo Kojima",
     role: "Founder & CEO",
-    image: "/home/rejina.jpg",
+    image: "/home/hideo.jpg",
     description:
       "Visionary leader driving the overall strategy and growth of the company",
   },
   {
     name: "Sydney Sweeney",
     role: "Lead Designer",
-    image: "/home/parisma.jpg",
+    image: "/home/sydney.jpg",
     description: "Creative mind behind our sleek and user-friendly designs.",
   },
   {
     name: "Linus Torvalds",
     role: "Frontend Developer",
-    image: "/home/asdf.jpg",
+    image: "/home/linus.jpg",
     description:
       "Builds and maintains the website interface, ensuring smooth and responsive user interactions.",
   },
     {
     name: "Margaret Hamilton",
     role: "Backend Developer",
-    image: "/home/asdf.jpg",
+    image: "/home/marg.jpg",
     description:
       "Manages server logic, APIs, and databases to ensure the platform runs seamlessly.",
   },
     {
-    name: "",
+    name: "Megan Fox",
     role: "Product Manager",
-    image: "/home/asdf.jpg",
+    image: "/home/megan.jpg",
     description:
       "Plans and prioritizes product features to deliver the best user experience.",
   },
     {
     name: "Margaret Qualley",
     role: "UI/UX Designer",
-    image: "/home/asdf.jpg",
+    image: "/home/margaret.jpg",
     description:
       "Designs intuitive and engaging interfaces that delight users across devices.",
   },
     {
     name: "Léa Seydoux",
     role: "Digital Marketing Manager",
-    image: "/home/asdf.jpg",
+    image: "/home/lea.jpg",
     description:
       "Drives online campaigns, SEO, and social media strategies to grow traffic and sales.",
   },
     {
     name: "Norman Reedus",
     role: "Customer Support Representative",
-    image: "/home/asdf.jpg",
+    image: "/home/norman.jpg",
     description:
       "Assists customers with inquiries, returns, and ensures a positive shopping experience.",
   },

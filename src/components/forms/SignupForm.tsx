@@ -12,15 +12,20 @@ interface SignupFormProps {
   }) => void;
 }
 
-// Yup schema with trimming for name, email, and password
 const validationSchema = Yup.object({
   name: Yup.string()
     .transform((value) => (value ? value.trim() : ""))
-    .required("Required"),
+    .required("Required")
+    .min(2, "Name must be at least 2 characters")
+    .matches(/^[a-zA-Z\s]*$/, "Name can only contain letters and spaces"), 
   email: Yup.string()
     .transform((value) => (value ? value.trim() : ""))
-    .email("Invalid email")
-    .required("Required"),
+    .email("Invalid email address format") 
+    .required("Required")
+    .matches(
+      /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+      "Invalid email domain. Must have a valid TLD (e.g., .com)"
+    ), 
   password: Yup.string()
     .transform((value) => (value ? value.trim() : ""))
     .required("Required")
