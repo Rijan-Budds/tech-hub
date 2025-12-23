@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import ProductActions from "./ProductActions"; // import client component
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import ReviewsSection from "@/components/ReviewsSection";
+// import ReviewsSection from "@/components/ReviewsSection";
 import StarRating from "@/components/StarRating";
 import ImageGallery from "@/components/ImageGallery";
 
@@ -209,7 +209,7 @@ export default async function ProductDetailPage({
           </div>
 
           {/* Reviews Section */}
-          <div className="mt-16">
+          {/* <div className="mt-16">
             <ReviewsSection 
               productId={product.id}
               productName={product.name}
@@ -217,7 +217,7 @@ export default async function ProductDetailPage({
               averageRating={product.averageRating || 0}
               totalReviews={product.totalReviews || 0}
             />
-          </div>
+          </div> */}
         </div>
       </div>
       <Footer />

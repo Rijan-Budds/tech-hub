@@ -357,9 +357,9 @@ export default function OrdersPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-end space-x-3">
+                  {/* <div className="flex justify-end space-x-3"> */}
                     {/* Return Button */}
-                    {isOrderEligibleForReturn(order) && (
+                    {/* {isOrderEligibleForReturn(order) && (
                       <button
                         onClick={() => setSelectedOrderForReturn(order)}
                         disabled={isSubmittingReturn}
@@ -370,17 +370,17 @@ export default function OrdersPage() {
                           {isSubmittingReturn ? "Returning..." : "Return"}
                         </span>
                       </button>
-                    )}
+                    )} */}
 
                     {/* View Details Button */}
-                    <Link
+                    {/* <Link
                       href={`/orders/${order.id}`}
                       className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
                     >
                       <FaEye className="text-sm" />
                       <span>View Details</span>
                     </Link>
-                  </div>
+                  </div> */}
                 </div>
               ))}
             </div>
@@ -390,13 +390,13 @@ export default function OrdersPage() {
       <Footer />
 
       {/* Return Request Form Modal */}
-      {selectedOrderForReturn && (
+      {/* {selectedOrderForReturn && (
         <ReturnRequestForm
           order={selectedOrderForReturn}
           onClose={() => setSelectedOrderForReturn(null)}
           onSubmit={handleReturnRequest}
         />
-      )}
+      )} */}
     </>
   );
 }

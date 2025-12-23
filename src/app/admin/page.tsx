@@ -1207,12 +1207,12 @@ export default function AdminPage() {
     if (tab === "categories") {
       setCurrentCategoriesPage(1);
     }
-    if (tab === "reviews") {
-      setCurrentReviewsPage(1);
-    }
-    if (tab === "inquiries") {
-      setCurrentInquiriesPage(1);
-    }
+    // if (tab === "reviews") {
+    //   setCurrentReviewsPage(1);
+    // }
+    // if (tab === "inquiries") {
+    //   setCurrentInquiriesPage(1);
+    // }
   };
 
   const getStatusColor = (status: string) => {
@@ -1410,8 +1410,8 @@ export default function AdminPage() {
                 { id: "orders", label: "Orders", icon: FaShoppingCart },
                 { id: "products", label: "Products", icon: FaBox },
                 { id: "categories", label: "Categories", icon: FaTags },
-                { id: "reviews", label: "Reviews", icon: FaStar },
-                { id: "returns", label: "Returns", icon: FaUndo },
+                // { id: "reviews", label: "Reviews", icon: FaStar },
+                // { id: "returns", label: "Returns", icon: FaUndo },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
