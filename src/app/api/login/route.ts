@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { userService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { users } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
 
@@ -42,18 +44,22 @@ export async function POST(req: Request) {
     return res;
   }
 
-  const user = await userService.getUserByEmail(email);
-  if (!user || !user.password || !user.id)
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const user = result[0];
+
+  if (!user || !user.password)
     return NextResponse.json(
       { message: "Invalid email or password" },
       { status: 401 },
     );
+
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch)
     return NextResponse.json(
       { message: "Invalid email or password" },
       { status: 401 },
     );
+
   const token = signToken({
     sub: user.id,
     email: user.email,

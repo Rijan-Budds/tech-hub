@@ -2,11 +2,12 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ProductCardActions } from "@/components/ProductCardActions";
-import { productService } from "@/lib/firebase-db";
-import { IProduct } from "@/lib/firebase-models";
 import { FaArrowLeft } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { db } from "@/lib/db";
+import { products as productsTable, categories } from "@/lib/schema";
+import { eq, desc } from "drizzle-orm";
 
 interface ProductDisplay {
   id: string;
@@ -25,47 +26,53 @@ async function fetchProductsByCategory(
   slug: string,
 ): Promise<ProductDisplay[]> {
   if (slug === "trending") {
-    // Get trending products based on purchase count
-    const trendingProducts = await productService.getTrendingProducts(20);
-    return trendingProducts
-      .filter((product) => product.id) // Ensure id exists
-      .map((product) => ({
-        id: product.id!,
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        category: product.category,
-        discountPercentage:
-          product.discountPercentage && product.discountPercentage > 0
-            ? product.discountPercentage
-            : undefined,
-        stockQuantity: product.stockQuantity || 0,
-        inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity
-        purchaseCount: (product as IProduct & { purchaseCount?: number })
-          .purchaseCount,
-      }));
-  }
+    const products = await db.select({
+      product: productsTable,
+      category: categories,
+    })
+      .from(productsTable)
+      .leftJoin(categories, eq(productsTable.categoryId, categories.id))
+      .orderBy(desc(productsTable.createdAt))
+      .limit(20);
 
-  const allProducts = await productService.getAllProducts();
-
-  return allProducts
-    .filter((product) => product.category.toLowerCase() === slug.toLowerCase())
-    .filter((product) => product.id) // Ensure id exists
-    .map((product) => ({
-      id: product.id!,
+    return products.map(({ product, category }) => ({
+      id: product.id,
       slug: product.slug,
       name: product.name,
       price: product.price,
       image: product.image,
-      category: product.category,
-      discountPercentage:
-        product.discountPercentage && product.discountPercentage > 0
-          ? product.discountPercentage
-          : undefined,
-      stockQuantity: product.stockQuantity || 0,
-      inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity
+      category: category?.name || "Uncategorized",
+      discountPercentage: product.discountPercentage > 0 ? product.discountPercentage : undefined,
+      stockQuantity: product.stockQuantity,
+      inStock: product.stockQuantity > 0,
+      purchaseCount: 0
     }));
+  }
+
+  const categoryResult = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
+  const category = categoryResult[0];
+
+  if (!category) return [];
+
+  const products = await db.select({
+    product: productsTable,
+    category: categories,
+  })
+    .from(productsTable)
+    .leftJoin(categories, eq(productsTable.categoryId, categories.id))
+    .where(eq(productsTable.categoryId, category.id));
+
+  return products.map(({ product, category }) => ({
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    price: product.price,
+    image: product.image,
+    category: category?.name || "Uncategorized",
+    discountPercentage: product.discountPercentage > 0 ? product.discountPercentage : undefined,
+    stockQuantity: product.stockQuantity,
+    inStock: product.stockQuantity > 0,
+  }));
 }
 
 const CategoryPage = async ({
@@ -186,7 +193,7 @@ const CategoryPage = async ({
                             </div>
                           )}
 
-                          {/* Trending Badge - Show purchase count for trending products */}
+                          {/* Trending Badge */}
                           {slug === "trending" &&
                             p.purchaseCount &&
                             p.purchaseCount > 0 && (
@@ -209,7 +216,7 @@ const CategoryPage = async ({
                           </h3>
                           <div className="flex items-baseline space-x-2">
                             {p.discountPercentage &&
-                            p.discountPercentage > 0 ? (
+                              p.discountPercentage > 0 ? (
                               <>
                                 <span className="text-lg font-bold text-gray-400 line-through">
                                   रु{p.price.toFixed(2)}

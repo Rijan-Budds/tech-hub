@@ -1,17 +1,36 @@
 import { NextResponse } from "next/server";
-import { productService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { products, categories } from "@/lib/schema";
+import { eq, or, and, ne } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
-import { uploadBase64ToCloudinary } from "../../../../../lib/cloudinary-utils";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
 
-interface ProductUpdates {
-  name?: string;
-  price?: number;
-  category?: string;
-  image?: string;
-  images?: string[];
-  description?: string;
-  discountPercentage?: number;
-  stockQuantity?: number;
+async function saveBase64Image(base64Data: string): Promise<string> {
+  if (base64Data.startsWith("http")) return base64Data;
+  try {
+    const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) return base64Data;
+    const type = matches[1];
+    const buffer = Buffer.from(matches[2], 'base64');
+    let ext = ".jpg";
+    if (type === "image/png") ext = ".png";
+    else if (type === "image/jpeg") ext = ".jpg";
+    else if (type === "image/webp") ext = ".webp";
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const uploadDir = path.join(process.cwd(), "public", "uploads", String(year), month);
+    await mkdir(uploadDir, { recursive: true });
+    const filename = `${uuidv4()}${ext}`;
+    const filePath = path.join(uploadDir, filename);
+    await writeFile(filePath, buffer);
+    return `/uploads/${year}/${month}/${filename}`;
+  } catch (e) {
+    console.error("Error saving base64 image", e);
+    return base64Data;
+  }
 }
 
 export async function PATCH(
@@ -25,103 +44,87 @@ export async function PATCH(
     }
 
     const { slug } = await params;
-    const {
-      name,
-      price,
-      category,
-      image,
-      images,
-      description,
-      discountPercentage,
-      stockQuantity,
-    } = await req.json();
+    const body = await req.json();
+    const { name, price, category, image, images, description, discountPercentage, stockQuantity } = body;
 
-    const product = await productService.getProductBySlug(slug);
+    const result = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
+    const product = result[0];
     if (!product) {
-      return NextResponse.json(
-        { message: "Product not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: "Product not found" }, { status: 404 });
     }
 
-    // Check if name change conflicts with existing product
-    if (
-      name &&
-      name.trim().toLowerCase() !== product.name.trim().toLowerCase()
-    ) {
-      const allProducts = await productService.getAllProducts();
-      const existingByName = allProducts.find(
-        (p) =>
-          p.name.toLowerCase() === name.trim().toLowerCase() &&
-          p.id !== product.id,
-      );
-      if (existingByName) {
-        return NextResponse.json(
-          { message: "Product name already exists" },
-          { status: 400 },
-        );
+    if (name && name.trim().toLowerCase() !== product.name.trim().toLowerCase()) {
+      const existingByName = await db.select().from(products).where(
+        and(
+          eq(products.name, name.trim()),
+          ne(products.id, product.id)
+        )
+      ).limit(1);
+      if (existingByName.length > 0) {
+        return NextResponse.json({ message: "Product name already exists" }, { status: 400 });
       }
     }
 
-    const updates: ProductUpdates = {};
+    const updates: any = {};
     if (name != null) updates.name = String(name).trim();
     if (price != null) updates.price = Number(price);
-    if (category != null)
-      updates.category = String(category).toLowerCase().trim();
-    if (description != null)
-      updates.description = String(description).trim() || undefined;
-    if (discountPercentage != null)
-      updates.discountPercentage = Number(discountPercentage);
+
+    if (category != null) {
+      const catResult = await db.select().from(categories).where(
+        or(
+          eq(categories.id, category),
+          eq(categories.name, category),
+          eq(categories.slug, category)
+        )
+      ).limit(1);
+      const cat = catResult[0];
+      if (cat) {
+        updates.categoryId = cat.id;
+      }
+    }
+
+    if (description != null) updates.description = String(description).trim() || null;
+    if (discountPercentage != null) updates.discountPercentage = Number(discountPercentage);
     if (stockQuantity != null) updates.stockQuantity = Number(stockQuantity);
 
-    if (image && !image.startsWith('http')) {
-      const uploadResult = await uploadBase64ToCloudinary(image);
-      updates.image = uploadResult.secure_url;
-    } else if (image) {
-      updates.image = image;
+    if (image) {
+      updates.image = await saveBase64Image(image);
     }
-
     if (images && Array.isArray(images)) {
-      updates.images = await Promise.all(
-        images.map(async (img) => {
-          if (img && !img.startsWith('http')) {
-            const uploadResult = await uploadBase64ToCloudinary(img);
-            return uploadResult.secure_url;
-          }
-          return img;
-        })
-      );
+      updates.images = JSON.stringify(await Promise.all(images.map((img: string) => saveBase64Image(img))));
     }
 
-    if (!product.id) {
-      return NextResponse.json(
-        { message: "Product ID not found" },
-        { status: 404 },
-      );
-    }
+    await db.update(products)
+      .set(updates)
+      .where(eq(products.id, product.id));
 
-    await productService.updateProduct(product.id, updates);
+    const updatedResult = await db.select({
+      product: products,
+      category: categories,
+    })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(eq(products.id, product.id))
+      .limit(1);
 
-    // Get updated product
-    const updatedProduct = await productService.getProductById(product.id);
+    const updatedProduct = updatedResult[0];
+
+    let resultImages: string[] = [];
+    try { resultImages = JSON.parse(updatedProduct.product.images); } catch { resultImages = []; }
 
     return NextResponse.json({
       message: "Product updated",
       product: {
-        id: updatedProduct?.id || product.id,
-        slug: updatedProduct?.slug || product.slug,
-        name: updatedProduct?.name || product.name,
-        price: updatedProduct?.price || product.price,
-        category: updatedProduct?.category || product.category,
-        image: updatedProduct?.image || product.image,
-        images: updatedProduct?.images || product.images,
-        description: updatedProduct?.description || product.description,
-        discountPercentage:
-          updatedProduct?.discountPercentage &&
-          updatedProduct.discountPercentage > 0
-            ? updatedProduct.discountPercentage
-            : undefined,
-        stockQuantity: updatedProduct?.stockQuantity ?? product.stockQuantity,
+        id: updatedProduct.product.id,
+        slug: updatedProduct.product.slug,
+        name: updatedProduct.product.name,
+        price: updatedProduct.product.price,
+        category: updatedProduct.category?.name,
+        image: updatedProduct.product.image,
+        images: resultImages,
+        description: updatedProduct.product.description,
+        discountPercentage: updatedProduct.product.discountPercentage > 0 ? updatedProduct.product.discountPercentage : undefined,
+        stockQuantity: updatedProduct.product.stockQuantity,
       },
     });
   } catch (error) {
@@ -144,15 +147,13 @@ export async function DELETE(
     }
 
     const { slug } = await params;
-    const product = await productService.getProductBySlug(slug);
-    if (!product || !product.id) {
-      return NextResponse.json(
-        { message: "Product not found" },
-        { status: 404 },
-      );
+    const result = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
+    const product = result[0];
+    if (!product) {
+      return NextResponse.json({ message: "Product not found" }, { status: 404 });
     }
 
-    await productService.deleteProduct(product.id);
+    await db.delete(products).where(eq(products.id, product.id));
     return NextResponse.json({ message: "Product deleted" });
   } catch (error) {
     console.error("Error deleting product:", error);

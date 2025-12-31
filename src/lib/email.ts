@@ -1,6 +1,44 @@
 import nodemailer from "nodemailer";
-import { IOrder, IReturnRequest } from "./firebase-models";
-import { timestampToDate } from "./firebase-models";
+
+// Define compatible interfaces to replace Firebase imports
+interface IOrder {
+  id: string;
+  items: Array<{
+    name: string;
+    image: string;
+    quantity: number;
+    price: number;
+  }>;
+  customer: {
+    name: string;
+    email: string;
+    address: {
+      street: string;
+      city: string;
+    };
+  };
+  createdAt: Date;
+  status: string;
+  subtotal: number;
+  deliveryFee: number;
+  grandTotal: number;
+  paymentMethod: string;
+}
+
+interface IReturnRequest {
+  id?: string;
+  requestedAt: Date;
+  reason: string;
+  description?: string;
+  items: Array<{
+    name: string;
+    quantity: number;
+    price?: number;
+    productId: string;
+  }>;
+  adminNote?: string;
+  refundAmount?: number;
+}
 
 // Validate email configuration
 const GMAIL_USER = process.env.GMAIL_USER;
@@ -21,6 +59,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Helper for date formatting
+const formatDate = (date: Date) => {
+  return new Date(date).toLocaleDateString();
+};
+
 // Email template for order confirmation
 const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
   const itemsList = order.items
@@ -28,22 +71,19 @@ const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
       (item) =>
         `<tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">
-        <img src="${item.image}" alt="${
-          item.name
+        <img src="${item.image}" alt="${item.name
         }" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
       </td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee;">${
-        item.name
-      }</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee;">${
-        item.quantity
-      }</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name
+        }</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.quantity
+        }</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">रु${(
-        item.price || 0
-      ).toFixed(2)}</td>
+          item.price || 0
+        ).toFixed(2)}</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">रु${(
-        (item.price || 0) * item.quantity
-      ).toFixed(2)}</td>
+          (item.price || 0) * item.quantity
+        ).toFixed(2)}</td>
     </tr>`,
     )
     .join("");
@@ -87,15 +127,12 @@ const createOrderEmailTemplate = (order: IOrder, orderId: string) => {
           <div class="order-details">
             <h3>Order Information</h3>
             <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Order Date:</strong> ${timestampToDate(
-              order.createdAt,
-            ).toLocaleDateString()}</p>
+            <p><strong>Order Date:</strong> ${formatDate(order.createdAt)}</p>
             <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">${order.status.toUpperCase()}</span></p>
-            ${
-              order.paymentMethod
-                ? `<p><strong>Payment Method:</strong> <span style="color: #667eea; font-weight: bold;">${order.paymentMethod.toUpperCase()}</span></p>`
-                : ""
-            }
+            ${order.paymentMethod
+      ? `<p><strong>Payment Method:</strong> <span style="color: #667eea; font-weight: bold;">${order.paymentMethod.toUpperCase()}</span></p>`
+      : ""
+    }
             
             <h4>Shipping Address:</h4>
             <p>${order.customer.address.street}<br>
@@ -227,46 +264,28 @@ const createStatusUpdateEmailTemplate = (
           <div class="order-summary">
             <h3>Order Information</h3>
             <p><strong>Order ID:</strong> ${orderId}</p>
-            <p><strong>Order Date:</strong> ${timestampToDate(
-              order.createdAt,
-            ).toLocaleDateString()}</p>
+            <p><strong>Order Date:</strong> ${formatDate(order.createdAt)}</p>
             <p><strong>New Status:</strong> 
-              <span class="status-badge" style="background-color: ${
-                statusColors[newStatus as keyof typeof statusColors]
-              }">
+              <span class="status-badge" style="background-color: ${statusColors[newStatus as keyof typeof statusColors] || '#666'
+    }">
                 ${newStatus.toUpperCase()}
               </span>
             </p>
             
             <h4>What this means:</h4>
-            <p><strong>${
-              statusMessages[newStatus as keyof typeof statusMessages]
-            }</strong></p>
-            
-            ${
-              newStatus === "delivered"
-                ? `
-            <p>🎉 Your order has been successfully delivered! Please check your delivery address and let us know if you have any questions.</p>
-            `
-                : newStatus === "canceled"
-                  ? `
-            <p>We're sorry to inform you that your order has been canceled. If you have any questions about this cancellation, please contact our customer support team.</p>
-            `
-                  : `
-            <p>We're currently processing your order and will keep you updated on any further status changes.</p>
-            `
-            }
+            <p><strong>${statusMessages[newStatus as keyof typeof statusMessages] ||
+    "Your order status has changed"
+    }</strong></p>
           </div>
           
              <div class="order-summary">
              <h3>Order Summary</h3>
              <p><strong>Total Items:</strong> ${order.items.length}</p>
              <p><strong>Grand Total:</strong> रु${order.grandTotal.toFixed(
-               2,
-             )}</p>
-             <p><strong>Shipping Address:</strong> ${
-               order.customer.address.street
-             }, ${order.customer.address.city}</p>
+      2,
+    )}</p>
+             <p><strong>Shipping Address:</strong> ${order.customer.address.street
+    }, ${order.customer.address.city}</p>
            </div>
           
           <p>You can track your order status by logging into your account.</p>
@@ -368,9 +387,8 @@ const createReturnRequestEmailTemplate = (
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Return Request ${
-        type.charAt(0).toUpperCase() + type.slice(1)
-      }</title>
+      <title>Return Request ${type.charAt(0).toUpperCase() + type.slice(1)
+    }</title>
       <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -386,9 +404,8 @@ const createReturnRequestEmailTemplate = (
     <body>
       <div class="container">
         <div class="header">
-          <h1>${icons[type]} Return Request ${
-            type.charAt(0).toUpperCase() + type.slice(1)
-          }</h1>
+          <h1>${icons[type]} Return Request ${type.charAt(0).toUpperCase() + type.slice(1)
+    }</h1>
           <p>Return Request #${returnRequest.id?.slice(-8).toUpperCase()}</p>
         </div>
         
@@ -400,103 +417,52 @@ const createReturnRequestEmailTemplate = (
           <div class="return-summary">
             <h3>Return Request Details</h3>
             <p><strong>Return Request ID:</strong> ${returnRequest.id
-              ?.slice(-8)
-              .toUpperCase()}</p>
+      ?.slice(-8)
+      .toUpperCase()}</p>
             <p><strong>Original Order:</strong> #${order.id
-              ?.slice(-8)
-              .toUpperCase()}</p>
-            <p><strong>Request Date:</strong> ${timestampToDate(
-              returnRequest.requestedAt,
-            ).toLocaleDateString()}</p>
+      .slice(-8)
+      .toUpperCase()}</p>
+            <p><strong>Request Date:</strong> ${formatDate(
+        returnRequest.requestedAt,
+      )}</p>
             <p><strong>Status:</strong> 
-              <span class="status-badge" style="background-color: ${
-                statusColors[type]
-              }">
+              <span class="status-badge" style="background-color: ${statusColors[type]
+    }">
                 ${type.toUpperCase()}
               </span>
             </p>
             <p><strong>Reason:</strong> ${getReasonText(
-              returnRequest.reason,
-            )}</p>
-            ${
-              returnRequest.description
-                ? `<p><strong>Description:</strong> ${returnRequest.description}</p>`
-                : ""
-            }
+      returnRequest.reason,
+    )}</p>
+            ${returnRequest.description
+      ? `<p><strong>Description:</strong> ${returnRequest.description}</p>`
+      : ""
+    }
             
             <h4>Items Being Returned:</h4>
             <div class="items-list">
               ${returnRequest.items
-                .map(
-                  (item) =>
-                    `<div style="margin: 10px 0; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px;">
-                  <strong>${
-                    item.name || `Product #${item.productId.slice(-6)}`
-                  }</strong><br>
-                  Quantity: ${item.quantity}${
-                    item.price
-                      ? ` • রু${(item.price * item.quantity).toFixed(2)}`
-                      : ""
-                  }
+      .map(
+        (item) =>
+          `<div style="margin: 10px 0; padding: 10px; border: 1px solid #dee2e6; border-radius: 5px;">
+                  <strong>${item.name || `Product #${item.productId.slice(-6)}`
+          }</strong><br>
+                  Quantity: ${item.quantity}${item.price
+            ? ` • রু${(item.price * item.quantity).toFixed(2)}`
+            : ""
+          }
                 </div>`,
-                )
-                .join("")}
+      )
+      .join("")}
             </div>
-            
-            ${
-              returnRequest.adminNote
-                ? `
-            <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #2196f3;">
-              <h5 style="margin: 0 0 5px 0; color: #1976d2;">Admin Note:</h5>
-              <p style="margin: 0;">${returnRequest.adminNote}</p>
-            </div>
-            `
-                : ""
-            }
-            
-            ${
-              type === "refunded" && returnRequest.refundAmount
-                ? `
-            <div style="background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #4caf50;">
-              <h5 style="margin: 0 0 5px 0; color: #388e3c;">Refund Information:</h5>
-              <p style="margin: 0;"><strong>Refund Amount:</strong> <span class="highlight">রু${returnRequest.refundAmount.toFixed(
-                2,
-              )}</span></p>
-              <p style="margin: 5px 0 0 0;">The refund will be processed to your original payment method within 3-5 business days.</p>
-            </div>
-            `
-                : ""
-            }
           </div>
           
-          ${
-            type === "submitted"
-              ? `
-          <p>We'll review your return request and get back to you within 1-2 business days. You'll receive another email once we've made a decision.</p>
-          `
-              : type === "approved"
-                ? `
-          <p>Please follow these next steps:</p>
-          <ol>
-            <li>Package the items securely in their original packaging (if possible)</li>
-            <li>Include a copy of this email or the return request ID</li>
-            <li>We'll contact you with return shipping instructions</li>
-          </ol>
-          `
-                : type === "rejected"
-                  ? `
-          <p>If you have any questions about this decision or would like to discuss your return, please contact our customer support team.</p>
-          `
-                  : type === "completed"
-                    ? `
-          <p>We've received and processed your returned items. If you selected a refund, it will be processed to your original payment method.</p>
-          `
-                    : `
-          <p>Thank you for choosing us. We appreciate your business and hope to serve you again soon.</p>
-          `
-          }
-          
-          <p>You can track your return request status by logging into your account.</p>
+           ${type === "submitted"
+      ? `
+           <p>We'll review your return request and get back to you within 1-2 business days. You'll receive another email once we've made a decision.</p>
+           `
+      : ""
+    }
           
           <p>If you have any questions, please don't hesitate to contact our customer support team.</p>
           
@@ -550,7 +516,6 @@ export const sendReturnRequestEmail = async (
   }
 };
 
-// Function to test email configuration
 export const testEmailConnection = async () => {
   try {
     await transporter.verify();

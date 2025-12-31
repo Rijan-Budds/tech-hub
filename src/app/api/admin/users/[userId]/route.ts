@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { userService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { users as usersTable } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 
 export async function DELETE(
@@ -17,12 +19,13 @@ export async function DELETE(
       return NextResponse.json({ message: "Invalid userId" }, { status: 400 });
     }
 
-    const user = await userService.getUserById(userId);
+    const result = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+    const user = result[0];
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    await userService.deleteUser(userId);
+    await db.delete(usersTable).where(eq(usersTable.id, userId));
     return NextResponse.json({ message: "User deleted" });
   } catch (error) {
     console.error("Error deleting user:", error);

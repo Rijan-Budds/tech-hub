@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getFirestore, doc, updateDoc, getDoc, Timestamp, deleteDoc } from "firebase/firestore";
-import { app } from "@/lib/firebase";
-import { COLLECTIONS } from "@/lib/firebase-models";
+import { db } from "@/lib/db";
+import { inquiries as inquiriesTable } from "@/lib/schema";
+import { eq } from "drizzle-orm";
+import { getAuth } from "@/lib/auth";
 
 interface RouteParams {
   params: Promise<{
@@ -11,24 +12,16 @@ interface RouteParams {
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    // Check if user is admin (you should implement proper admin auth check)
-    const isAdmin = true;
-    
-    if (!isAdmin) {
-      return NextResponse.json(
-        { error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
+    const auth = await getAuth();
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
     const { inquiryId } = await params;
     const { status, adminResponse, respondedBy } = await request.json();
 
     if (!inquiryId) {
-      return NextResponse.json(
-        { error: "Inquiry ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Inquiry ID is required" }, { status: 400 });
     }
 
     const validStatuses = ["pending", "in-progress", "resolved", "closed"];
@@ -39,32 +32,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const db = getFirestore(app);
-    const inquiryRef = doc(db, COLLECTIONS.INQUIRIES, inquiryId);
-
-    const inquiryDoc = await getDoc(inquiryRef);
-    if (!inquiryDoc.exists()) {
-      return NextResponse.json(
-        { error: "Inquiry not found" },
-        { status: 404 }
-      );
+    const result = await db.select().from(inquiriesTable).where(eq(inquiriesTable.id, inquiryId)).limit(1);
+    const inquiry = result[0];
+    if (!inquiry) {
+      return NextResponse.json({ error: "Inquiry not found" }, { status: 404 });
     }
 
-    const updateData: Record<string, string | Timestamp> = {};
-    
-    if (status) {
-      updateData.status = status;
-    }
-    
+    const updates: any = {};
+    if (status) updates.status = status;
     if (adminResponse !== undefined) {
-      updateData.adminResponse = adminResponse;
-      updateData.respondedAt = Timestamp.now();
-      if (respondedBy) {
-        updateData.respondedBy = respondedBy;
-      }
+      updates.adminResponse = adminResponse;
+      updates.respondedAt = new Date();
+      if (respondedBy) updates.respondedBy = respondedBy;
     }
 
-    await updateDoc(inquiryRef, updateData);
+    await db.update(inquiriesTable)
+      .set(updates)
+      .where(eq(inquiriesTable.id, inquiryId));
 
     return NextResponse.json({
       success: true,
@@ -82,37 +66,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    // Check if user is admin (you should implement proper admin auth check)
-    const isAdmin = true;
-    
-    if (!isAdmin) {
-      return NextResponse.json(
-        { error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
+    const auth = await getAuth();
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
     const { inquiryId } = await params;
-
-    if (!inquiryId) {
-      return NextResponse.json(
-        { error: "Inquiry ID is required" },
-        { status: 400 }
-      );
+    const result = await db.select().from(inquiriesTable).where(eq(inquiriesTable.id, inquiryId)).limit(1);
+    const inquiry = result[0];
+    if (!inquiry) {
+      return NextResponse.json({ error: "Inquiry not found" }, { status: 404 });
     }
 
-    const db = getFirestore(app);
-    const inquiryRef = doc(db, COLLECTIONS.INQUIRIES, inquiryId);
-
-    const inquiryDoc = await getDoc(inquiryRef);
-    if (!inquiryDoc.exists()) {
-      return NextResponse.json(
-        { error: "Inquiry not found" },
-        { status: 404 }
-      );
-    }
-
-    await deleteDoc(inquiryRef);
+    await db.delete(inquiriesTable).where(eq(inquiriesTable.id, inquiryId));
 
     return NextResponse.json({
       success: true,

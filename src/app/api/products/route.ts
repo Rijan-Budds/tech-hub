@@ -1,81 +1,104 @@
 import { NextResponse } from "next/server";
-import { productService } from "@/lib/firebase-db";
-import { IProduct } from "@/lib/firebase-models";
+import { db } from "@/lib/db";
+import { products, categories } from "@/lib/schema";
+import { eq, or, like, and, sql, desc, asc } from "drizzle-orm";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const category = searchParams.get("category");
+    const categoryParam = searchParams.get("category");
     const q = searchParams.get("q");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const sortBy = searchParams.get("sortBy") || "createdAt";
-    const sortOrder = searchParams.get("sortOrder") || "desc";
+    const sortOrder = (searchParams.get("sortOrder") as "asc" | "desc") || "desc";
     const all = searchParams.get("all") === "true";
 
-    let products;
+    let whereConditions = [];
+
+    if (categoryParam && categoryParam !== "trending") {
+      // In Drizzle, we might need a subquery or join for this filter if it's based on category name/slug
+      // Simplest is to join categories
+    }
+
+    if (q) {
+      whereConditions.push(
+        or(
+          like(products.name, `%${q}%`),
+          like(products.description, `%${q}%`)
+        )
+      );
+    }
+
+    const orderBy = sortOrder === "desc"
+      ? (sortBy === "price" ? desc(products.price) : sortBy === "name" ? desc(products.name) : desc(products.createdAt))
+      : (sortBy === "price" ? asc(products.price) : sortBy === "name" ? asc(products.name) : asc(products.createdAt));
+
+    let query = db.select({
+      product: products,
+      category: categories,
+    })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id));
+
+    if (categoryParam && categoryParam !== "trending") {
+      whereConditions.push(
+        or(
+          eq(categories.name, categoryParam),
+          eq(categories.slug, categoryParam)
+        )
+      );
+    }
+
+    if (whereConditions.length > 0) {
+      // @ts-ignore
+      query = query.where(and(...whereConditions));
+    }
+
+    // @ts-ignore
+    query = query.orderBy(orderBy);
+
+    let result;
     let totalCount = 0;
 
     if (all) {
-      // Get all products without pagination
-      products = await productService.getAllProducts();
-      totalCount = products.length;
-    } else if (category === "trending") {
-      // Get trending products based on purchase count
-      products = await productService.getTrendingProducts(4);
-      totalCount = products.length;
-    } else if (category) {
-      // Get products by category with pagination
-      const result = await productService.getProductsByCategoryWithPagination(
-        category,
-        page,
-        limit,
-        sortBy,
-        sortOrder,
-      );
-      products = result.products;
-      totalCount = result.totalCount;
-    } else if (q) {
-      // Search products with pagination
-      const result = await productService.searchProductsWithPagination(
-        q,
-        page,
-        limit,
-        sortBy,
-        sortOrder,
-      );
-      products = result.products;
-      totalCount = result.totalCount;
+      result = await query;
+      totalCount = result.length;
     } else {
-      // Get all products with pagination
-      const result = await productService.getAllProductsWithPagination(
-        page,
-        limit,
-        sortBy,
-        sortOrder,
-      );
-      products = result.products;
-      totalCount = result.totalCount;
+      const offset = (page - 1) * limit;
+      // For count, we need a separate query in Drizzle typically or use a common table expression
+
+      const countResult = await db.select({ count: sql<number>`count(*)` })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
+
+      totalCount = Number(countResult[0]?.count || 0);
+
+      // @ts-ignore
+      result = await query.limit(limit).offset(offset);
     }
 
-    // Transform products to match the expected format
-    const transformedProducts = products.map((product) => ({
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      price: product.price,
-      category: product.category,
-      image: product.image,
-      description: product.description,
-      discountPercentage:
-        product.discountPercentage && product.discountPercentage > 0
-          ? product.discountPercentage
-          : undefined,
-      stockQuantity: product.stockQuantity || 0,
-      inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity
-      purchaseCount: (product as IProduct & { purchaseCount?: number })
-        .purchaseCount, // Include purchase count for trending products
-    }));
+    const transformedProducts = result.map(({ product, category }) => {
+      let images: string[] = [];
+      try { images = JSON.parse(product.images); } catch { images = []; }
+
+      return {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        category: category?.name,
+        image: product.image,
+        description: product.description,
+        discountPercentage:
+          product.discountPercentage > 0 ? product.discountPercentage : undefined,
+        stockQuantity: product.stockQuantity,
+        inStock: product.stockQuantity > 0,
+      };
+    });
 
     return NextResponse.json({
       products: transformedProducts,
@@ -90,19 +113,6 @@ export async function GET(req: Request) {
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-
-    // If it's an index error, provide helpful message
-    if (error instanceof Error && error.message.includes("index")) {
-      return NextResponse.json(
-        {
-          error:
-            "Database index required. Please create the required index in Firebase Console.",
-          details: error.message,
-        },
-        { status: 500 },
-      );
-    }
-
     return NextResponse.json(
       { error: "Failed to fetch products" },
       { status: 500 },

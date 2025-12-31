@@ -3,8 +3,9 @@ import Link from "next/link";
 import { FaArrowLeft, FaEye } from "react-icons/fa";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { productService, categoryService } from "@/lib/firebase-db";
-import { ICategory } from "@/lib/firebase-models";
+import { db } from "@/lib/db";
+import { products as productsTable, categories as categoriesTable } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 interface ProductDisplay {
   id: string;
@@ -19,36 +20,42 @@ interface ProductDisplay {
   purchaseCount?: number;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 async function fetchAllProducts(): Promise<ProductDisplay[]> {
   try {
-    const allProducts = await productService.getAllProducts();
+    const allProducts = await db.select({
+      product: productsTable,
+      category: categoriesTable,
+    })
+      .from(productsTable)
+      .leftJoin(categoriesTable, eq(productsTable.categoryId, categoriesTable.id));
 
-    return allProducts
-      .filter((product) => product.id) // Ensure id exists
-      .map((product) => ({
-        id: product.id!,
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        category: product.category,
-        discountPercentage:
-          product.discountPercentage && product.discountPercentage > 0
-            ? product.discountPercentage
-            : undefined,
-        stockQuantity: product.stockQuantity || 0,
-        inStock: (product.stockQuantity || 0) > 0,
-        purchaseCount: (product as { purchaseCount?: number }).purchaseCount,
-      }));
+    return allProducts.map(({ product, category }) => ({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      category: category?.name || "Uncategorized",
+      discountPercentage: product.discountPercentage > 0 ? product.discountPercentage : undefined,
+      stockQuantity: product.stockQuantity || 0,
+      inStock: (product.stockQuantity || 0) > 0,
+      purchaseCount: 0
+    }));
   } catch (error) {
     console.error("Error fetching all products:", error);
     return [];
   }
 }
 
-async function fetchAllCategories(): Promise<ICategory[]> {
+async function fetchAllCategories(): Promise<Category[]> {
   try {
-    const allCategories = await categoryService.getAllCategories();
+    const allCategories = await db.select().from(categoriesTable);
     return allCategories;
   } catch (error) {
     console.error("Error fetching categories:", error);

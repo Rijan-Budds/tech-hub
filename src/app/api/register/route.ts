@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { userService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { users } from "@/lib/schema";
+import { eq, or } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { signToken } from "@/lib/auth";
 
@@ -15,61 +17,74 @@ export async function POST(req: Request) {
   }
 
   // Check if user already exists
-  const existingUser = await userService.getUserByEmail(email);
-  if (existingUser)
-    return NextResponse.json(
-      { message: "Email already taken" },
-      { status: 400 },
-    );
+  const existingUsers = await db.select().from(users).where(
+    or(eq(users.email, email), eq(users.username, username))
+  ).limit(1);
 
-  // Check if username already exists (get all users and check)
-  const allUsers = await userService.getAllUsers();
-  const existingUsername = allUsers.find((user) => user.username === username);
-  if (existingUsername)
+  const existingUser = existingUsers[0];
+
+  if (existingUser) {
+    if (existingUser.email === email) {
+      return NextResponse.json(
+        { message: "Email already taken" },
+        { status: 400 },
+      );
+    }
     return NextResponse.json(
       { message: "Username already taken" },
       { status: 400 },
     );
+  }
 
   const hashed = await bcrypt.hash(password, 10);
-  const userId = await userService.createUser({
-    username,
-    email,
-    password: hashed,
-    cart: [],
-    wishlist: [],
-  });
-  const user = await userService.getUserById(userId);
+  try {
+    const [result] = await db.insert(users).values({
+      username,
+      email,
+      password: hashed,
+      cart: "[]",
+      wishlist: "[]",
+    });
 
-  if (!user || !user.id)
+    // Since we use randomUUID in Drizzle, we might need to fetch the user back if we want the ID 
+    // but Drizzle returns information about the insertion.
+    // Actually our schema says id is primary key with default randomUUID.
+    // Let's refetch to be sure or just use the one we inserted if we had it.
+    // Better: we can specify the ID ourselves to be sure.
+
+    const newUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    const user = newUser[0];
+
+    const token = signToken({
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+      role: "user",
+    });
+    const res = NextResponse.json(
+      {
+        message: "User registered successfully",
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          role: "user",
+        },
+      },
+      { status: 201 },
+    );
+    res.cookies.set("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+    return res;
+  } catch (error) {
+    console.error("Registration error:", error);
     return NextResponse.json(
       { message: "Failed to create user" },
       { status: 500 },
     );
-
-  const token = signToken({
-    sub: user.id,
-    email: user.email,
-    username: user.username,
-    role: "user",
-  });
-  const res = NextResponse.json(
-    {
-      message: "User registered successfully",
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        role: "user",
-      },
-    },
-    { status: 201 },
-  );
-  res.cookies.set("token", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 7 * 24 * 60 * 60,
-  });
-  return res;
+  }
 }

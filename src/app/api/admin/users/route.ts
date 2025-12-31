@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { userService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { users as usersTable } from "@/lib/schema";
+import { sql, desc, asc } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 
 export async function GET(req: Request) {
@@ -13,16 +15,23 @@ export async function GET(req: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const sortBy = searchParams.get("sortBy") || "createdAt";
-    const sortOrder = searchParams.get("sortOrder") || "desc";
+    const sortOrder = (searchParams.get("sortOrder") as "asc" | "desc") || "desc";
 
-    const result = await userService.getAllUsersWithPagination(
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-    );
+    const offset = (page - 1) * limit;
 
-    const userList = result.users.map((user) => ({
+    const [countResult] = await db.select({ count: sql<number>`count(*)` }).from(usersTable);
+    const totalCount = Number(countResult?.count || 0);
+
+    const orderBy = sortOrder === "desc"
+      ? (sortBy === "username" ? desc(usersTable.username) : sortBy === "email" ? desc(usersTable.email) : desc(usersTable.createdAt))
+      : (sortBy === "username" ? asc(usersTable.username) : sortBy === "email" ? asc(usersTable.email) : asc(usersTable.createdAt));
+
+    const users = await db.select().from(usersTable)
+      .orderBy(orderBy)
+      .limit(limit)
+      .offset(offset);
+
+    const userList = users.map((user) => ({
       _id: user.id,
       username: user.username,
       email: user.email,
@@ -34,9 +43,9 @@ export async function GET(req: Request) {
       pagination: {
         page,
         limit,
-        totalCount: result.totalCount,
-        totalPages: Math.ceil(result.totalCount / limit),
-        hasNextPage: page < Math.ceil(result.totalCount / limit),
+        totalCount: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNextPage: page < Math.ceil(totalCount / limit),
         hasPrevPage: page > 1,
       },
     });

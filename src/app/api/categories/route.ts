@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
-import { categoryService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { categories } from "@/lib/schema";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const categories = await categoryService.getAllCategories();
+    const allCategories = await db.select().from(categories);
 
     return NextResponse.json({
-      categories: categories,
+      categories: allCategories,
     });
   } catch (error) {
     console.error("Error fetching categories:", error);

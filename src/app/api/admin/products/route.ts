@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import { productService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { products, categories } from "@/lib/schema";
+import { eq, or, and } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
-import { uploadBase64ToCloudinary } from "../../../../lib/cloudinary-utils";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
 
 function slugify(text: string) {
   return String(text)
@@ -18,9 +22,48 @@ async function generateUniqueSlugFromName(name: string) {
   let candidate = base;
 
   while (true) {
-    const exists = await productService.getProductBySlug(candidate);
-    if (!exists) return candidate;
+    const result = await db.select().from(products).where(eq(products.slug, candidate)).limit(1);
+    if (result.length === 0) return candidate;
     candidate = `${base}-${counter++}`;
+  }
+}
+
+async function saveBase64Image(base64Data: string): Promise<string> {
+  if (base64Data.startsWith("http") || base64Data.startsWith("/")) return base64Data;
+
+  try {
+    const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return base64Data;
+    }
+
+    const type = matches[1];
+    const buffer = Buffer.from(matches[2], 'base64');
+
+    let ext = ".jpg";
+    if (type === "image/png") ext = ".png";
+    else if (type === "image/jpeg") ext = ".jpg";
+    else if (type === "image/gif") ext = ".gif";
+    else if (type === "image/webp") ext = ".webp";
+
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const uploadDir = path.join(process.cwd(), "public", "uploads", String(year), month);
+
+    console.log(`[DEBUG] Attempting to save image to: ${uploadDir}`);
+    await mkdir(uploadDir, { recursive: true });
+
+    const filename = `${uuidv4()}${ext}`;
+    const filePath = path.join(uploadDir, filename);
+
+    await writeFile(filePath, buffer);
+    console.log(`[DEBUG] Image saved successfully: /uploads/${year}/${month}/${filename}`);
+
+    return `/uploads/${year}/${month}/${filename}`;
+  } catch (e) {
+    console.error("[DEBUG] Error saving base64 image", e);
+    return base64Data;
   }
 }
 
@@ -41,6 +84,7 @@ export async function POST(req: Request) {
       description,
       stockQuantity,
     } = await req.json();
+
     if (
       !name ||
       price == null ||
@@ -51,85 +95,86 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Missing fields" }, { status: 400 });
     }
 
-    // Check if product name already exists (get all products and check in memory)
-    const allProducts = await productService.getAllProducts();
-    const existingByName = allProducts.find(
-      (p) => p.name.toLowerCase() === name.trim().toLowerCase(),
-    );
-    if (existingByName) {
-      return NextResponse.json(
-        { message: "Product name already exists" },
-        { status: 400 },
-      );
-    }
-
     let slug = (incomingSlug || "").toString().trim();
     if (!slug) {
       slug = await generateUniqueSlugFromName(name);
     } else {
-      const existingBySlug = await productService.getProductBySlug(slug);
-      if (existingBySlug) {
+      const existingBySlug = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
+      if (existingBySlug.length > 0) {
         slug = await generateUniqueSlugFromName(name);
       }
     }
 
-    let mainImageUrl = image;
-    if (image && !image.startsWith('http')) {
-      const uploadResult = await uploadBase64ToCloudinary(image);
-      mainImageUrl = uploadResult.secure_url;
-    }
+    let mainImageUrl = await saveBase64Image(image);
 
     let secondaryImageUrls = images;
     if (images && Array.isArray(images)) {
       secondaryImageUrls = await Promise.all(
-        images.map(async (img) => {
-          if (img && !img.startsWith('http')) {
-            const uploadResult = await uploadBase64ToCloudinary(img);
-            return uploadResult.secure_url;
-          }
-          return img;
-        })
+        images.map(async (img) => saveBase64Image(img))
       );
     }
 
-    const productData = {
+    // Category handling
+    let catResult = await db.select().from(categories).where(
+      or(
+        eq(categories.id, category),
+        eq(categories.slug, category),
+        eq(categories.name, category)
+      )
+    ).limit(1);
+
+    let cat = catResult[0];
+
+    if (!cat) {
+      const catSlug = slugify(category);
+      await db.insert(categories).values({
+        name: category,
+        slug: catSlug,
+        image: ""
+      });
+      const newCatResult = await db.select().from(categories).where(eq(categories.slug, catSlug)).limit(1);
+      cat = newCatResult[0];
+    }
+
+    const productId = crypto.randomUUID();
+    await db.insert(products).values({
+      id: productId,
       name: name.trim(),
       slug,
       price: Number(price),
-      category: String(category).toLowerCase().trim(),
+      categoryId: cat.id,
       image: mainImageUrl,
-      images: secondaryImageUrls,
+      images: JSON.stringify(secondaryImageUrls),
       description: description?.trim() || undefined,
       discountPercentage: 0,
       stockQuantity: Number(stockQuantity),
-      createdAt: new Date(),
-    };
+    });
 
-    const productId = await productService.createProduct(productData);
-    const created = await productService.getProductById(productId);
+    const [created] = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+    console.log(`[DEBUG] Product created successfully with ID: ${productId}`);
 
     return NextResponse.json(
       {
         message: "Product added",
         product: {
-          id: created?.id || productId,
-          slug: created?.slug || slug,
-          name: created?.name || name.trim(),
-          price: created?.price || Number(price),
-          category: created?.category || String(category).toLowerCase().trim(),
-          image: created?.image || mainImageUrl,
-          images: created?.images || secondaryImageUrls,
-          description: created?.description || description?.trim(),
-          stockQuantity: created?.stockQuantity || Number(stockQuantity),
-          discountPercentage: created?.discountPercentage || 0,
+          id: created.id,
+          slug: created.slug,
+          name: created.name,
+          price: created.price,
+          category: cat.name,
+          image: created.image,
+          images: secondaryImageUrls,
+          description: created.description,
+          stockQuantity: created.stockQuantity,
+          discountPercentage: created.discountPercentage,
         },
       },
       { status: 201 },
     );
   } catch (error) {
-    console.error("Error creating product:", error);
+    console.error("[DEBUG] Error creating product:", error);
     return NextResponse.json(
-      { message: "Failed to create product" },
+      { message: "Failed to create product", error: error instanceof Error ? error.message : String(error) },
       { status: 500 },
     );
   }

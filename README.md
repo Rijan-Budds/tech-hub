@@ -1,139 +1,149 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tech-Hub E-Commerce Platform
 
-## Getting Started
+A high-performance, modern e-commerce platform built with Next.js, Drizzle ORM, and MySQL.
 
-First, run the development server:
+## 🚀 Local Setup Guide
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Follow these steps to get the project running on a new device:
+
+1.  **Clone the Repository**:
+    ```bash
+    git clone <repository-url>
+    cd tech-hub
+    ```
+2.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+3.  **Environment Setup**:
+    Create a `.env` file in the root with:
+    ```env
+    DATABASE_URL="mysql://user:password@localhost:3306/ecommerce"
+    JWT_SECRET="your-secret-key"
+    GMAIL_USER="your-email@gmail.com"
+    GMAIL_APP_PASSWORD="your-google-app-password"
+    ```
+4.  **Database Sync**:
+    Ensure MySQL is running and the database exists, then run:
+    ```bash
+    npx drizzle-kit push
+    ```
+5.  **Start the App**:
+    ```bash
+    npm run dev
+    ```
+
+## 🏗️ System Architecture
+
+The platform follows a modern full-stack architecture with a focus on type safety, performance, and scalability.
+
+```mermaid
+graph TD
+    User([User/Browser]) <--> NextJS[Next.js App Router]
+    NextJS <--> API[API Routes / Server Components]
+    API <--> Drizzle[Drizzle ORM]
+    Drizzle <--> MySQL[(MySQL Database)]
+    API <--> Storage[Local File Storage /uploads]
+    API <--> Email[Nodemailer / Gmail SMTP]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Tech Stack
+- **Frontend**: Next.js 15 (App Router), Tailwind CSS, Framer Motion, Lucide Icons.
+- **Backend**: Next.js API Routes (Node.js runtime).
+- **ORM**: Drizzle ORM (TypeScript-first).
+- **Database**: MySQL.
+- **Authentication**: JWT (JSON Web Tokens) with `httpOnly` cookies.
+- **File Storage**: Local filesystem (`public/uploads`).
+- **Payments**: Integrated with Khalti and eSewa (Legacy support for COD).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📊 Data Schema & Relationships
 
-## Learn More
+The database schema is designed for efficiency and relational integrity.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Environment Variables
-
-This application requires several environment variables to function properly. Create a `.env.local` file in the root directory with the following variables:
-
-### Required Environment Variables:
-
-```env
-# Firebase Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
-
-# Email Configuration
-GMAIL_USER=your_gmail_address@gmail.com
-GMAIL_APP_PASSWORD=your_gmail_app_password_here
-
-# JWT Secret (for authentication)
-JWT_SECRET=your_jwt_secret_here
+```mermaid
+erDiagram
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ RETURN_REQUESTS : submits
+    CATEGORIES ||--o{ PRODUCTS : categorizes
+    ORDERS ||--|| RETURN_REQUESTS : references
+    PRODUCTS }|--o{ ORDER_ITEMS : contains
 ```
 
-### How to Get These Values:
+### Table Definitions
 
-1. **Firebase Configuration**:
-   - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Select your project
-   - Go to Project Settings → General
-   - Scroll down to "Your apps" section
-   - Copy the config values
+| Table | Purpose | Key Fields |
+| :--- | :--- | :--- |
+| **`users`** | Identity management | `id`, `email`, `password`, `role`, `cart`, `wishlist` |
+| **`categories`** | Product categorization | `id`, `name`, `slug`, `image` |
+| **`products`** | Main product catalog | `id`, `name`, `price`, `stock_quantity`, `category_id` |
+| **`orders`** | Transaction records | `id`, `user_id`, `items` (JSON), `grand_total`, `status` |
+| **`return_requests`** | Post-purchase logic | `id`, `order_id`, `status`, `reason` |
+| **`inquiries`** | Customer support | `id`, `name`, `email`, `message`, `status` |
 
-2. **Gmail App Password**:
-   - Go to your Google Account settings
-   - Enable 2-factor authentication
-   - Generate an app password for "Mail"
-   - Use this password in `GMAIL_APP_PASSWORD`
+---
 
-3. **JWT Secret**:
-   - Generate a random string for production
-   - Example: `openssl rand -base64 32`
+## 🔄 Core CRUD Operations
 
-### Security Notes:
+### Products Management
+- **Create (Admin)**: `POST /api/admin/products`. Handles base64 image processing, slug generation, and category association.
+- **Read (Public)**: `GET /api/products`. includes pagination, search filtering, and category sorting.
+- **Update (Admin)**: `PATCH /api/admin/products/[slug]`. Allows partial updates to stock, price, and details.
+- **Delete (Admin)**: `DELETE /api/admin/products/[slug]`. Removes product and associated metadata.
 
-- Never commit `.env.local` to version control
-- Use different values for development and production
-- Keep your Gmail app password secure
-- Rotate JWT secrets regularly in production
+### Order Processing Flow
+1. **Initiate**: Client sends cart data to `POST /api/orders`.
+2. **Validate**: Server checks stock availability for all items.
+3. **Transaction**:
+    - Deduct stock from `products` table.
+    - Create record in `orders` table.
+    - Clear user's `cart` field in `users` table.
+4. **Notify**: Trigger Nodemailer to send HTML confirmation email.
 
-## Database Configuration
+---
 
-This application uses **Firebase Firestore** as the primary database with the following features:
+## 🧩 Complex Algorithms & Logic
 
-### Firebase Features:
+### 1. Atomic Transactional Checkout
+To prevent overselling, the checkout process uses an atomic database transaction.
 
-- **NoSQL Database**: Flexible document-based storage
-- **Real-time Updates**: Automatic data synchronization
-- **Scalable**: Handles high traffic and large datasets
-- **Security Rules**: Configurable access control
-- **Offline Support**: Works without internet connection
+```typescript
+await db.transaction(async (tx) => {
+  // 1. Verify stock for ALL items
+  // 2. If any item is out of stock, tx.rollback()
+  // 3. CreateOrder()
+  // 4. UpdateStock() for each product
+  // 5. ClearCart()
+});
+```
 
-## Email Functionality
+### 2. Intelligent Slug Generation
+Ensures SEO-friendly, unique URLs even when products have identical names.
+- **Logic**: Slugs are generated from the name. If a collision is detected in the database, a counter is appended (e.g., `iphone-15`, `iphone-15-1`).
 
-This e-commerce application includes automated email notifications for order confirmations. The email system uses Nodemailer with Gmail SMTP.
+### 3. Base64 Image Processing
+Optimizes the administrative workflow by allowing direct image uploads via data URLs.
+- **Workflow**:
+    - Receive Base64 string.
+    - Validate MIME type (PNG, JPEG, WEBP).
+    - Generate unique UUID filename.
+    - Store in year/month partitioned directories (e.g., `public/uploads/2025/12/xyz.jpg`).
+    - Return relative public URL.
 
-### Features:
+---
 
-- **Order Confirmation Emails**: Automatically sent when customers complete checkout
-- **Order Status Update Emails**: Sent when admin changes order status (pending → delivered/canceled)
-- **Beautiful HTML Templates**: Professional-looking emails with order details
-- **Gmail Integration**: Uses Gmail SMTP for reliable email delivery
+## 🔐 Security & Middleware
+- **JWT Authentication**: Secure tokens signed with `jose` and stored in `SameSite=Lax`, `HttpOnly` cookies.
+- **Admin Middleware**: Intercepts requests to `/admin/*` and verifies user role from the decrypted payload.
+- **Input Sanitization**: Drizzle ORM prevents SQL injection through parameterized queries.
+- **XSS Protection**: Next.js automatically escapes data rendered in the UI.
 
-### Testing:
+---
 
-You can test the email functionality from the admin dashboard:
-
-1. Navigate to `/admin`
-2. Click the "Test Email" button
-3. Check your inbox for the test email
-
-### Files:
-
-- `src/lib/email.ts` - Email utility functions and templates
-- `src/app/api/test-email/route.ts` - Test email API endpoint
-- `src/app/api/orders/route.ts` - Updated to send emails on order creation
-- `src/app/api/admin/orders/[orderId]/route.ts` - Updated to send status update emails
-
-### Email Template Features:
-
-- **Order Confirmation Emails**:
-  - Responsive HTML design
-  - Order details with product images
-  - Pricing breakdown (subtotal, delivery fee, grand total)
-  - Customer information and shipping address
-  - Professional styling with gradients and modern design
-
-- **Status Update Emails**:
-  - Color-coded status badges (yellow for pending, green for delivered, red for canceled)
-  - Status-specific messages and instructions
-  - Order summary with key information
-  - Professional styling matching confirmation emails
+## 📁 Project Structure
+- `/src/app/api`: Serverless API routes.
+- `/src/lib/schema.ts`: Drizzle schema source of truth.
+- `/src/components`: UI components (Atomic design).
+- `/public/uploads`: Static storage for product assets.
+- `/drizzle`: Migration files.

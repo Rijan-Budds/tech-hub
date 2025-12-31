@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { productService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { products as productsTable, categories } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 export async function GET(
   _req: Request,
@@ -7,28 +9,45 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    const product = await productService.getProductBySlug(slug);
+    const result = await db.select({
+      product: productsTable,
+      category: categories,
+    })
+      .from(productsTable)
+      .leftJoin(categories, eq(productsTable.categoryId, categories.id))
+      .where(eq(productsTable.slug, slug))
+      .limit(1);
+
+    const product = result[0];
+
     if (!product)
       return NextResponse.json({ message: "Not found" }, { status: 404 });
+
+    let images: string[] = [];
+    try {
+      images = JSON.parse(product.product.images);
+    } catch {
+      images = [];
+    }
+
     return NextResponse.json({
       product: {
-        id: product.id,
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        category: product.category,
-        image: product.image,
-        images: product.images,
-        description: product.description,
+        id: product.product.id,
+        slug: product.product.slug,
+        name: product.product.name,
+        price: product.product.price,
+        category: product.category?.name || "Uncategorized",
+        categoryName: product.category?.name,
+        image: product.product.image,
+        images: images,
+        description: product.product.description,
         discountPercentage:
-          product.discountPercentage && product.discountPercentage > 0
-            ? product.discountPercentage
-            : undefined,
-        stockQuantity: product.stockQuantity || 0,
-        inStock: (product.stockQuantity || 0) > 0, // Determine inStock based on stockQuantity
+          product.product.discountPercentage > 0 ? product.product.discountPercentage : undefined,
+        stockQuantity: product.product.stockQuantity,
+        inStock: product.product.stockQuantity > 0,
       },
     });
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Error fetching product:", error);
     return NextResponse.json(
       { message: "Internal server error" },

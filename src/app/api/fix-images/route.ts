@@ -1,5 +1,9 @@
+"use client";
+
 import { NextResponse } from "next/server";
-import { productService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { products } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 
 export async function POST() {
@@ -9,21 +13,21 @@ export async function POST() {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    // Get all products and filter for those with localhost:5000 in their image URLs
-    const allProducts = await productService.getAllProducts();
+    const allProducts = await db.select().from(products);
     const productsToFix = allProducts.filter(
       (product) => product.image && product.image.includes("localhost:5000"),
     );
 
     let fixedCount = 0;
     for (const product of productsToFix) {
-      if (!product.id) continue; // Skip products without ID
-      // Replace localhost:5000 with localhost:3000
+      if (!product.id) continue;
       const updatedImage = product.image.replace(
         /localhost:5000/g,
         "localhost:3000",
       );
-      await productService.updateProduct(product.id, { image: updatedImage });
+      await db.update(products)
+        .set({ image: updatedImage })
+        .where(eq(products.id, product.id));
       fixedCount++;
     }
 

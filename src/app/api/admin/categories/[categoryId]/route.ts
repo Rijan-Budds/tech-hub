@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import { categoryService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { categories } from "@/lib/schema";
+import { eq, ne, and } from "drizzle-orm";
+import { getAuth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "fallback_secret_key_change_in_production";
-
-// Helper function to generate slug from name
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
@@ -23,75 +20,47 @@ export async function PATCH(
   context: { params: Promise<{ categoryId: string }> },
 ) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token");
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await getAuth();
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const decoded = jwt.verify(token.value, JWT_SECRET) as {
-      userId: string;
-      email: string;
-    };
-
-    if (!decoded.email || !decoded.email.includes("admin")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const params = await context.params;
-    const { categoryId } = params;
+    const { categoryId } = await context.params;
     const body = await req.json();
 
-    const existingCategory = await categoryService.getCategoryById(categoryId);
+    const result = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
+    const existingCategory = result[0];
     if (!existingCategory) {
-      return NextResponse.json(
-        { error: "Category not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Category not found" }, { status: 404 });
     }
 
-    const updates: Partial<{
-      name: string;
-      slug: string;
-      description: string;
-      image: string;
-    }> = {};
+    const updates: any = {};
 
     if (body.name && body.name.trim() !== existingCategory.name) {
       const newSlug = generateSlug(body.name);
+      const categoryWithNewSlugResult = await db.select().from(categories).where(eq(categories.slug, newSlug)).limit(1);
+      const categoryWithNewSlug = categoryWithNewSlugResult[0];
 
-      const categoryWithNewSlug =
-        await categoryService.getCategoryBySlug(newSlug);
       if (categoryWithNewSlug && categoryWithNewSlug.id !== categoryId) {
-        return NextResponse.json(
-          { error: "Category with this name already exists" },
-          { status: 400 },
-        );
+        return NextResponse.json({ error: "Category with this name already exists" }, { status: 400 });
       }
 
       updates.name = body.name.trim();
       updates.slug = newSlug;
     }
 
-    if (body.description !== undefined) {
-      updates.description = body.description?.trim() || "";
-    }
-
-    if (body.image !== undefined) {
-      updates.image = body.image || "";
-    }
+    if (body.description !== undefined) updates.description = body.description?.trim() || null;
+    if (body.image !== undefined) updates.image = body.image || null;
 
     if (Object.keys(updates).length === 0) {
-      return NextResponse.json(
-        { error: "No changes provided" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "No changes provided" }, { status: 400 });
     }
 
-    await categoryService.updateCategory(categoryId, updates);
+    await db.update(categories)
+      .set(updates)
+      .where(eq(categories.id, categoryId));
 
-    const updatedCategory = await categoryService.getCategoryById(categoryId);
+    const [updatedCategory] = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
 
     return NextResponse.json({
       message: "Category updated successfully",
@@ -111,37 +80,19 @@ export async function DELETE(
   context: { params: Promise<{ categoryId: string }> },
 ) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token");
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await getAuth();
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const decoded = jwt.verify(token.value, JWT_SECRET) as {
-      userId: string;
-      email: string;
-    };
-
-    if (!decoded.email || !decoded.email.includes("admin")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const params = await context.params;
-    const { categoryId } = params;
-
-    const existingCategory = await categoryService.getCategoryById(categoryId);
+    const { categoryId } = await context.params;
+    const result = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
+    const existingCategory = result[0];
     if (!existingCategory) {
-      return NextResponse.json(
-        { error: "Category not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Category not found" }, { status: 404 });
     }
 
-    // TODO: You might want to check if there are products using this category
-    // and prevent deletion or reassign them to a default category
-
-    await categoryService.deleteCategory(categoryId);
+    await db.delete(categories).where(eq(categories.id, categoryId));
 
     return NextResponse.json({
       message: "Category deleted successfully",

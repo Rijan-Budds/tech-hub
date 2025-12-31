@@ -22,7 +22,21 @@ import StatusDropdown from "@/components/StatusDropdown";
 
 import DragDropUpload from "@/components/DragDropUpload";
 import MultipleImagesUpload from "@/components/MultipleImagesUpload";
-import { IInquiry } from "@/lib/firebase-models";
+
+interface IInquiry {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  count: number;
+  status: "pending" | "in-progress" | "resolved" | "closed";
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  active: boolean;
+  adminResponse?: string;
+  respondedAt?: string | Date;
+  respondedBy?: string;
+}
 
 interface User {
   _id: string;

@@ -25,6 +25,7 @@ export async function GET() {
 
     // Test with a sample order
     const sampleOrder = {
+      id: "TEST-ORDER-ID",
       items: [
         {
           productId: "test-1",

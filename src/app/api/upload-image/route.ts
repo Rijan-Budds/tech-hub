@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
 
-// Increase the body size limit for this route
 export const runtime = 'nodejs';
-export const maxDuration = 30; // 30 seconds timeout
 
 export async function POST(req: Request) {
   try {
-    console.log('Upload request received');
-    
-    // Log the content-length header to debug
-    const contentLength = req.headers.get('content-length');
-    console.log('Content-Length:', contentLength);
-    
     const formData = await req.formData();
     const files = formData.getAll("images") as File[];
 
@@ -22,41 +17,24 @@ export async function POST(req: Request) {
       );
     }
 
-    // Limit to 10 images max
-    if (files.length > 10) {
-      return NextResponse.json(
-        { message: "Maximum 10 images allowed" },
-        { status: 400 },
-      );
-    }
-
     const imageUrls: string[] = [];
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const uploadDir = path.join(process.cwd(), "public", "uploads", String(year), month);
+
+    await mkdir(uploadDir, { recursive: true });
 
     for (const file of files) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        return NextResponse.json(
-          { message: `Invalid file type: ${file.type}` },
-          { status: 400 },
-        );
-      }
+      if (!file.type.startsWith("image/")) continue;
 
-      // Validate file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        return NextResponse.json(
-          { 
-            message: `File too large: ${file.name}. Maximum size allowed is 10MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB` 
-          },
-          { status: 400 },
-        );
-      }
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const ext = path.extname(file.name) || ".jpg";
+      const filename = `${uuidv4()}${ext}`;
+      const filePath = path.join(uploadDir, filename);
 
-      // Convert to base64 data URL
-      const buffer = await file.arrayBuffer();
-      const base64String = Buffer.from(buffer).toString("base64");
-      const dataUrl = `data:${file.type};base64,${base64String}`;
-
-      imageUrls.push(dataUrl);
+      await writeFile(filePath, buffer);
+      imageUrls.push(`/uploads/${year}/${month}/${filename}`);
     }
 
     return NextResponse.json({ imageUrls });

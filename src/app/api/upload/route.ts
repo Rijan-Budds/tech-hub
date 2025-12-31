@@ -1,36 +1,37 @@
-import { NextResponse } from "next/server";
-import { getAuth } from "@/lib/auth";
-import { uploadImageToCloudinary } from "@/lib/cloudinary-utils";
+import { NextRequest, NextResponse } from "next/server";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
 
-export const runtime = "nodejs";
-
-export async function POST(req: Request) {
-  const auth = await getAuth();
-  if (!auth || auth.role !== "admin")
-    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-
-  const formData = await req.formData();
-  const file = formData.get("image");
-  if (!file || !(file instanceof File)) {
-    return NextResponse.json({ message: "No file uploaded" }, { status: 400 });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    // Upload to Cloudinary using utility function
-    const result = await uploadImageToCloudinary(file, "ecommerce");
+    const formData = await request.formData();
+    const file = (formData.get("file") || formData.get("image")) as File;
 
-    return NextResponse.json(
-      {
-        url: result.secure_url,
-        path: result.secure_url,
-        public_id: result.public_id,
-      },
-      { status: 201 },
-    );
-  } catch (error: unknown) {
-    console.error("Cloudinary upload error:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Upload failed";
-    return NextResponse.json({ message: errorMessage }, { status: 500 });
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const uploadDir = path.join(process.cwd(), "public", "uploads", String(year), month);
+
+    await mkdir(uploadDir, { recursive: true });
+
+    // Sanitize filename or use UUID
+    const ext = path.extname(file.name);
+    const filename = `${uuidv4()}${ext}`;
+    const filePath = path.join(uploadDir, filename);
+
+    await writeFile(filePath, buffer);
+
+    const publicUrl = `/uploads/${year}/${month}/${filename}`;
+
+    return NextResponse.json({ url: publicUrl });
+  } catch (error) {
+    console.error("Upload error:", error);
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

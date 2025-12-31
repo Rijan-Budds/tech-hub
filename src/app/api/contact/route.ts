@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getFirestore, collection, addDoc, Timestamp } from "firebase/firestore";
-import { app } from "@/lib/firebase";
-import { IInquiry, COLLECTIONS } from "@/lib/firebase-models";
+import { db } from "@/lib/db";
+import { inquiries as inquiriesTable } from "@/lib/schema";
 
 export async function POST(request: NextRequest) {
   try {
     const { name, email, message } = await request.json();
 
-    // Basic validation
     if (!name || !email || !message) {
       return NextResponse.json(
         { error: "Name, email, and message are required" },
@@ -15,7 +13,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -24,25 +21,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const db = getFirestore(app);
-    
-    // Create inquiry object
-    const inquiry: Omit<IInquiry, "id"> = {
+    const inquiryId = crypto.randomUUID();
+    await db.insert(inquiriesTable).values({
+      id: inquiryId,
       name: name.trim(),
       email: email.trim().toLowerCase(),
       message: message.trim(),
-      createdAt: Timestamp.now(),
       status: "pending"
-    };
-
-    // Save to Firestore
-    const docRef = await addDoc(collection(db, COLLECTIONS.INQUIRIES), inquiry);
+    });
 
     return NextResponse.json(
-      { 
-        success: true, 
+      {
+        success: true,
         message: "Thank you for your inquiry! We'll get back to you soon.",
-        inquiryId: docRef.id 
+        inquiryId: inquiryId
       },
       { status: 201 }
     );

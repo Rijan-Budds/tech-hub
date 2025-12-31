@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { orderService, batchService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { orders as ordersTable, products } from "@/lib/schema";
+import { eq, sql } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 import { sendOrderStatusUpdateEmail } from "@/lib/email";
-import { serverTimestamp, FieldValue } from "firebase/firestore";
 
 export const dynamic = "force-dynamic";
 
@@ -18,96 +19,74 @@ export async function PATCH(
 
     const { orderId } = await params;
     const { status } = await req.json();
-    if (
-      ![
-        "pending",
-        "processing",
-        "shipped",
-        "out-for-delivery",
-        "delivered",
-        "returned",
-        "canceled",
-      ].includes(status)
-    ) {
+    const validStatuses = [
+      "pending",
+      "processing",
+      "shipped",
+      "out-for-delivery",
+      "delivered",
+      "returned",
+      "canceled",
+    ];
+
+    if (!validStatuses.includes(status)) {
       return NextResponse.json({ message: "Invalid status" }, { status: 400 });
     }
 
-    const order = await orderService.getOrderById(orderId);
+    const result = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId)).limit(1);
+    const order = result[0];
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
 
     const oldStatus = order.status;
 
-    // Validate status transitions - prevent canceling delivered, returned orders
-    if (
-      (oldStatus === "delivered" || oldStatus === "returned") &&
-      status === "canceled"
-    ) {
-      return NextResponse.json(
-        {
-          message: "Cannot cancel a delivered or returned order",
-        },
-        { status: 400 },
-      );
+    if ((oldStatus === "delivered" || oldStatus === "returned") && status === "canceled") {
+      return NextResponse.json({ message: "Cannot cancel a delivered or returned order" }, { status: 400 });
     }
 
-    // Prevent changing from delivered to anything except returned
-    if (
-      oldStatus === "delivered" &&
-      !["delivered", "returned"].includes(status)
-    ) {
-      return NextResponse.json(
-        {
-          message: "Delivered orders can only be marked as returned",
-        },
-        { status: 400 },
-      );
+    if (oldStatus === "delivered" && !["delivered", "returned"].includes(status)) {
+      return NextResponse.json({ message: "Delivered orders can only be marked as returned" }, { status: 400 });
     }
 
-    // If canceling an order, use batch service to restore stock
     if (status === "canceled" && oldStatus !== "canceled") {
-      await batchService.cancelOrderAndRestoreStock(orderId);
+      // Restore stock
+      let items: any[] = [];
+      try { items = JSON.parse(order.items); } catch { items = []; }
+
+      await db.transaction(async (tx) => {
+        await tx.update(ordersTable)
+          .set({ status: "canceled" })
+          .where(eq(ordersTable.id, orderId));
+
+        for (const item of items) {
+          await tx.update(products)
+            .set({ stockQuantity: sql`${products.stockQuantity} + ${item.quantity}` })
+            .where(eq(products.id, item.productId));
+        }
+      });
     } else {
-      // For other status changes, update the status
-      const updateData: {
-        status:
-          | "pending"
-          | "processing"
-          | "shipped"
-          | "out-for-delivery"
-          | "delivered"
-          | "returned"
-          | "canceled"
-          | "return-requested";
-        deliveredAt?: FieldValue;
-      } = {
-        status: status as
-          | "pending"
-          | "processing"
-          | "shipped"
-          | "out-for-delivery"
-          | "delivered"
-          | "returned"
-          | "canceled"
-          | "return-requested",
-      };
-
-      // Set deliveredAt timestamp when marking as delivered
+      const updateData: any = { status };
       if (status === "delivered" && oldStatus !== "delivered") {
-        updateData.deliveredAt = serverTimestamp();
+        updateData.deliveredAt = new Date();
       }
-
-      await orderService.updateOrder(orderId, updateData);
+      await db.update(ordersTable)
+        .set(updateData)
+        .where(eq(ordersTable.id, orderId));
     }
 
-    // Send status update email if status actually changed
+    // Send email logic
     if (oldStatus !== status) {
       try {
-        await sendOrderStatusUpdateEmail(order, orderId, status);
-      } catch (emailError) {
-        console.error("Failed to send status update email:", emailError);
-        // Don't fail the request if email fails
+        const [updatedOrder] = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId)).limit(1);
+        const emailOrder = {
+          ...updatedOrder,
+          items: JSON.parse(updatedOrder.items),
+          customer: JSON.parse(updatedOrder.customer),
+        };
+        await sendOrderStatusUpdateEmail(emailOrder as any, orderId, status);
+      } catch (e) {
+        console.error("Failed to send status email", e);
       }
     }
 
@@ -132,17 +111,29 @@ export async function DELETE(
     }
 
     const { orderId } = await params;
-    const order = await orderService.getOrderById(orderId);
+    const result = await db.select().from(ordersTable).where(eq(ordersTable.id, orderId)).limit(1);
+    const order = result[0];
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
 
-    // If order is not canceled, restore stock before deleting
     if (order.status !== "canceled") {
-      await batchService.cancelOrderAndRestoreStock(orderId);
+      // Restore stock if not canceled
+      let items: any[] = [];
+      try { items = JSON.parse(order.items); } catch { items = []; }
+
+      await db.transaction(async (tx) => {
+        for (const item of items) {
+          await tx.update(products)
+            .set({ stockQuantity: sql`${products.stockQuantity} + ${item.quantity}` })
+            .where(eq(products.id, item.productId));
+        }
+        await tx.delete(ordersTable).where(eq(ordersTable.id, orderId));
+      });
+    } else {
+      await db.delete(ordersTable).where(eq(ordersTable.id, orderId));
     }
 
-    await orderService.deleteOrder(orderId);
     return NextResponse.json({ message: "Order deleted" });
   } catch (error) {
     console.error("Error deleting order:", error);

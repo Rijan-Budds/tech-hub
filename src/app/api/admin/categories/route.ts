@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import { categoryService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { categories } from "@/lib/schema";
+import { eq, sql, desc, asc } from "drizzle-orm";
+import { getAuth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "fallback_secret_key_change_in_production";
-
-// Helper function to generate slug from name
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
@@ -20,20 +17,8 @@ function generateSlug(name: string): string {
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token");
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const decoded = jwt.verify(token.value, JWT_SECRET) as {
-      userId: string;
-      email: string;
-    };
-
-    // Check if user is admin (you might want to add a proper admin check here)
-    if (!decoded.email || !decoded.email.includes("admin")) {
+    const auth = await getAuth();
+    if (!auth || auth.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -41,23 +26,30 @@ export async function GET(req: Request) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const sortBy = searchParams.get("sortBy") || "createdAt";
-    const sortOrder = searchParams.get("sortOrder") || "desc";
+    const sortOrder = (searchParams.get("sortOrder") as "asc" | "desc") || "desc";
 
-    const result = await categoryService.getAllCategoriesWithPagination(
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-    );
+    const offset = (page - 1) * limit;
+
+    const [countResult] = await db.select({ count: sql<number>`count(*)` }).from(categories);
+    const totalCount = Number(countResult?.count || 0);
+
+    const orderBy = sortOrder === "desc"
+      ? (sortBy === "name" ? desc(categories.name) : desc(categories.createdAt))
+      : (sortBy === "name" ? asc(categories.name) : asc(categories.createdAt));
+
+    const result = await db.select().from(categories)
+      .orderBy(orderBy)
+      .limit(limit)
+      .offset(offset);
 
     return NextResponse.json({
-      categories: result.categories,
+      categories: result,
       pagination: {
         page,
         limit,
-        totalCount: result.totalCount,
-        totalPages: Math.ceil(result.totalCount / limit),
-        hasNextPage: page < Math.ceil(result.totalCount / limit),
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNextPage: page < Math.ceil(totalCount / limit),
         hasPrevPage: page > 1,
       },
     });
@@ -72,19 +64,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token");
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const decoded = jwt.verify(token.value, JWT_SECRET) as {
-      userId: string;
-      email: string;
-    };
-
-    if (!decoded.email || !decoded.email.includes("admin")) {
+    const auth = await getAuth();
+    if (!auth || auth.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -97,22 +78,24 @@ export async function POST(req: Request) {
 
     const slug = generateSlug(name);
 
-    const existingCategory = await categoryService.getCategoryBySlug(slug);
-    if (existingCategory) {
+    const existingCategoryResult = await db.select().from(categories).where(eq(categories.slug, slug)).limit(1);
+    if (existingCategoryResult.length > 0) {
       return NextResponse.json(
         { error: "Category with this name already exists" },
         { status: 400 },
       );
     }
 
-    const categoryId = await categoryService.createCategory({
+    const categoryId = crypto.randomUUID();
+    await db.insert(categories).values({
+      id: categoryId,
       name: name.trim(),
       slug,
       description: description?.trim() || "",
       image: image || "",
     });
 
-    const newCategory = await categoryService.getCategoryById(categoryId);
+    const [newCategory] = await db.select().from(categories).where(eq(categories.id, categoryId)).limit(1);
 
     return NextResponse.json({
       message: "Category created successfully",

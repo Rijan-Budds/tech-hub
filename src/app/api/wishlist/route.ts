@@ -1,31 +1,37 @@
 import { NextResponse } from "next/server";
-import { userService, productService } from "@/lib/firebase-db";
+import { db } from "@/lib/db";
+import { users, products, categories } from "@/lib/schema";
+import { eq, inArray } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 
 export async function GET() {
   const auth = await getAuth();
-  console.log("GET /api/wishlist - Auth result:", auth);
   if (!auth || auth.role === "admin") return NextResponse.json({ items: [] });
 
-  const user = await userService.getUserById(auth.sub);
-  if (!user || !user.wishlist || user.wishlist.length === 0) {
-    return NextResponse.json({ items: [] });
-  }
+  const result = await db.select().from(users).where(eq(users.id, auth.sub)).limit(1);
+  const user = result[0];
+  if (!user) return NextResponse.json({ items: [] });
 
-  // Get products by IDs
-  const productPromises = user.wishlist.map((id) =>
-    productService.getProductById(id),
-  );
-  const products = await Promise.all(productPromises);
-  const validProducts = products.filter((product) => product !== null);
+  let wishlist: string[] = [];
+  try { wishlist = JSON.parse(user.wishlist || "[]"); } catch { wishlist = []; }
 
-  const items = validProducts.map((product) => ({
-    id: product!.id,
-    slug: product!.slug,
-    name: product!.name,
-    price: product!.price,
-    category: product!.category,
-    image: product!.image,
+  if (wishlist.length === 0) return NextResponse.json({ items: [] });
+
+  const productList = await db.select({
+    product: products,
+    category: categories,
+  })
+    .from(products)
+    .leftJoin(categories, eq(products.categoryId, categories.id))
+    .where(inArray(products.id, wishlist));
+
+  const items = productList.map(({ product, category }) => ({
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    price: product.price,
+    category: category?.name,
+    image: product.image,
   }));
 
   return NextResponse.json({ items });
@@ -33,9 +39,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const auth = await getAuth();
-  console.log("POST /api/wishlist - Auth result:", auth);
   if (!auth || auth.role === "admin") {
-    console.log("User not authenticated, returning 401");
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -47,11 +51,14 @@ export async function POST(req: Request) {
       { status: 400 },
     );
 
-  const user = await userService.getUserById(auth.sub);
+  const result = await db.select().from(users).where(eq(users.id, auth.sub)).limit(1);
+  const user = result[0];
   if (!user)
     return NextResponse.json({ message: "User not found" }, { status: 404 });
 
-  const wishlist = user.wishlist || [];
+  let wishlist: string[] = [];
+  try { wishlist = JSON.parse(user.wishlist || "[]"); } catch { wishlist = []; }
+
   const index = wishlist.indexOf(productId);
 
   if (index >= 0) {
@@ -60,6 +67,9 @@ export async function POST(req: Request) {
     wishlist.push(productId);
   }
 
-  await userService.updateUserWishlist(auth.sub, wishlist);
+  await db.update(users)
+    .set({ wishlist: JSON.stringify(wishlist) })
+    .where(eq(users.id, user.id));
+
   return NextResponse.json({ wishlist });
 }
