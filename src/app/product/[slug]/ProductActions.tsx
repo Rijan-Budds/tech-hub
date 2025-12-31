@@ -2,8 +2,8 @@
 
 import React from "react";
 import { toast } from "sonner";
-import { FaShoppingCart, FaHeart, FaBalanceScale } from "react-icons/fa";
-import { useCompareStore } from "@/store/useCompareStore";
+import { FaShoppingCart, FaHeart } from "react-icons/fa";
+
 
 interface Product {
   id: string;
@@ -19,13 +19,7 @@ interface Product {
 }
 
 export default function ProductActions({ product }: { product: Product }) {
-  const {
-    addToCompare,
-    openProductSelector,
-    openCompareModal,
-    compareProducts,
-    isProductInCompare,
-  } = useCompareStore();
+
 
   const handleAddToCart = async () => {
     // Check stock before attempting to add
@@ -101,30 +95,7 @@ export default function ProductActions({ product }: { product: Product }) {
     }
   };
 
-  const handleCompare = () => {
-    if (isProductInCompare(product.id)) {
-      toast.info("Product is already in comparison");
-      return;
-    }
 
-    if (compareProducts.length === 0) {
-      // First product - add to comparison and open selector
-      addToCompare(product);
-      openProductSelector(product);
-      toast.success(
-        "Product added to comparison! Choose another product to compare.",
-      );
-    } else if (compareProducts.length === 1) {
-      // Second product - add and open comparison modal
-      addToCompare(product);
-      openCompareModal();
-      toast.success("Products ready for comparison!");
-    } else {
-      // Already have 2 products - open selector to replace
-      openProductSelector(product);
-      toast.info("Choose a product to replace in comparison");
-    }
-  };
 
   const isOutOfStock = product.stockQuantity <= 0;
   const isLowStock = product.stockQuantity > 0 && product.stockQuantity <= 5;
@@ -157,11 +128,10 @@ export default function ProductActions({ product }: { product: Product }) {
       <button
         onClick={handleAddToCart}
         disabled={isOutOfStock}
-        className={`w-full px-8 py-4 rounded-xl font-semibold text-lg transform transition-all duration-200 shadow-lg flex items-center justify-center space-x-3 ${
-          isOutOfStock
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 hover:scale-[1.02] hover:shadow-xl'
-        }`}
+        className={`w-full px-8 py-4 rounded-xl font-semibold text-lg transform transition-all duration-200 shadow-lg flex items-center justify-center space-x-3 ${isOutOfStock
+          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          : 'bg-black text-white hover:bg-gray-900 hover:scale-[1.02] hover:shadow-xl'
+          }`}
       >
         <FaShoppingCart className="text-xl" />
         <span>{isOutOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
@@ -170,27 +140,13 @@ export default function ProductActions({ product }: { product: Product }) {
       {/* Add to Wishlist Button */}
       <button
         onClick={handleAddToWishlist}
-        className="w-full border-2 border-[#0D3B66] text-[#0D3B66] px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#0D3B66] hover:to-[#1E5CAF] hover:text-white transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center space-x-3"
+        className="w-full border-2 border-black text-black px-8 py-4 rounded-xl font-semibold text-lg hover:bg-black hover:text-white transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center space-x-3"
       >
         <FaHeart className="text-xl" />
         <span>Add to Wishlist</span>
       </button>
 
-      {/* Compare Button */}
-      <button
-        onClick={handleCompare}
-        disabled={isProductInCompare(product.id)}
-        className="w-full border-2 border-[#0D3B66] text-[#0D3B66] px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#0D3B66] hover:to-[#1E5CAF] hover:text-white transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-      >
-        <FaBalanceScale className="text-xl" />
-        <span>
-          {isProductInCompare(product.id)
-            ? "Already in Comparison"
-            : compareProducts.length === 0
-              ? "Start Comparison"
-              : "Compare with Product"}
-        </span>
-      </button>
+
     </div>
   );
 }

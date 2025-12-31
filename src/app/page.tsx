@@ -13,7 +13,7 @@ import {
 
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
-import StarRating from "../components/StarRating";
+
 import Autoplay from "embla-carousel-autoplay";
 
 import {
@@ -185,7 +185,7 @@ function Page() {
     <>
       <Header />
 
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
         {/* Hero Carousel */}
         <section className="relative">
           <Carousel plugins={[autoplayPlugin.current]} opts={{ loop: true }}>
@@ -200,7 +200,7 @@ function Page() {
                       height={500}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent">
+                    <div className="absolute inset-0 bg-black/40">
                       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center">
                         <div className="text-white max-w-lg">
                           <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-2 sm:mb-4">
@@ -211,7 +211,7 @@ function Page() {
                           </p>
                           <Link
                             href={`/categories/${slider.categorySlug}`}
-                            className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
+                            className="inline-flex items-center space-x-2 bg-white text-black px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200 shadow-lg text-sm sm:text-base"
                           >
                             <span>Shop Now</span>
                             <FaArrowRight className="text-xs sm:text-sm" />
@@ -231,10 +231,7 @@ function Page() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-4">
-                Trending{" "}
-                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                  Products
-                </span>
+                Trending Products
               </h2>
               <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
                 Discover our most popular products loved by customers worldwide
@@ -244,7 +241,7 @@ function Page() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {trendingProducts.map((product) => (
                 <div key={product.id} className="group h-full">
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all duration-300 h-full flex flex-col">
                     <Link href={`/product/${product.slug}`}>
                       <div className="relative overflow-hidden">
                         <Image
@@ -254,13 +251,12 @@ function Page() {
                           height={300}
                           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
 
                         {/* Discount Badge */}
                         {product.discountPercentage &&
                           product.discountPercentage > 0 && (
                             <div className="absolute top-4 left-4">
-                              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                              <span className="bg-red-600 text-white px-3 py-1 rounded-md text-sm font-bold">
                                 -{product.discountPercentage}%
                               </span>
                             </div>
@@ -269,17 +265,8 @@ function Page() {
                         {/* Stock Status Badge */}
                         {product.inStock === false && (
                           <div className="absolute top-4 right-4">
-                            <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                            <span className="bg-gray-800 text-white px-3 py-1 rounded-md text-sm font-bold">
                               Out of Stock
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Trending Badge - Show purchase count */}
-                        {product.purchaseCount && product.purchaseCount > 0 && (
-                          <div className="absolute bottom-4 left-4">
-                            <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-3 py-1 rounded-full text-sm font-bold flex items-center space-x-1">
-                              <span>{product.purchaseCount} sold</span>
                             </span>
                           </div>
                         )}
@@ -288,27 +275,19 @@ function Page() {
 
                     <div className="p-6 space-y-4 flex-1 flex flex-col">
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-[#0D3B66] transition-colors overflow-hidden text-ellipsis whitespace-nowrap">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-gray-600 transition-colors overflow-hidden text-ellipsis whitespace-nowrap">
                           {product.name}
                         </h3>
-                        
-                        {/* Rating Display */}
-                        {product.averageRating && product.averageRating > 0 && (
-                          <div className="mb-2">
-                            <StarRating
-                              rating={product.averageRating}
-                              size="sm"
-                            />
-                          </div>
-                        )}
+
+
                         <div className="flex items-baseline space-x-2">
                           {product.discountPercentage &&
-                          product.discountPercentage > 0 ? (
+                            product.discountPercentage > 0 ? (
                             <>
                               <span className="text-lg font-bold text-gray-400 dark:text-gray-500 line-through">
                                 रु{product.price.toFixed(2)}
                               </span>
-                              <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                              <span className="text-2xl font-bold text-gray-900 dark:text-white">
                                 रु
                                 {(
                                   product.price *
@@ -317,13 +296,10 @@ function Page() {
                               </span>
                             </>
                           ) : (
-                            <span className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                            <span className="text-2xl font-bold text-gray-900 dark:text-white">
                               रु{product.price.toFixed(2)}
                             </span>
                           )}
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            NPR
-                          </span>
                         </div>
                       </div>
 
@@ -331,11 +307,10 @@ function Page() {
                         <button
                           onClick={() => handleAddToCart(product.id)}
                           disabled={product.inStock === false}
-                          className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
-                            product.inStock === false
-                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              : "bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90"
-                          }`}
+                          className={`flex-1 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${product.inStock === false
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                            }`}
                         >
                           <FaShoppingCart />
                           <span>
@@ -346,7 +321,7 @@ function Page() {
                         </button>
                         <button
                           onClick={() => handleToggleWishlist(product.id)}
-                          className="px-4 py-3 border-2 border-[#0D3B66] text-[#0D3B66] rounded-xl hover:bg-[#0D3B66] hover:text-white transition-all duration-200"
+                          className="px-4 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 hover:text-black transition-all duration-200 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                         >
                           <FaHeart />
                         </button>
@@ -364,10 +339,7 @@ function Page() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-4">
-                Shop by{" "}
-                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                  Category
-                </span>
+                Shop by Category
               </h2>
               <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
                 Explore our wide range of products organized by category
@@ -377,7 +349,7 @@ function Page() {
             {/* Loading State */}
             {categoriesLoading && (
               <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0D3B66]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white"></div>
                 <span className="ml-3 text-gray-600 dark:text-gray-300">
                   Loading categories...
                 </span>
@@ -413,7 +385,7 @@ function Page() {
                         href={`/categories/${cat.slug}`}
                       >
                         <div className="group flex-shrink-0 select-none">
-                          <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                          <div className="relative rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
                             <Image
                               src={cat.image}
                               alt={cat.name}
@@ -422,7 +394,7 @@ function Page() {
                               className="w-full h-32 sm:h-40 lg:h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                               draggable={false}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
+                            <div className="absolute inset-0 bg-black/50">
                               <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 lg:p-6">
                                 <h3 className="text-white text-sm sm:text-base lg:text-xl font-bold mb-1 sm:mb-2">
                                   {cat.name}
@@ -450,25 +422,25 @@ function Page() {
         {/* CTA Section */}
         <section className="py-8 sm:py-12 lg:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="bg-gradient-to-r from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 text-center text-white">
+            <div className="bg-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 text-center text-white">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">
                 Ready to Transform Your Setup?
               </h2>
-              <p className="text-sm sm:text-lg lg:text-xl mb-6 sm:mb-8 text-blue-100 dark:text-blue-200 max-w-2xl mx-auto px-2">
+              <p className="text-sm sm:text-lg lg:text-xl mb-6 sm:mb-8 text-gray-300 max-w-2xl mx-auto px-2">
                 Join thousands of satisfied customers who have upgraded their
                 tech experience with our premium products.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link
                   href="/all"
-                  className="bg-white text-[#0D3B66] px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
+                  className="bg-white text-black px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
                 >
                   <span>View All Products</span>
                   <FaArrowRight className="text-xs sm:text-sm" />
                 </Link>
                 <Link
                   href="/about"
-                  className="border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold hover:bg-white hover:text-[#0D3B66] transition-all duration-200 text-sm sm:text-base"
+                  className="border border-gray-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold hover:bg-gray-800 transition-all duration-200 text-sm sm:text-base"
                 >
                   Learn More
                 </Link>

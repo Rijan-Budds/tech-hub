@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaUser, FaSignOutAlt } from "react-icons/fa";
 
-import { ModeToggle } from "@/components/ui/mode-toggle";
+
 import LoginForm from "@/components/forms/LoginForm";
 import SignupForm from "@/components/forms/SignupForm";
 
@@ -80,7 +80,7 @@ const AdminHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] text-white shadow-lg">
+    <header className="sticky top-0 z-50 bg-gray-900 text-white shadow-md">
       {/* Admin header: Logo, Admin title, User actions */}
       <div className="flex items-center justify-between px-4 py-3 gap-4">
         {/* Logo */}
@@ -171,7 +171,7 @@ const AdminHeader = () => {
             </button>
           )}
 
-          <ModeToggle />
+
         </div>
       </div>
 

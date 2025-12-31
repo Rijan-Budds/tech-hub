@@ -5,7 +5,7 @@ import ProductActions from "./ProductActions"; // import client component
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 // import ReviewsSection from "@/components/ReviewsSection";
-import StarRating from "@/components/StarRating";
+
 import ImageGallery from "@/components/ImageGallery";
 
 async function fetchProduct(slug: string) {
@@ -38,8 +38,7 @@ async function fetchProduct(slug: string) {
       discountPercentage?: number;
       stockQuantity: number;
       inStock?: boolean;
-      averageRating?: number;
-      totalReviews?: number;
+
     };
   } catch (error) {
     console.error("Error fetching product:", error);
@@ -94,7 +93,7 @@ export default async function ProductDetailPage({
                 images={product.images && product.images.length > 0 ? product.images : [product.image]}
                 productName={product.name}
               />
-              
+
               {/* Floating Badges */}
               <div className="absolute top-4 left-4 z-10 space-y-2">
                 {/* Discount Badge */}
@@ -122,7 +121,7 @@ export default async function ProductDetailPage({
             <div className="space-y-8">
               {/* Category Badge */}
               <div className="inline-block">
-                <span className="bg-gradient-to-r from-[#0D3B66] to-[#154A8A] text-white px-4 py-2 rounded-full text-sm font-medium capitalize">
+                <span className="bg-black text-white px-4 py-2 rounded-full text-sm font-medium capitalize">
                   {product.category.replace("-", " ")}
                 </span>
               </div>
@@ -131,29 +130,18 @@ export default async function ProductDetailPage({
               <h1 className="text-4xl font-bold text-gray-900 leading-tight">
                 {product.name}
               </h1>
-              
-              {/* Rating Display */}
-              {product.averageRating && product.averageRating > 0 && (
-                <div className="flex items-center space-x-4">
-                  <StarRating
-                    rating={product.averageRating}
-                    size="lg"
-                  />
-                  <span className="text-sm text-gray-600">
-                    ({product.totalReviews} review{product.totalReviews !== 1 ? 's' : ''})
-                  </span>
-                </div>
-              )}
+
+
 
               {/* Price */}
               <div className="flex items-baseline space-x-2">
                 {product.discountPercentage &&
-                product.discountPercentage > 0 ? (
+                  product.discountPercentage > 0 ? (
                   <>
                     <span className="text-2xl font-bold text-gray-400 line-through">
                       रु{product.price.toFixed(2)}
                     </span>
-                    <span className="text-4xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                    <span className="text-4xl font-bold text-black dark:text-white">
                       रु
                       {(
                         product.price *
@@ -162,7 +150,7 @@ export default async function ProductDetailPage({
                     </span>
                   </>
                 ) : (
-                  <span className="text-4xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                  <span className="text-4xl font-bold text-black dark:text-white">
                     रु{product.price.toFixed(2)}
                   </span>
                 )}
@@ -175,7 +163,7 @@ export default async function ProductDetailPage({
                   Product Description
                 </h3>
                 {product.description ? (
-                  <div 
+                  <div
                     className="text-gray-700 leading-relaxed text-lg rich-text-content"
                     dangerouslySetInnerHTML={{ __html: product.description }}
                   />
@@ -208,16 +196,7 @@ export default async function ProductDetailPage({
             </div>
           </div>
 
-          {/* Reviews Section */}
-          {/* <div className="mt-16">
-            <ReviewsSection 
-              productId={product.id}
-              productName={product.name}
-              productImage={product.image}
-              averageRating={product.averageRating || 0}
-              totalReviews={product.totalReviews || 0}
-            />
-          </div> */}
+
         </div>
       </div>
       <Footer />

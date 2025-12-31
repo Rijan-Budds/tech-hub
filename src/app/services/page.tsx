@@ -3,179 +3,90 @@
 import React from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Tabs } from "@/components/ui/tabs";
+import {
+  FaTools,
+  FaDesktop,
+  FaMicrochip,
+  FaWrench,
+  FaHeadset,
+  FaBroom,
+} from "react-icons/fa";
 
 export default function ServicesPage() {
-  const tabs = [
+  const services = [
     {
-      title: "Product Sourcing",
-      value: "product-sourcing",
-      content: (
-        <div className="w-full overflow-hidden relative h-full rounded-2xl p-6 text-base md:text-lg bg-white dark:bg-gray-800 shadow-lg">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-            Product Sourcing
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 text-base md:text-lg leading-relaxed">
-            Can&apos;t find a component? We&apos;ll source it from trusted
-            distributors and manufacturers to get you exactly what you need.
-          </p>
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Direct manufacturer partnerships
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Quality assurance guarantee
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Competitive pricing
-            </div>
-          </div>
-        </div>
-      ),
+      icon: <FaWrench className="w-8 h-8 text-white" />,
+      title: "PC Diagnostics & Repair",
+      description:
+        "Is your computer running slow or not turning on? Our expert technicians will diagnose the issue and get your system back to peak performance.",
     },
     {
-      title: "Build Assistance",
-      value: "build-assistance",
-      content: (
-        <div className="w-full overflow-hidden relative h-full rounded-2xl p-6 text-base md:text-lg bg-white dark:bg-gray-800 shadow-lg">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-            Build Assistance
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 text-base md:text-lg leading-relaxed">
-            Get expert help choosing compatible parts and professional
-            assistance in assembling your dream PC setup.
-          </p>
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Compatibility checking
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Performance optimization
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Professional assembly
-            </div>
-          </div>
-        </div>
-      ),
+      icon: <FaDesktop className="w-8 h-8 text-white" />,
+      title: "Custom PC Building",
+      description:
+        "Dreaming of the perfect gaming rig or workstation? We'll help you pick the best parts and professionally assemble your custom build.",
     },
     {
-      title: "Warranty & Support",
-      value: "warranty-support",
-      content: (
-        <div className="w-full overflow-hidden relative h-full rounded-2xl p-6 text-base md:text-lg bg-white dark:bg-gray-800 shadow-lg">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-            Warranty & Support
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 text-base md:text-lg leading-relaxed">
-            Comprehensive guidance on manufacturer warranties and basic
-            troubleshooting to keep your system running smoothly.
-          </p>
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Warranty registration assistance
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Technical support
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Repair coordination
-            </div>
-          </div>
-        </div>
-      ),
+      icon: <FaMicrochip className="w-8 h-8 text-white" />,
+      title: "Hardware Upgrades",
+      description:
+        "Boost your PC's speed and capabilities. We install RAM, SSDs, graphics cards, and processors to extend your computer's lifespan.",
     },
     {
-      title: "Delivery",
-      value: "delivery",
-      content: (
-        <div className="w-full overflow-hidden relative h-full rounded-2xl p-6 text-base md:text-lg bg-white dark:bg-gray-800 shadow-lg">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-            Delivery
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 text-base md:text-lg leading-relaxed">
-            Doorstep delivery with transparent fees by city. We ensure your
-            products reach you safely and on time.
-          </p>
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Secure packaging
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Real-time tracking
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              City-based pricing
-            </div>
-          </div>
-        </div>
-      ),
+      icon: <FaHeadset className="w-8 h-8 text-white" />,
+      title: "Software Support",
+      description:
+        "Trouble with Windows, drivers, or viruses? We provide comprehensive software support, including OS installation and malware removal.",
     },
     {
-      title: "Service Hours",
-      value: "service-hours",
-      content: (
-        <div className="w-full overflow-hidden relative h-full rounded-2xl p-6 text-base md:text-lg bg-white dark:bg-gray-800 shadow-lg">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-            Service Hours
-          </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 text-base md:text-lg leading-relaxed">
-            We&apos;re here when you need us. Extended hours to accommodate your
-            busy schedule.
-          </p>
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Sunday–Friday: 9:00 AM – 9:00 PM NPT
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              Saturday: 10:00 AM – 6:00 PM NPT
-            </div>
-            <div className="flex items-center text-sm md:text-base text-gray-600 dark:text-gray-400">
-              <div className="w-2 h-2 bg-[#0D3B66] dark:bg-[#1E5CAF] rounded-full mr-3" />
-              24/7 online support
-            </div>
-          </div>
-        </div>
-      ),
+      icon: <FaBroom className="w-8 h-8 text-white" />,
+      title: "Deep Cleaning",
+      description:
+        "Dust and heat can kill your PC. Our deep cleaning service removes improved airflow and applies premium thermal paste for better cooling.",
+    },
+    {
+      icon: <FaTools className="w-8 h-8 text-white" />,
+      title: "Tech Consultation",
+      description:
+        "Not sure what you need? Book a consultation with us. We'll give you honest advice on upgrades, new purchases, and network setups.",
     },
   ];
 
   return (
     <>
-    <Header />
+      <Header />
       <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto px-6 py-16">
           {/* Header Section */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              Our{" "}
-              <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                Services
-              </span>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              Our <span className="text-black">Services</span>
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              We support you from purchase to setup and beyond. Our
-              comprehensive services ensure you get the best experience.
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              We provide professional tech solutions to keep you running
+              smoothly. From repairs to custom builds, we&apos;ve got you
+              covered.
             </p>
           </div>
 
-          {/* Tabs Section with proper spacing */}
-          <div className="h-[25rem] md:h-[30rem] [perspective:1000px] relative flex flex-col w-full items-start justify-start mb-16">
-            <Tabs tabs={tabs} />
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service, index) => (
+              <div
+                key={index}
+                className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 dark:border-gray-700"
+              >
+                <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-6 shadow-md transform -rotate-3">
+                  {service.icon}
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                  {service.title}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {service.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </main>

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import dynamic from "next/dynamic";
-import { AnimatedSupportCard } from "@/components/AnimatedSupportCard";
+
 
 // Dynamically import the map component to avoid SSR issues
 const MapComponent = dynamic(() => import("@/app/contact/MapComponent"), {
@@ -25,7 +25,7 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim() || !email.trim() || !message.trim()) {
       setError("Please fill in all fields");
       return;
@@ -33,7 +33,7 @@ export default function ContactPage() {
 
     setLoading(true);
     setError("");
-    
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -66,7 +66,7 @@ export default function ContactPage() {
 
   return (
     <>
-    <Header />
+      <Header />
       <main className="max-w-6xl mx-auto px-4 py-10 space-y-10">
         <header className="space-y-2">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -129,9 +129,7 @@ export default function ContactPage() {
               />
             </div>
 
-            <div className="mt-6">
-              <AnimatedSupportCard />
-            </div>
+
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-600 text-sm">{error}</p>
@@ -140,7 +138,7 @@ export default function ContactPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              className="w-full bg-black text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <>

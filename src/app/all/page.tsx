@@ -90,7 +90,7 @@ const AllProductsPage = async () => {
             <div className="text-center">
               <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
                 All{" "}
-                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                <span className="text-black dark:text-white">
                   Products
                 </span>
               </h1>
@@ -108,7 +108,7 @@ const AllProductsPage = async () => {
           {products.length === 0 ? (
             <div className="text-center py-20">
               <div className="max-w-md mx-auto">
-                <div className="w-24 h-24 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-24 h-24 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
                   <FaEye className="text-white text-3xl" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -120,7 +120,7 @@ const AllProductsPage = async () => {
                 </p>
                 <Link
                   href="/"
-                  className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
+                  className="inline-flex items-center space-x-2 bg-black text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-200"
                 >
                   <FaArrowLeft className="text-sm" />
                   <span>Back to Home</span>
@@ -133,7 +133,7 @@ const AllProductsPage = async () => {
               <div className="flex flex-wrap justify-center gap-4 mb-8">
                 <Link
                   href="/all"
-                  className="px-6 py-3 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
+                  className="px-6 py-3 bg-black text-white rounded-xl font-semibold hover:bg-gray-900 transition-all duration-200"
                 >
                   All Categories
                 </Link>
@@ -162,7 +162,7 @@ const AllProductsPage = async () => {
                             height={300}
                             className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                          <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
 
                           {/* Discount Badge */}
                           {product.discountPercentage &&
@@ -195,7 +195,7 @@ const AllProductsPage = async () => {
                       <div className="p-6 flex-1 flex flex-col">
                         <div className="flex-1">
                           <Link href={`/product/${product.slug}`}>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-[#0D3B66] transition-colors line-clamp-2">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-black dark:group-hover:text-white transition-colors line-clamp-2">
                               {product.name}
                             </h3>
                           </Link>
@@ -203,9 +203,9 @@ const AllProductsPage = async () => {
                           <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center space-x-2">
                               {product.discountPercentage &&
-                              product.discountPercentage > 0 ? (
+                                product.discountPercentage > 0 ? (
                                 <>
-                                  <span className="text-2xl font-bold text-[#0D3B66]">
+                                  <span className="text-2xl font-bold text-black dark:text-white">
                                     रु
                                     {(
                                       product.price *
@@ -217,7 +217,7 @@ const AllProductsPage = async () => {
                                   </span>
                                 </>
                               ) : (
-                                <span className="text-2xl font-bold text-[#0D3B66]">
+                                <span className="text-2xl font-bold text-black dark:text-white">
                                   रु{product.price.toFixed(2)}
                                 </span>
                               )}
@@ -229,7 +229,7 @@ const AllProductsPage = async () => {
                         <div className="flex space-x-2">
                           <Link
                             href={`/product/${product.slug}`}
-                            className="flex-1 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-4 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 bg-black text-white px-4 py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{
                               pointerEvents: !product.inStock ? "none" : "auto",
                             }}
@@ -256,7 +256,7 @@ const AllProductsPage = async () => {
                   </Link>
                   <Link
                     href="/categories/trending"
-                    className="px-6 py-3 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
+                    className="px-6 py-3 bg-black text-white rounded-xl font-semibold hover:bg-gray-900 transition-all duration-200"
                   >
                     View Trending Products
                   </Link>

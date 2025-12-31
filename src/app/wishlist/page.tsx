@@ -92,7 +92,7 @@ export default function WishlistPage() {
                   <div className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
                     {p.name}
                   </div>
-                  <div className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent mb-4">
+                  <div className="text-2xl font-bold bg-black bg-clip-text text-transparent mb-4">
                     रु{p.price.toFixed(2)}
                   </div>
                   <button

@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Privacy{" "}
-              <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+              <span className="bg-black bg-clip-text text-transparent">
                 Policy
               </span>
             </h1>
@@ -119,8 +119,8 @@ export default function PrivacyPage() {
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                 Trusted{" "}
-                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
-                  Worldwide
+                <span className="bg-black bg-clip-text text-transparent">
+                  Nationwide
                 </span>
               </h2>
               <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
@@ -129,103 +129,8 @@ export default function PrivacyPage() {
                 standards of data protection regardless of where you shop from.
               </p>
             </div>
-
-            <div className="w-full aspect-[2/1] dark:bg-black bg-white rounded-lg relative font-sans">
-              <WorldMap
-                dots={[
-                  {
-                    start: { lat: 27.7172, lng: 85.324 },
-                    end: { lat: 35.6762, lng: 139.6503 },
-                  },
-                  {
-                    start: { lat: 27.7172, lng: 85.324 },
-                    end: { lat: 53.3498, lng: -6.2603 },
-                  },
-                  {
-                    start: { lat: 27.7172, lng: 85.324 },
-                    end: { lat: -25.2744, lng: 133.7751 },
-                  },
-                  {
-                    start: { lat: 28.6139, lng: 77.209 },
-                    end: { lat: 27.6648, lng: -81.5158 },
-                  },
-                  {
-                    start: { lat: 35.6762, lng: 139.6503 },
-                    end: { lat: 53.3498, lng: -6.2603 },
-                  },
-                  {
-                    start: { lat: -25.2744, lng: 133.7751 },
-                    end: { lat: 27.6648, lng: -81.5158 },
-                  },
-                ]}
-                lineColor="#0D3B66"
-              />
-            </div>
-
-            <div className="text-center mt-6">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Secure shopping experience across 50+ countries with local data
-                protection compliance
-              </p>
-            </div>
           </div>
 
-          {/* Additional Privacy Cards */}
-          <div className="grid md:grid-cols-2 gap-6 mb-16">
-            {/* Data Retention Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Data Retention
-                </h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                We retain your personal information only as long as necessary to
-                provide our services and comply with legal obligations. Order
-                information is kept for 7 years for tax purposes, while account
-                data can be deleted upon request.
-              </p>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  <strong>Retention Periods:</strong>
-                  <br />
-                  • Account data: Until deletion request
-                  <br />
-                  • Order history: 7 years
-                  <br />
-                  • Payment info: Not stored
-                  <br />• Marketing data: Until opt-out
-                </p>
-              </div>
-            </div>
-
-            {/* International Compliance Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Global Compliance
-                </h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                We comply with international privacy laws including GDPR, CCPA,
-                and local data protection regulations. Our practices are
-                regularly audited to ensure we meet the highest standards of
-                data protection.
-              </p>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  <strong>Compliance Standards:</strong>
-                  <br />
-                  • GDPR (EU)
-                  <br />
-                  • CCPA (California)
-                  <br />
-                  • PIPEDA (Canada)
-                  <br />• Local regulations
-                </p>
-              </div>
-            </div>
-          </div>
 
           {/* Contact Section */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center">
@@ -238,11 +143,11 @@ export default function PrivacyPage() {
               don&apos;t hesitate to contact us. We&apos;re here to help.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all">
+              <button className="bg-black text-white px-8 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all">
                 <Link href="/contact">Contact Us</Link>
               </button>
               <button
-                className="border-2 border-[#0D3B66] text-[#0D3B66] dark:text-[#1E5CAF] dark:border-[#1E5CAF] px-8 py-3 rounded-xl font-semibold hover:bg-[#0D3B66] hover:text-white dark:hover:bg-[#1E5CAF] transition-colors"
+                className="border-2 border-black text-black dark:text-[#1E5CAF] dark:border-[#1E5CAF] px-8 py-3 rounded-xl font-semibold hover:bg-black hover:text-white dark:hover:bg-[#1E5CAF] transition-colors"
                 onClick={() => {
                   const link = document.createElement("a");
                   link.href = "/home/privacy-policy.pdf";
