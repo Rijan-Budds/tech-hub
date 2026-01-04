@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { FaMoneyBillWave, FaUndo, FaBox } from "react-icons/fa";
-import ReturnRequestForm from "@/components/ReturnRequestForm";
 import { toast } from "sonner";
 
 interface OrderItem {
@@ -543,15 +542,6 @@ export default function OrderConfirmationPage() {
           )}
         </div>
       </div>
-
-      {/* Return Request Form Modal */}
-      {showReturnForm && order && (
-        <ReturnRequestForm
-          order={order}
-          onClose={() => setShowReturnForm(false)}
-          onSubmit={handleReturnRequest}
-        />
-      )}
-    </div>
+      </div>
   );
 }
