@@ -14,9 +14,9 @@ import {
   FaComment,
 } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
-import { useCompareStore } from "@/store/useCompareStore";
 
-import { ModeToggle } from "@/components/ui/mode-toggle";
+
+
 import LoginForm from "@/components/forms/LoginForm";
 import SignupForm from "@/components/forms/SignupForm";
 
@@ -33,7 +33,7 @@ const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { compareProducts } = useCompareStore();
+
 
   const closeModal = () => setModalType(null);
 
@@ -91,7 +91,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-br from-[#0D3B66] via-[#154A8A] to-[#1E5CAF] text-white shadow-lg">
+    <header className="sticky top-0 z-50 bg-gray-900 text-white shadow-md">
       {/* Top row: Logo, Search, Icons */}
       <div className="flex items-center justify-between px-4 py-3 gap-4 flex-wrap sm:flex-nowrap">
         {/* Logo */}
@@ -208,28 +208,7 @@ const Header = () => {
                           Wishlist
                         </Link>
 
-                        <Link
-                        href="/chats"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                        onClick={() => setDropdownOpen(false)}
-                        >
-                        <FaComment className="w-4 h-4 mr-3" />
-                        Chat with Admin
-                        </Link>
-                      
-                        <Link
-                          href="/compare"
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <FaBalanceScale className="w-4 h-4 mr-3" />
-                          Compare Products
-                          {compareProducts.length > 0 && (
-                            <span className="ml-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                              {compareProducts.length}
-                            </span>
-                          )}
-                        </Link>
+
                       </>
                     )}
                   </div>
@@ -265,7 +244,7 @@ const Header = () => {
             </Link>
           )}
 
-          <ModeToggle />
+
         </div>
       </div>
 

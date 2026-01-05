@@ -18,12 +18,12 @@ export interface IReturnRequest {
     price?: number;
   }[]; // Items being returned
   reason:
-    | "damaged"
-    | "wrong-item"
-    | "size-issue"
-    | "defective"
-    | "not-as-described"
-    | "other";
+  | "damaged"
+  | "wrong-item"
+  | "size-issue"
+  | "defective"
+  | "not-as-described"
+  | "other";
   description?: string;
   images?: string[]; // URLs of uploaded images
   status: "pending" | "approved" | "rejected" | "completed" | "refunded";
@@ -45,14 +45,14 @@ export interface IOrder {
   }[];
   createdAt: Timestamp | Date;
   status:
-    | "pending"
-    | "processing"
-    | "shipped"
-    | "out-for-delivery"
-    | "delivered"
-    | "returned"
-    | "canceled"
-    | "return-requested";
+  | "pending"
+  | "processing"
+  | "shipped"
+  | "out-for-delivery"
+  | "delivered"
+  | "returned"
+  | "canceled"
+  | "return-requested";
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
@@ -88,18 +88,7 @@ export interface ICategory {
   updatedAt: Timestamp | Date;
 }
 
-export interface IReview {
-  id?: string;
-  productId: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  rating: number; // 1-5 stars
-  comment: string;
-  createdAt: Timestamp | Date;
-  updatedAt: Timestamp | Date;
-  isVerifiedPurchase?: boolean; // If user actually bought the product
-}
+
 
 export interface IProduct {
   id?: string;
@@ -112,8 +101,7 @@ export interface IProduct {
   description?: string;
   discountPercentage?: number;
   stockQuantity: number;
-  averageRating?: number;
-  totalReviews?: number;
+
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
 }
@@ -125,8 +113,7 @@ export const COLLECTIONS = {
   ORDERS: "orders",
   RETURN_REQUESTS: "return_requests",
   CATEGORIES: "categories",
-  REVIEWS: "reviews",
-  CHATS: "chats",
+
   INQUIRIES: "inquiries",
 } as const;
 
@@ -142,23 +129,7 @@ export interface IInquiry {
   respondedBy?: string;
 }
 
-export interface IChat {
-  id?: string;
-  userId: string;
-  userName: string;
-  lastMessage: string;
-  lastMessageAt: Timestamp | Date;
-  isRead: boolean;
-}
 
-export interface IMessage {
-  id?: string;
-  chatId: string;
-  from: string;
-  role: "user" | "admin";
-  text: string;
-  timestamp: Timestamp | Date;
-}
 
 // Helper function to convert Firestore Timestamp to Date
 export const timestampToDate = (timestamp: Timestamp | Date): Date => {

@@ -196,11 +196,8 @@ export default function CartPage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#0D3B66] to-[#1E5CAF] rounded-full mb-4">
-            <FaShoppingCart className="text-white text-2xl" />
-          </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Your Shopping Cart
+            Shopping Cart
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
             {items.length} {items.length === 1 ? "item" : "items"} in your cart
@@ -223,7 +220,7 @@ export default function CartPage() {
                 </p>
                 <button
                   onClick={() => router.push("/")}
-                  className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                  className="bg-black text-white px-8 py-3 rounded-xl font-semibold hover:bg-gray-900 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
                   Start Shopping
                 </button>
@@ -246,7 +243,7 @@ export default function CartPage() {
                             height={120}
                             className="w-24 h-24 object-cover rounded-xl shadow-md"
                           />
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-black rounded-full flex items-center justify-center text-white text-xs font-bold">
                             {it.quantity}
                           </div>
                         </div>
@@ -297,7 +294,7 @@ export default function CartPage() {
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               रु{it.product?.price?.toFixed(2)} each
                             </p>
-                            <p className="text-2xl font-bold bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                            <p className="text-2xl font-bold text-black dark:text-white">
                               रु{(it.product?.price || 0) * it.quantity}
                             </p>
                           </div>
@@ -323,9 +320,6 @@ export default function CartPage() {
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 sticky top-8">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#0D3B66] to-[#1E5CAF] rounded-full flex items-center justify-center">
-                  <FaCreditCard className="text-white" />
-                </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Checkout
                 </h2>
@@ -351,7 +345,7 @@ export default function CartPage() {
                   <div className="border-t border-gray-200 dark:border-gray-600 pt-3">
                     <div className="flex justify-between text-xl font-bold text-gray-900 dark:text-white">
                       <span>Total</span>
-                      <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                      <span className="text-black dark:text-white">
                         रु{grandTotal.toFixed(2)}
                       </span>
                     </div>
@@ -371,7 +365,7 @@ export default function CartPage() {
                     value={formik.values.name}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
                     placeholder="Enter your full name"
                   />
                   {formik.touched.name && formik.errors.name && (
@@ -392,7 +386,7 @@ export default function CartPage() {
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
                     placeholder="Enter your email"
                   />
                   {formik.touched.email && formik.errors.email && (
@@ -411,7 +405,7 @@ export default function CartPage() {
                     name="city"
                     value={formik.values.city}
                     onChange={formik.handleChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
                   >
                     {cities.map((c) => (
                       <option key={c.name} value={c.name}>
@@ -430,7 +424,7 @@ export default function CartPage() {
                     name="street"
                     value={formik.values.street}
                     onChange={formik.handleChange}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#0D3B66] focus:border-transparent transition-all duration-200"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
                     placeholder="Enter your street address"
                   />
                 </div>
@@ -525,7 +519,7 @@ export default function CartPage() {
                 <button
                   type="submit"
                   disabled={items.length === 0 || submitting}
-                  className="w-full bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white py-4 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:transform-none disabled:shadow-lg"
+                  className="w-full bg-black text-white py-4 rounded-xl font-semibold hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:transform-none disabled:shadow-lg"
                 >
                   {submitting ? (
                     <div className="flex items-center justify-center">

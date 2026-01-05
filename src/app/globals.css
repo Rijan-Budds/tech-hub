@@ -5,57 +5,80 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 0%;
+
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 3.9%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 3.9%;
+
+    /* Solid Black/Gray for Primary */
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+
     --radius: 0.5rem;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
+
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-background text-foreground font-sans antialiased text-black;
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading tracking-tight;
+  }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar - Simple */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .no-visible-scrollbar {
@@ -67,131 +90,120 @@
   display: none;
 }
 
-/* Custom scrollbar styles for chat */
-.chat-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #D1D5DB #F3F4F6;
-}
 
-.chat-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
 
-.chat-scrollbar::-webkit-scrollbar-track {
-  background: #F3F4F6;
-  border-radius: 3px;
-}
 
-.chat-scrollbar::-webkit-scrollbar-thumb {
-  background: #D1D5DB;
-  border-radius: 3px;
-  transition: background-color 0.2s ease;
-}
 
-.chat-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #9CA3AF;
-}
-
-.chat-scrollbar::-webkit-scrollbar-corner {
-  background: #F3F4F6;
-}
-
-@import 'quill/dist/quill.snow.css';
-@import 'quill/dist/quill.bubble.css';
-@import 'quill/dist/quill.core.css';
 
 /* Rich text content styles */
 .rich-text-content {
   /* Typography */
   line-height: 1.6;
-  
+
   /* Paragraphs */
   & p {
     margin-bottom: 1rem;
     line-height: 1.7;
   }
-  
+
   /* Headers */
-  & h1, & h2, & h3, & h4, & h5, & h6 {
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h5,
+  & h6 {
     font-weight: 600;
     margin-top: 2rem;
     margin-bottom: 1rem;
     line-height: 1.4;
   }
-  
-  & h1 { font-size: 2rem; }
-  & h2 { font-size: 1.5rem; }
-  & h3 { font-size: 1.25rem; }
-  
+
+  & h1 {
+    font-size: 2rem;
+  }
+
+  & h2 {
+    font-size: 1.5rem;
+  }
+
+  & h3 {
+    font-size: 1.25rem;
+  }
+
   /* Lists */
-  & ul, & ol {
+  & ul,
+  & ol {
     margin-bottom: 1rem;
     padding-left: 1.5rem;
   }
-  
+
   & ul {
     list-style-type: disc;
   }
-  
+
   & ol {
     list-style-type: decimal;
   }
-  
+
   & li {
     margin-bottom: 0.5rem;
     line-height: 1.6;
   }
-  
+
   /* Nested lists */
-  & ul ul, & ol ol, & ul ol, & ol ul {
+  & ul ul,
+  & ol ol,
+  & ul ol,
+  & ol ul {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
   }
-  
+
   /* Text formatting */
   & strong {
     font-weight: 600;
-    color: #1f2937; /* gray-800 */
+    color: #1f2937;
+    /* gray-800 */
   }
-  
+
   & em {
     font-style: italic;
   }
-  
+
   & u {
     text-decoration: underline;
   }
-  
+
   /* Links */
   & a {
     color: #0D3B66;
     text-decoration: underline;
-    
+
     &:hover {
       color: #1E5CAF;
     }
   }
-  
+
   /* Text alignment */
   & .ql-align-center {
     text-align: center;
   }
-  
+
   & .ql-align-right {
     text-align: right;
   }
-  
+
   & .ql-align-justify {
     text-align: justify;
   }
-  
+
   /* Remove default margins from first and last elements */
-  & > *:first-child {
+  &>*:first-child {
     margin-top: 0;
   }
-  
-  & > *:last-child {
+
+  &>*:last-child {
     margin-bottom: 0;
   }
 }

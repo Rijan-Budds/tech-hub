@@ -15,7 +15,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import ReturnRequestForm from "@/components/ReturnRequestForm";
 import { toast } from "sonner";
 
 export default function OrdersPage() {
@@ -197,14 +196,14 @@ export default function OrdersPage() {
                 <li>
                   <Link
                     href="/"
-                    className="hover:text-blue-600 transition-colors flex items-center space-x-1"
+                    className="hover:text-black transition-colors flex items-center space-x-1"
                   >
                     <FaArrowLeft className="text-xs" />
                     <span>Back to Home</span>
                   </Link>
                 </li>
                 <li>/</li>
-                <li className="text-gray-900 dark:text-white font-medium">
+                <li className="text-black dark:text-white font-medium">
                   My Orders
                 </li>
               </ol>
@@ -213,7 +212,7 @@ export default function OrdersPage() {
             <div className="text-center">
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 My{" "}
-                <span className="bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] bg-clip-text text-transparent">
+                <span className="bg-black bg-clip-text text-transparent">
                   Orders
                 </span>
               </h1>
@@ -275,7 +274,7 @@ export default function OrdersPage() {
                       >
                         {getStatusDisplayText(order.status)}
                       </span>
-                      <p className="text-lg font-bold text-[#0D3B66] mt-1">
+                      <p className="text-lg font-bold text-black mt-1">
                         रु{order.grandTotal?.toFixed(2)}
                       </p>
                     </div>
@@ -350,16 +349,16 @@ export default function OrdersPage() {
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Order Total
                       </p>
-                      <p className="font-bold text-lg text-[#0D3B66]">
+                      <p className="font-bold text-lg text-black">
                         रु{order.grandTotal?.toFixed(2)}
                       </p>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-end space-x-3">
-                    {/* Return Button */}
-                    {isOrderEligibleForReturn(order) && (
+                  {/* <div className="flex justify-end space-x-3"> */}
+                  {/* Return Button */}
+                  {/* {isOrderEligibleForReturn(order) && (
                       <button
                         onClick={() => setSelectedOrderForReturn(order)}
                         disabled={isSubmittingReturn}
@@ -370,17 +369,17 @@ export default function OrdersPage() {
                           {isSubmittingReturn ? "Returning..." : "Return"}
                         </span>
                       </button>
-                    )}
+                    )} */}
 
-                    {/* View Details Button */}
-                    <Link
+                  {/* View Details Button */}
+                  {/* <Link
                       href={`/orders/${order.id}`}
                       className="inline-flex items-center space-x-2 bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white px-6 py-3 rounded-xl font-semibold hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90 transition-all duration-200"
                     >
                       <FaEye className="text-sm" />
                       <span>View Details</span>
                     </Link>
-                  </div>
+                  </div> */}
                 </div>
               ))}
             </div>
@@ -390,13 +389,13 @@ export default function OrdersPage() {
       <Footer />
 
       {/* Return Request Form Modal */}
-      {selectedOrderForReturn && (
+      {/* {selectedOrderForReturn && (
         <ReturnRequestForm
           order={selectedOrderForReturn}
           onClose={() => setSelectedOrderForReturn(null)}
           onSubmit={handleReturnRequest}
         />
-      )}
+      )} */}
     </>
   );
 }

@@ -89,18 +89,17 @@ export function ProductCardActions({
         <button
           onClick={handleAddToCart}
           disabled={!inStock}
-          className={`w-full py-2 px-3 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 text-sm font-medium ${
-            inStock
-              ? "bg-gradient-to-r from-[#0D3B66] to-[#1E5CAF] text-white hover:from-[#0D3B66]/90 hover:to-[#1E5CAF]/90"
+          className={`w-full py-2 px-3 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 text-sm font-medium ${inStock
+              ? "bg-black text-white hover:bg-gray-900"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
         >
           <FaShoppingCart className="text-sm" />
           <span>{inStock ? "Add to Cart" : "Out of Stock"}</span>
         </button>
         <button
           onClick={handleToggleWishlist}
-          className="w-full border border-[#0D3B66] text-[#0D3B66] py-2 px-3 rounded-lg hover:bg-[#0D3B66] hover:text-white transition-all duration-200 flex items-center justify-center space-x-2 text-sm font-medium"
+          className="w-full border border-black text-black py-2 px-3 rounded-lg hover:bg-black hover:text-white transition-all duration-200 flex items-center justify-center space-x-2 text-sm font-medium"
         >
           <FaHeart className="text-sm" />
           <span>Wishlist</span>
